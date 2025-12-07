@@ -66,26 +66,27 @@ const FEATURES: Feature[] = [
   },
 ];
 
+// NOTE: Prices are illustrative and have been scaled up to reflect typical INR pricing.
 const PACKAGES: Package[] = [
   // Tier 1: Static / Simple
-  { name: 'Micro Portfolio', category: 'Static Single Page', description: 'Perfect for freelancers or basic personal branding.', price: 199, isPopular: false, imageUrl: 'https://placehold.co/300x200/4f46e5/ffffff?text=Portfolio', features: ['1 Page', 'Contact Form', 'Mobile Optimized'] },
-  { name: 'Business Card Site', category: 'Static Single Page', description: 'Simple digital presence with contact info and services summary.', price: 249, isPopular: false, imageUrl: 'https://placehold.co/300x200/34d399/ffffff?text=Small+Biz', features: ['1-3 Sections', 'SEO Basics', 'Free SSL'] },
+  { name: 'Micro Portfolio', category: 'Static Single Page', description: 'Perfect for freelancers or basic personal branding.', price: 15999, isPopular: false, imageUrl: 'https://placehold.co/300x200/4f46e5/ffffff?text=Portfolio', features: ['1 Page', 'Contact Form', 'Mobile Optimized'] },
+  { name: 'Business Card Site', category: 'Static Single Page', description: 'Simple digital presence with contact info and services summary.', price: 19999, isPopular: false, imageUrl: 'https://placehold.co/300x200/34d399/ffffff?text=Small+Biz', features: ['1-3 Sections', 'SEO Basics', 'Free SSL'] },
   
   // Tier 2: Content & Information
-  { name: 'Tech Blog Pro', category: 'Publishing', description: 'A fully functional platform for content creators and writers.', price: 499, isPopular: true, imageUrl: 'https://placehold.co/300x200/06b6d4/ffffff?text=Blog+Pro', features: ['Unlimited Posts', 'Comment System', 'Custom Domain'] },
-  { name: 'Educational Hub', category: 'Educational Platform', description: 'Launch online courses, tutorials, and subscription content.', price: 899, isPopular: false, imageUrl: 'https://placehold.co/300x200/f59e0b/ffffff?text=E-Learning', features: ['User Registration', 'Video Hosting Ready', 'Payment Gateway'] },
-  { name: 'Inventory Manager', category: 'Inventory Management', description: 'Internal tool for tracking stock, assets, and logistics.', price: 999, isPopular: false, imageUrl: 'https://placehold.co/300x200/7c3aed/ffffff?text=Inventory', features: ['Admin Dashboard', 'Search & Filter', 'Data Export'] },
+  { name: 'Tech Blog Pro', category: 'Publishing', description: 'A fully functional platform for content creators and writers.', price: 39999, isPopular: true, imageUrl: 'https://placehold.co/300x200/06b6d4/ffffff?text=Blog+Pro', features: ['Unlimited Posts', 'Comment System', 'Custom Domain'] },
+  { name: 'Educational Hub', category: 'Educational Platform', description: 'Launch online courses, tutorials, and subscription content.', price: 69999, isPopular: false, imageUrl: 'https://placehold.co/300x200/f59e0b/ffffff?text=E-Learning', features: ['User Registration', 'Video Hosting Ready', 'Payment Gateway'] },
+  { name: 'Inventory Manager', category: 'Inventory Management', description: 'Internal tool for tracking stock, assets, and logistics.', price: 79999, isPopular: false, imageUrl: 'https://placehold.co/300x200/7c3aed/ffffff?text=Inventory', features: ['Admin Dashboard', 'Search & Filter', 'Data Export'] },
   
   // Tier 3: E-commerce & Service
-  { name: 'Mini Shop Starter', category: 'E-commerce', description: 'Quickly start selling a small selection of products online.', price: 599, isPopular: true, imageUrl: 'https://placehold.co/300x200/ef4444/ffffff?text=E-Commerce', features: ['Up to 50 Products', 'Secure Checkout', 'Shipping Integration'] },
-  { name: 'Grocery Delivery App', category: 'Food/Grocery', description: 'Full-featured site for local grocery ordering and delivery scheduling.', price: 1299, isPopular: false, imageUrl: 'https://placehold.co/300x200/10b981/ffffff?text=Grocery+Delivery', features: ['Location-Based Service', 'Real-Time Tracking', 'Bulk Upload'] },
-  { name: 'Restaurant Digital Menu', category: 'Food Delivery', description: 'Online ordering system for pickup or local restaurant delivery.', price: 799, isPopular: false, imageUrl: 'https://placehold.co/300x200/ec4899/ffffff?text=Food+Order', features: ['Order Management', 'Customization Options', 'Daily Specials'] },
+  { name: 'Mini Shop Starter', category: 'E-commerce', description: 'Quickly start selling a small selection of products online.', price: 45999, isPopular: true, imageUrl: 'https://placehold.co/300x200/ef4444/ffffff?text=E-Commerce', features: ['Up to 50 Products', 'Secure Checkout', 'Shipping Integration'] },
+  { name: 'Grocery Delivery App', category: 'Food/Grocery', description: 'Full-featured site for local grocery ordering and delivery scheduling.', price: 99999, isPopular: false, imageUrl: 'https://placehold.co/300x200/10b981/ffffff?text=Grocery+Delivery', features: ['Location-Based Service', 'Real-Time Tracking', 'Bulk Upload'] },
+  { name: 'Restaurant Digital Menu', category: 'Food Delivery', description: 'Online ordering system for pickup or local restaurant delivery.', price: 65999, isPopular: false, imageUrl: 'https://placehold.co/300x200/ec4899/ffffff?text=Food+Order', features: ['Order Management', 'Customization Options', 'Daily Specials'] },
 
   // Tier 4: Specialized Systems
-  { name: 'Library System', category: 'Library Management', description: 'Digital catalog and booking system for public or private collections.', price: 1499, isPopular: false, imageUrl: 'https://placehold.co/300x200/0ea5e9/ffffff?text=Library+System', features: ['Member Login', 'Search by ISBN', 'Automated Reminders'] },
-  { name: 'Event Management', category: 'Event Ticketing', description: 'Manage and sell tickets for small-to-medium sized events.', price: 1099, isPopular: false, imageUrl: 'https://placehold.co/300x200/9333ea/ffffff?text=Events', features: ['Ticket Generation', 'QR Code Check-in', 'Revenue Reporting'] },
-  { name: 'Real Estate Listings', category: 'Property Management', description: 'Showcase and manage property listings with advanced filtering.', price: 1199, isPopular: true, imageUrl: 'https://placehold.co/300x200/d97706/ffffff?text=Real+Estate', features: ['High-Res Gallery', 'Map Integration', 'Agent Contact Forms'] },
-  { name: 'Custom B2B Portal', category: 'Enterprise', description: 'A foundational scaffold for a custom business-to-business portal.', price: 1999, isPopular: false, imageUrl: 'https://placehold.co/300x200/1f2937/ffffff?text=Enterprise+B2B', features: ['User Roles & Permissions', 'API Ready', 'Dedicated Support'] },
+  { name: 'Library System', category: 'Library Management', description: 'Digital catalog and booking system for public or private collections.', price: 119999, isPopular: false, imageUrl: 'https://placehold.co/300x200/0ea5e9/ffffff?text=Library+System', features: ['Member Login', 'Search by ISBN', 'Automated Reminders'] },
+  { name: 'Event Management', category: 'Event Ticketing', description: 'Manage and sell tickets for small-to-medium sized events.', price: 89999, isPopular: false, imageUrl: 'https://placehold.co/300x200/9333ea/ffffff?text=Events', features: ['Ticket Generation', 'QR Code Check-in', 'Revenue Reporting'] },
+  { name: 'Real Estate Listings', category: 'Property Management', description: 'Showcase and manage property listings with advanced filtering.', price: 95999, isPopular: true, imageUrl: 'https://placehold.co/300x200/d97706/ffffff?text=Real+Estate', features: ['High-Res Gallery', 'Map Integration', 'Agent Contact Forms'] },
+  { name: 'Custom B2B Portal', category: 'Enterprise', description: 'A foundational scaffold for a custom business-to-business portal.', price: 149999, isPopular: false, imageUrl: 'https://placehold.co/300x200/1f2937/ffffff?text=Enterprise+B2B', features: ['User Roles & Permissions', 'API Ready', 'Dedicated Support'] },
 ];
 
 
@@ -180,8 +181,9 @@ const PackageCard: React.FC<PackageCardProps> = ({ pkg }) => {
         
         <div className="mt-8 pt-6 border-t border-gray-100">
           <p className="text-3xl font-extrabold text-gray-900">
-            <span className="text-xl font-normal align-top">$</span>
-            {pkg.price}
+            {/* Currency Change: $ to ₹ (Indian Rupee Symbol) */}
+            <span className="text-xl font-normal align-top">₹</span>
+            {pkg.price.toLocaleString('en-IN')} {/* Formatting price with Indian locale */}
             <span className="text-base font-medium text-gray-500"> / one-time fee</span>
           </p>
           {/* FIX: Replaced interactive button with static anchor tag to eliminate the onClick event handler and resolve the Server Component error. */}
