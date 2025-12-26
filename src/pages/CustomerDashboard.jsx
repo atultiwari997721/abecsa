@@ -11,6 +11,7 @@ const CustomerDashboard = () => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [websites, setWebsites] = useState([]);
+  const [customerName, setCustomerName] = useState('');
   
   const chatContainerRef = useRef(null);
 
@@ -18,9 +19,16 @@ const CustomerDashboard = () => {
     if (!loading && !user) navigate('/login');
   }, [user, loading, navigate]);
 
-  // Fetch Data (Websites & Messages)
+  // Fetch Data (Websites, Messages & Profile Name)
   useEffect(() => {
     if (!user) return;
+
+    // 0. Fetch Profile Name (Directly to ensure it appears)
+    const fetchProfileName = async () => {
+        const { data } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+        if (data && data.full_name) setCustomerName(data.full_name);
+    };
+    fetchProfileName();
 
     // 1. Fetch Websites
     const fetchWebsites = async () => {
@@ -132,7 +140,7 @@ const CustomerDashboard = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <FaUserCircle size={40} color="var(--primary-color)" />
           <div>
-            <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Welcome, {profile?.full_name || user.email}</h1>
+            <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Welcome, {customerName || profile?.full_name || user.email}</h1>
             <span style={{ fontSize: '0.9rem', color: '#888' }}>Customer Dashboard</span>
           </div>
         </div>

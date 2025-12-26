@@ -8,7 +8,8 @@ create table if not exists profiles (
   full_name text,
   role text check (role in ('admin', 'marketing_manager', 'customer')),
   email text,
-  visible_password text -- Storing password for Admin visibility (Insecure but requested)
+  visible_password text, -- Storing password for Admin visibility (Insecure but requested)
+  manager_id uuid references auth.users(id)
 );
 alter table profiles enable row level security;
 
@@ -51,6 +52,16 @@ begin
   -- Fix Profiles (Add visible_password)
   if not exists (select 1 from information_schema.columns where table_name='profiles' and column_name='visible_password') then
     alter table profiles add column visible_password text;
+  end if;
+
+  -- Fix Profiles (Add manager_id)
+  if not exists (select 1 from information_schema.columns where table_name='profiles' and column_name='manager_id') then
+    alter table profiles add column manager_id uuid references auth.users(id);
+  end if;
+
+  -- Fix Websites (Add user_id)
+  if not exists (select 1 from information_schema.columns where table_name='websites' and column_name='user_id') then
+    alter table websites add column user_id uuid references auth.users(id);
   end if;
 end $$;
 

@@ -9,6 +9,7 @@ const MarketingManagerDashboard = ({ managerId }) => {
   const navigate = useNavigate();
   const { user, profile, signOut, loading } = useAuth();
   const [websitesSold, setWebsitesSold] = useState([]);
+  const [assignedCustomers, setAssignedCustomers] = useState([]);
   const [managerName, setManagerName] = useState('');
 
   useEffect(() => {
@@ -26,13 +27,21 @@ const MarketingManagerDashboard = ({ managerId }) => {
      if (!targetId) return;
 
      const fetchMyData = async () => {
-          // Fetch Sales
+          // Fetch Sales (Websites)
           const { data: sales, error: salesError } = await supabase
               .from('websites')
               .select('*')
               .eq('manager_id', targetId);
           
           if (!salesError) setWebsitesSold(sales || []);
+
+          // Fetch Assigned Customers
+          const { data: clients, error: clientsError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('manager_id', targetId);
+
+          if (!clientsError) setAssignedCustomers(clients || []);
 
           // If impersonating (Admin View), fetch Manager's Name
           if (managerId) {
@@ -119,7 +128,7 @@ const MarketingManagerDashboard = ({ managerId }) => {
           <FaChartLine size={40} color="#bc13fe" />
           <div>
             <h3 style={{ margin: 0, fontSize: '2.5rem' }}>{totalSold}</h3>
-            <span style={{ color: '#aaa' }}>Total Websites Sold</span>
+            <span style={{ color: '#aaa' }}>Total Sales</span>
           </div>
         </div>
 
@@ -139,57 +148,122 @@ const MarketingManagerDashboard = ({ managerId }) => {
             <span style={{ color: '#aaa' }}>Live Websites</span>
           </div>
         </div>
+
+         <div style={{ 
+          flex: 1, 
+          background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05))',
+          border: '1px solid rgba(212, 175, 55, 0.3)',
+          borderRadius: '15px',
+          padding: '2rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1.5rem'
+        }}>
+          <FaUsers size={40} color="#D4AF37" />
+          <div>
+            <h3 style={{ margin: 0, fontSize: '2.5rem' }}>{assignedCustomers.length}</h3>
+            <span style={{ color: '#aaa' }}>Assigned Clients</span>
+          </div>
+        </div>
       </div>
 
-      {/* Sales List Section */}
-      <div>
-        <h2 style={{ borderLeft: '4px solid #bc13fe', paddingLeft: '10px', marginBottom: '1.5rem' }}>
-          <FaUsers style={{ marginRight: '10px', verticalAlign: 'middle' }} />
-          My Sales
-        </h2>
-        
-        <div style={{ 
-          background: 'rgba(255,255,255,0.05)', 
-          borderRadius: '15px', 
-          overflow: 'hidden',
-          border: '1px solid rgba(255,255,255,0.1)'
-        }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
-            <thead>
-              <tr style={{ background: 'rgba(0,0,0,0.3)', textAlign: 'left' }}>
-                <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Website / Client Name</th>
-                <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>URL</th>
-                <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {websitesSold.length === 0 ? (
-                <tr>
-                   <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>No sales found. Contact Admin to link your sales.</td>
-                </tr>
-              ) : (
-                websitesSold.map((site, index) => (
-                  <tr key={index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '1rem', fontWeight: 'bold' }}>{site.name}</td>
-                    <td style={{ padding: '1rem', color: '#aaa' }}><a href={site.url} style={{color:'#2b7de9'}} target="_blank" rel="noreferrer">{site.url || '-'}</a></td>
-                    <td style={{ padding: '1rem' }}>
-                      <span style={{
-                         padding: '0.3rem 0.8rem',
-                         borderRadius: '20px',
-                         fontSize: '0.8rem',
-                         background: site.status === 'Live' ? 'rgba(0,255,136,0.1)' : 'rgba(245, 183, 0, 0.1)',
-                         color: site.status === 'Live' ? '#00ff88' : '#f5b700',
-                         border: `1px solid ${site.status === 'Live' ? '#00ff88' : '#f5b700'}`
-                      }}>
-                        {site.status}
-                      </span>
-                    </td>
+      <div style={{ display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
+          
+          {/* Websites List */}
+          <div>
+            <h2 style={{ borderLeft: '4px solid #bc13fe', paddingLeft: '10px', marginBottom: '1.5rem' }}>
+              <FaGlobe style={{ marginRight: '10px', verticalAlign: 'middle' }} />
+              Sold Websites
+            </h2>
+            
+            <div style={{ 
+              background: 'rgba(255,255,255,0.05)', 
+              borderRadius: '15px', 
+              overflow: 'hidden',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+                <thead>
+                  <tr style={{ background: 'rgba(0,0,0,0.3)', textAlign: 'left' }}>
+                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Website Name</th>
+                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>URL</th>
+                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Status</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {websitesSold.length === 0 ? (
+                    <tr>
+                       <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>No websites found.</td>
+                    </tr>
+                  ) : (
+                    websitesSold.map((site, index) => (
+                      <tr key={index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <td style={{ padding: '1rem', fontWeight: 'bold' }}>{site.name}</td>
+                        <td style={{ padding: '1rem', color: '#aaa' }}><a href={site.url} style={{color:'#2b7de9'}} target="_blank" rel="noreferrer">{site.url || '-'}</a></td>
+                        <td style={{ padding: '1rem' }}>
+                          <span style={{
+                             padding: '0.3rem 0.8rem',
+                             borderRadius: '20px',
+                             fontSize: '0.8rem',
+                             background: site.status === 'Live' ? 'rgba(0,255,136,0.1)' : 'rgba(245, 183, 0, 0.1)',
+                             color: site.status === 'Live' ? '#00ff88' : '#f5b700',
+                             border: `1px solid ${site.status === 'Live' ? '#00ff88' : '#f5b700'}`
+                          }}>
+                            {site.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Assigned Clients List */}
+          <div>
+            <h2 style={{ borderLeft: '4px solid #D4AF37', paddingLeft: '10px', marginBottom: '1.5rem', color: '#D4AF37' }}>
+              <FaUsers style={{ marginRight: '10px', verticalAlign: 'middle' }} />
+              Assigned Clients
+            </h2>
+            
+            <div style={{ 
+              background: 'rgba(255,255,255,0.05)', 
+              borderRadius: '15px', 
+              overflow: 'hidden',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+                <thead>
+                  <tr style={{ background: 'rgba(0,0,0,0.3)', textAlign: 'left' }}>
+                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Name</th>
+                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Email</th>
+                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Role</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {assignedCustomers.length === 0 ? (
+                    <tr>
+                       <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>No clients assigned yet.</td>
+                    </tr>
+                  ) : (
+                    assignedCustomers.map((client, index) => (
+                      <tr key={index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <td style={{ padding: '1rem', fontWeight: 'bold' }}>{client.full_name}</td>
+                        <td style={{ padding: '1rem', color: '#aaa' }}>{client.email}</td>
+                        <td style={{ padding: '1rem' }}>
+                            <span style={{ background: '#333', padding: '0.2rem 0.6rem', borderRadius: '5px', fontSize: '0.8rem' }}>
+                                {client.role.replace('_', ' ')}
+                            </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
       </div>
 
     </div>

@@ -122,9 +122,158 @@ const CreateUserModal = ({ onClose }) => {
     );
 };
 
+// --- All Websites Modal (Repository) ---
+const AllWebsitesModal = ({ websites, profiles, onClose, onRefresh }) => {
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [newSite, setNewSite] = useState({ name: '', url: '', status: 'Pending', plan: 'Standard', userId: '' });
+    const [loading, setLoading] = useState(false);
+
+    const handleAddWebsite = async (e) => {
+        e.preventDefault();
+        if (!newSite.userId) {
+            alert("Please assign a user to this website.");
+            return;
+        }
+        setLoading(true);
+
+        // Find the user to get their assigned manager
+        const assignedUser = profiles.find(p => p.id === newSite.userId);
+        const managerId = assignedUser ? assignedUser.manager_id : null;
+
+        const payload = {
+            name: newSite.name,
+            url: newSite.url,
+            status: newSite.status,
+            plan: newSite.plan,
+            user_id: newSite.userId,
+            manager_id: managerId // Link to manager for sales tracking
+        };
+
+        const { error } = await supabase.from('websites').insert([payload]);
+
+        if (error) {
+            alert("Error adding website: " + error.message);
+        } else {
+            alert("Website added and assigned successfully!");
+            setShowAddForm(false);
+            setNewSite({ name: '', url: '', status: 'Pending', plan: 'Standard', userId: '' });
+            onRefresh();
+        }
+        setLoading(false);
+    };
+
+    const handleUpdateStatus = async (websiteId, newStatus) => {
+        const { error } = await supabase.from('websites').update({ status: newStatus }).eq('id', websiteId);
+        if (error) alert("Error updating status: " + error.message);
+        else onRefresh();
+    };
+
+    return (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(5px)' }}>
+            <div style={{ background: '#0a0a0a', width: '90%', height: '90%', borderRadius: '25px', border: '1px solid #00ff88', display: 'flex', flexDirection: 'column', padding: '2.5rem', boxShadow: '0 0 50px rgba(0, 255, 136, 0.2)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', borderBottom: '1px solid rgba(0, 255, 136, 0.2)', paddingBottom: '1rem' }}>
+                    <h2 style={{ margin: 0, color: '#00ff88', display: 'flex', alignItems: 'center', gap: '1rem', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '1.8rem' }}><FaGlobe /> All Websites Repository</h2>
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <button onClick={() => setShowAddForm(!showAddForm)} style={{ background: '#00ff88', color: '#000', border: 'none', padding: '0.5rem 1rem', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <FaPlus /> {showAddForm ? 'Cancel' : 'Add Website'}
+                        </button>
+                        <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer', opacity: 0.7 }}><FaTimes /></button>
+                    </div>
+                </div>
+
+                {showAddForm && (
+                    <div style={{ marginBottom: '2rem', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333' }}>
+                        <h3 style={{ marginTop: 0, color: '#fff' }}>Add New Website</h3>
+                        <form onSubmit={handleAddWebsite} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                            <input type="text" placeholder="Website Name" required value={newSite.name} onChange={e => setNewSite({...newSite, name: e.target.value})} className="dark-input" />
+                            <input type="text" placeholder="URL (e.g. example.com)" required value={newSite.url} onChange={e => setNewSite({...newSite, url: e.target.value})} className="dark-input" />
+                            <select value={newSite.status} onChange={e => setNewSite({...newSite, status: e.target.value})} className="dark-input">
+                                <option value="Pending">Pending</option>
+                                <option value="Live">Live</option>
+                                <option value="Maintenance">Maintenance</option>
+                            </select>
+                            <select value={newSite.plan} onChange={e => setNewSite({...newSite, plan: e.target.value})} className="dark-input">
+                                <option value="Standard">Standard</option>
+                                <option value="Premium">Premium</option>
+                                <option value="Enterprise">Enterprise</option>
+                            </select>
+                            <select value={newSite.userId} onChange={e => setNewSite({...newSite, userId: e.target.value})} className="dark-input" required>
+                                <option value="">Assign to User...</option>
+                                {profiles.filter(p => p.role === 'customer').map(p => (
+                                    <option key={p.id} value={p.id}>{p.full_name} ({p.email})</option>
+                                ))}
+                            </select>
+                            <button type="submit" disabled={loading} style={{ background: '#00ff88', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                                {loading ? 'Saving...' : 'Save Website'}
+                            </button>
+                        </form>
+                    </div>
+                )}
+
+                <div style={{ flex: 1, overflowY: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ddd', fontSize: '0.95rem' }}>
+                        <thead>
+                            <tr style={{ background: 'linear-gradient(90deg, #111, #222)', textAlign: 'left', borderBottom: '2px solid #00ff88' }}>
+                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Website Name</th>
+                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>URL</th>
+                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Assigned To</th>
+                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Status</th>
+                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Plan</th>
+                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {websites.map((site) => {
+                                const owner = profiles.find(p => p.id === site.user_id);
+                                return (
+                                    <tr key={site.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                        <td style={{ padding: '1.2rem', fontWeight: 'bold' }}>{site.name}</td>
+                                        <td style={{ padding: '1.2rem', color: '#aaa', fontFamily: 'monospace' }}>{site.url || '-'}</td>
+                                        <td style={{ padding: '1.2rem', color: '#fff' }}>{owner ? owner.full_name : <span style={{color:'#666'}}>Unassigned</span>}</td>
+                                        <td style={{ padding: '1.2rem' }}>
+                                            <select 
+                                                value={site.status} 
+                                                onChange={(e) => handleUpdateStatus(site.id, e.target.value)}
+                                                className={`status-badge ${site.status === 'Live' ? 'live' : 'pending'}`}
+                                                style={{ border: 'none', cursor: 'pointer', outline: 'none' }}
+                                            >
+                                                <option value="Pending" style={{color:'#000'}}>Pending</option>
+                                                <option value="Live" style={{color:'#000'}}>Live</option>
+                                                <option value="Maintenance" style={{color:'#000'}}>Maintenance</option>
+                                            </select>
+                                        </td>
+                                        <td style={{ padding: '1.2rem' }}>{site.plan || 'Standard'}</td>
+                                        <td style={{ padding: '1.2rem' }}>
+                                            {site.url && (
+                                                <a 
+                                                    href={site.url.startsWith('http') ? site.url : `https://${site.url}`} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    style={{ color: '#00ff88', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}
+                                                >
+                                                    <FaLink /> Open
+                                                </a>
+                                            )}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // --- Global Master List (Admins, Managers, Customers) ---
 const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
     const [filterRole, setFilterRole] = useState('ALL');
+    const [managers, setManagers] = useState([]);
+
+    useEffect(() => {
+        setManagers(profiles.filter(p => p.role === 'marketing_manager'));
+    }, [profiles]);
 
     const handleDeleteUser = async (userId, userRole) => {
         if (window.confirm(`Are you sure you want to delete this ${userRole}? This action cannot be undone.`)) {
@@ -135,6 +284,26 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
                 alert("User deleted successfully.");
                 onRefresh();
             }
+        }
+    };
+
+    const handleAssignManager = async (customerId, managerId) => {
+        // 1. Update Profile
+        const { error } = await supabase.from('profiles').update({ manager_id: managerId || null }).eq('id', customerId);
+        
+        if (error) {
+            alert("Error assigning manager: " + error.message);
+        } else {
+            // 2. Auto-Link User's existing websites to this Manager (So they show in sales)
+            if (managerId) {
+                await supabase.from('websites').update({ manager_id: managerId }).eq('user_id', customerId);
+            } else {
+                // Optional: If unassigning manager, should we unassign websites?
+                // For now, let's keep them linked or unassign them. Let's unassign for consistency.
+                await supabase.from('websites').update({ manager_id: null }).eq('user_id', customerId);
+            }
+
+            onRefresh(); 
         }
     };
 
@@ -177,6 +346,7 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
                                 <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Role</th>
                                 <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Email</th>
                                 <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Password</th>
+                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Assigned Manager</th>
                                 <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Action</th>
                             </tr>
                         </thead>
@@ -198,6 +368,22 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
                                         {user.visible_password ? (
                                              <PasswordDisplay password={user.visible_password} />
                                         ) : <span style={{color:'#666', fontStyle:'italic'}}>Hidden/Old</span>}
+                                    </td>
+                                    <td style={{ padding: '1.2rem' }}>
+                                        {user.role === 'customer' ? (
+                                            <select 
+                                                value={user.manager_id || ''} 
+                                                onChange={(e) => handleAssignManager(user.id, e.target.value)}
+                                                style={{ background: '#222', color: '#fff', border: '1px solid #444', padding: '0.4rem', borderRadius: '5px' }}
+                                            >
+                                                <option value="">Unassigned</option>
+                                                {managers.map(mgr => (
+                                                    <option key={mgr.id} value={mgr.id}>{mgr.full_name}</option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            <span style={{ color: '#555' }}>-</span>
+                                        )}
                                     </td>
                                     <td style={{ padding: '1.2rem' }}>
                                         <button 
@@ -223,10 +409,15 @@ const ManagersList = ({ managers, customers, websites, onViewDashboard }) => {
     // Group websites by manager
     const getManagerSales = (managerId) => websites.filter(w => w.manager_id === managerId);
 
+    // Get Assigned Customers
+    const getAssignedCustomers = (managerId) => customers.filter(c => c.manager_id === managerId);
+
     return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
             {managers.map(mgr => {
                 const sales = getManagerSales(mgr.id);
+                const assigned = getAssignedCustomers(mgr.id);
+                
                 return (
                     <div key={mgr.id} style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)' }}>
                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -235,16 +426,17 @@ const ManagersList = ({ managers, customers, websites, onViewDashboard }) => {
                                 <p style={{ color: '#888', fontSize: '0.9rem', margin: '5px 0' }}>{mgr.email}</p>
                                 {mgr.visible_password && <PasswordDisplay password={mgr.visible_password} />}
                             </div>
-                            <span style={{ background: '#8a2be2', color: '#fff', padding: '0.2rem 0.6rem', borderRadius: '10px', fontSize: '0.8rem' }}>
-                                {sales.length} Sales
-                            </span>
+                            <div style={{ textAlign: 'right' }}>
+                                 <span style={{ background: '#8a2be2', color: '#fff', padding: '0.2rem 0.6rem', borderRadius: '10px', fontSize: '0.8rem', display: 'block', marginBottom: '5px' }}>
+                                    {sales.length} Sales
+                                </span>
+                                <span style={{ background: '#D4AF37', color: '#000', padding: '0.2rem 0.6rem', borderRadius: '10px', fontSize: '0.8rem', display: 'block' }}>
+                                    {assigned.length} Users
+                                </span>
+                            </div>
                          </div>
                          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.5rem', marginBottom: '1rem' }}>
-                             {sales.length > 0 ? (
-                                 <ul style={{ paddingLeft: '1.2rem', color: '#aaa', fontSize: '0.9rem' }}>
-                                     {sales.map(s => <li key={s.id}>{s.name}</li>)}
-                                 </ul>
-                             ) : <p style={{ color: '#666', fontSize: '0.9rem', fontStyle: 'italic' }}>No active sales</p>}
+                             {/* Sales list hidden as per request */}
                          </div>
                          <button onClick={() => onViewDashboard(mgr.id)} style={{ width: '100%', padding: '0.8rem', background: 'rgba(138, 43, 226, 0.1)', border: '1px solid #8a2be2', color: '#8a2be2', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                              <FaGlobe /> View Dashboard
@@ -281,6 +473,7 @@ const AdminDashboard = () => {
     const [selectedUserForChat, setSelectedUserForChat] = useState(null);
     const [replyMessage, setReplyMessage] = useState('');
     const [showGlobalList, setShowGlobalList] = useState(false);
+    const [showSitesList, setShowSitesList] = useState(false);
     
     const chatContainerRef = useRef(null);
 
@@ -327,12 +520,28 @@ const AdminDashboard = () => {
 
     useEffect(() => {
         fetchData();
+        
+        // Subscribe to Messages (Append new ones)
         const msgSub = supabase.channel('admin-messages')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
                 setMessages(prev => [...prev, payload.new]);
             })
             .subscribe();
-        return () => { supabase.removeChannel(msgSub); };
+
+        // Subscribe to Realtime Updates for Profiles & Websites (Auto-Refresh)
+        const globalSub = supabase.channel('admin-global-updates')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+                fetchData();
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'websites' }, () => {
+                fetchData();
+            })
+            .subscribe();
+
+        return () => { 
+            supabase.removeChannel(msgSub); 
+            supabase.removeChannel(globalSub);
+        };
     }, []);
 
     useEffect(() => {
@@ -355,6 +564,26 @@ const AdminDashboard = () => {
         }]);
         if (error) alert("Failed to send: " + error.message);
         else setReplyMessage('');
+    };
+
+    const handleDeleteConversation = async () => {
+        if (!selectedUserForChat || !window.confirm("Are you sure you want to delete this entire conversation?")) return;
+        
+        // Delete messages where sender OR receiver is the selected user (conversation logic)
+        // Since we store all messages flat in 'messages' table, we find by conversation_id or sender
+        /* 
+           Ideally, we have a conversation ID. The current implementation uses userId as conversationId.
+           So we delete messages where conversation_id = selectedUserForChat OR sender_id = selectedUserForChat
+        */
+        
+        const { error } = await supabase.from('messages').delete().or(`conversation_id.eq.${selectedUserForChat},sender_id.eq.${selectedUserForChat}`);
+        
+        if (error) alert("Error deleting chat: " + error.message);
+        else {
+            alert("Conversation cleared.");
+            setMessages(prev => prev.filter(m => m.conversation_id !== selectedUserForChat && m.sender_id !== selectedUserForChat));
+            setSelectedUserForChat(null);
+        }
     };
 
     // If Viewing a Manager, render that dashboard
@@ -394,17 +623,17 @@ const AdminDashboard = () => {
 
             {/* Quick Stats */}
             <div className="admin-stats-row">
-                <div style={{ flex: 1, minWidth: '200px', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333' }}>
+                <div style={{ flex: 1, minWidth: '200px', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333', cursor: 'pointer', transition: 'border-color 0.2s' }} onClick={() => setShowGlobalList(true)} onMouseEnter={e => e.currentTarget.style.borderColor = '#D4AF37'} onMouseLeave={e => e.currentTarget.style.borderColor = '#333'}>
                     <h3 style={{ margin: 0, fontSize: '2rem', color: '#D4AF37' }}>{profiles.length}</h3>
-                    <p style={{ color: '#888', margin: 0 }}>Total Users</p>
+                    <p style={{ color: '#888', margin: 0 }}>Total Users (Click to View)</p>
                 </div>
                 <div style={{ flex: 1, minWidth: '200px', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333' }}>
                     <h3 style={{ margin: 0, fontSize: '2rem', color: '#2b7de9' }}>{profiles.filter(p => p.role === 'admin').length}</h3>
                     <p style={{ color: '#888', margin: 0 }}>Admins</p>
                 </div>
-                <div style={{ flex: 1, minWidth: '200px', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333' }}>
+                <div style={{ flex: 1, minWidth: '200px', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333', cursor: 'pointer', transition: 'border-color 0.2s' }} onClick={() => setShowSitesList(true)} onMouseEnter={e => e.currentTarget.style.borderColor = '#00ff88'} onMouseLeave={e => e.currentTarget.style.borderColor = '#333'}>
                     <h3 style={{ margin: 0, fontSize: '2rem', color: '#00ff88' }}>{activeSites}</h3>
-                    <p style={{ color: '#888', margin: 0 }}>Live Websites</p>
+                    <p style={{ color: '#888', margin: 0 }}>Live Websites (Click to View)</p>
                 </div>
                  <div style={{ flex: 1, minWidth: '200px', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333', cursor: 'pointer', transition: 'border-color 0.2s' }} onClick={() => setShowGlobalList(true)} onMouseEnter={e => e.currentTarget.style.borderColor = '#D4AF37'} onMouseLeave={e => e.currentTarget.style.borderColor = '#333'}>
                     <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}><FaUsers /> Master List</h3>
@@ -453,8 +682,11 @@ const AdminDashboard = () => {
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                             {selectedUserForChat ? (
                                 <>
-                                    <div style={{ padding: '0.8rem', background: '#222', fontSize: '0.9rem', color: '#fff' }}>
-                                        Chatting with: <strong>{conversations[selectedUserForChat]?.name}</strong>
+                                    <div style={{ padding: '0.8rem', background: '#222', fontSize: '0.9rem', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span>Chatting with: <strong>{conversations[selectedUserForChat]?.name}</strong></span>
+                                        <button onClick={handleDeleteConversation} style={{ background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', padding: '0.2rem 0.6rem', borderRadius: '5px', fontSize: '0.7rem', cursor: 'pointer', display: 'flex', gap: '5px', alignItems: 'center' }}>
+                                            <FaTrash /> Clear Chat
+                                        </button>
                                     </div>
                                     <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                         {messages.filter(m => (m.conversation_id === selectedUserForChat || m.sender_id === selectedUserForChat) && m.conversation_id).map((msg, i) => {
@@ -494,6 +726,15 @@ const AdminDashboard = () => {
                     profiles={profiles} 
                     websites={websites} 
                     onClose={() => setShowGlobalList(false)}
+                    onRefresh={fetchData}
+                />
+            )}
+
+            {showSitesList && (
+                <AllWebsitesModal 
+                    websites={websites} 
+                    profiles={profiles}
+                    onClose={() => setShowSitesList(false)}
                     onRefresh={fetchData}
                 />
             )}
