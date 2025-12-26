@@ -269,6 +269,7 @@ const AllWebsitesModal = ({ websites, profiles, onClose, onRefresh }) => {
 // --- Global Master List (Admins, Managers, Customers) ---
 const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
     const [filterRole, setFilterRole] = useState('ALL');
+    const [searchQuery, setSearchQuery] = useState('');
     const [managers, setManagers] = useState([]);
 
     useEffect(() => {
@@ -307,7 +308,12 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
         }
     };
 
-    const filteredProfiles = profiles.filter(p => filterRole === 'ALL' ? true : p.role === filterRole);
+    const filteredProfiles = profiles.filter(p => {
+        const matchesRole = filterRole === 'ALL' ? true : p.role === filterRole;
+        const matchesSearch = (p.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              (p.email || '').toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesRole && matchesSearch;
+    });
 
     return (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(5px)' }}>
@@ -317,7 +323,16 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
                     <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer', opacity: 0.7 }}><FaTimes /></button>
                 </div>
 
-                <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem' }}>
+                <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <input 
+                        type="text" 
+                        placeholder="Search users by name or email..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="dark-input"
+                        style={{ flex: 1, minWidth: '200px', maxWidth: '400px' }}
+                    />
+                    <div style={{ display: 'flex', gap: '1rem' }}>
                     {['ALL', 'admin', 'marketing_manager', 'customer'].map(role => (
                         <button 
                             key={role}
@@ -336,6 +351,7 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
                             {role.replace('_', ' ')}
                         </button>
                     ))}
+                    </div>
                 </div>
 
                 <div style={{ flex: 1, overflowY: 'auto' }}>
