@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift } from 'react-icons/fa';
+import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift, FaUpload, FaCopy } from 'react-icons/fa';
 import '../styles/global.css';
 import { supabase } from '../supabaseClient';
 import { createClient } from '@supabase/supabase-js'; // For non-persisting client
@@ -328,6 +328,96 @@ const AssignAssetModal = ({ profiles, onClose, onRefresh }) => {
     );
 };
 
+// --- Image Upload Modal ---
+const ImageUploadModal = ({ onClose }) => {
+    const [file, setFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [uploadedUrl, setUploadedUrl] = useState('');
+
+    const handleUpload = async (e) => {
+        e.preventDefault();
+        if (!file) return;
+
+        setUploading(true);
+        // Create unique file path: timestamp_filename
+        const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '-')}`;
+        
+        const { data, error } = await supabase.storage
+            .from('public-files')
+            .upload(fileName, file);
+
+        if (error) {
+            alert("Upload failed: " + error.message);
+        } else {
+            // Construct Public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('public-files')
+                .getPublicUrl(fileName);
+            
+            setUploadedUrl(publicUrl);
+        }
+        setUploading(false);
+    };
+
+    return (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: '#111', padding: '2.5rem', borderRadius: '20px', width: '90%', maxWidth: '500px', border: '1px solid #00ff88' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
+                    <h3 style={{ margin: 0, color: '#00ff88', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaUpload /> Upload Image</h3>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}><FaTimes /></button>
+                </div>
+                
+                {!uploadedUrl ? (
+                    <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div style={{ border: '2px dashed #444', padding: '2rem', borderRadius: '10px', textAlign: 'center', color: '#888' }}>
+                            <input 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={e => setFile(e.target.files[0])}
+                                style={{ display: 'none' }}
+                                id="file-upload"
+                            />
+                            <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'block' }}>
+                                {file ? (
+                                    <span style={{ color: '#fff' }}>{file.name}</span>
+                                ) : (
+                                    <span>Click to Select Image</span>
+                                )}
+                            </label>
+                        </div>
+
+                        <button type="submit" disabled={!file || uploading} style={{ background: '#00ff88', color:'#000', border: 'none', padding: '1rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                            {uploading ? 'Uploading...' : 'Upload Now'}
+                        </button>
+                    </form>
+                ) : (
+                    <div style={{ textAlign: 'center' }}>
+                        <p style={{ color: '#ddd' }}>Image Uploaded Successfully!</p>
+                        <div style={{ background: '#222', padding: '1rem', borderRadius: '10px', wordBreak: 'break-all', fontFamily: 'monospace', fontSize: '0.85rem', marginBottom: '1rem', border:'1px solid #333' }}>
+                            {uploadedUrl}
+                        </div>
+                        <img src={uploadedUrl} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', marginBottom: '1rem', borderRadius: '5px' }} />
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                            <button 
+                                onClick={() => { navigator.clipboard.writeText(uploadedUrl); alert('URL Copied!'); }}
+                                style={{ flex: 1, background: '#D4AF37', border: 'none', padding: '0.8rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}
+                            >
+                                <FaCopy /> Copy URL
+                            </button>
+                            <button 
+                                onClick={() => { setUploadedUrl(''); setFile(null); }}
+                                style={{ flex: 1, background: 'transparent', border: '1px solid #666', color: '#aaa', padding: '0.8rem', borderRadius: '8px', cursor: 'pointer' }}
+                            >
+                                Upload Another
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
 // --- Global Master List (Admins, Managers, Customers) ---
 const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
     const [filterRole, setFilterRole] = useState('ALL');
@@ -543,6 +633,7 @@ const AdminDashboard = () => {
     const [viewingManagerId, setViewingManagerId] = useState(null);
     const [showCreateUser, setShowCreateUser] = useState(false);
     const [showAssignAsset, setShowAssignAsset] = useState(false);
+    const [showImageUpload, setShowImageUpload] = useState(false);
 
     const [profiles, setProfiles] = useState([]);
     const [websites, setWebsites] = useState([]);
@@ -697,6 +788,9 @@ const AdminDashboard = () => {
                     <button onClick={() => setShowAssignAsset(true)} style={{ background: '#8a2be2', border: 'none', color: '#fff', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', fontWeight: 'bold' }}>
                         <FaGift /> Assign Asset
                     </button>
+                    <button onClick={() => setShowImageUpload(true)} style={{ background: '#2b7de9', border: 'none', color: '#fff', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', fontWeight: 'bold' }}>
+                        <FaUpload /> Upload Image
+                    </button>
                     <button onClick={() => { signOut(); navigate('/login'); }} style={{ background: 'transparent', border: '1px solid #ff0055', color: '#ff0055', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                         <FaSignOutAlt /> Logout
                     </button>
@@ -827,6 +921,10 @@ const AdminDashboard = () => {
 
             {showAssignAsset && (
                 <AssignAssetModal profiles={profiles} onClose={() => setShowAssignAsset(false)} onRefresh={fetchData} />
+            )}
+
+            {showImageUpload && (
+                <ImageUploadModal onClose={() => setShowImageUpload(false)} />
             )}
 
             {/* CSS Helper for inputs inside Modal */}
