@@ -6,7 +6,7 @@ import { config } from '../config';
 const packages = [
   {
     title: "Student/College Project",
-    price: "₹599",
+    price: "₹699",
     features: ["Basic HTML/CSS/JS", "Project Report Help", "Source Code Included", "Fast Delivery"],
     color: "#00ff88", // Neon Green
     previewImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1000&auto=format&fit=crop",
@@ -14,7 +14,7 @@ const packages = [
   },
   {
     title: "Basic Portfolio / Resume",
-    price: "₹499",
+    price: "₹799",
     features: ["Responsive Design", "Contact Form", "Social Media Links", "1 Month Support"],
     color: "#00f3ff", // Neon Cyan
     previewImage: "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1000&auto=format&fit=crop",
@@ -22,7 +22,7 @@ const packages = [
   },
   {
     title: "Small Shop / Local Business",
-    price: "₹999",
+    price: "₹1,799",
     features: ["Google Maps Integration", "Product Gallery", "WhatsApp Order", "SEO Basics"],
     color: "#ffaa00", // Neon Orange
     previewImage: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=1000&auto=format&fit=crop",
@@ -30,7 +30,7 @@ const packages = [
   },
   {
     title: "Professional Business Website",
-    price: "₹1,999",
+    price: "₹2,799",
     features: ["5-7 Pages", "Advanced SEO", "Admin Dashboard", "3 Months Support"],
     color: "#bc13fe", // Neon Purple
     previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop",
@@ -38,7 +38,7 @@ const packages = [
   },
   {
     title: "E-commerce Store",
-    price: "₹2,999",
+    price: "₹3,199",
     features: ["Product Management", "Payment Gateway", "User Auth", "6 Months Support"],
     color: "#ff0055", // Neon Red
     previewImage: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?q=80&w=1000&auto=format&fit=crop",
