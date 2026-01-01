@@ -55,6 +55,28 @@ const generateIndianWebsite = (userId, managerId, userName) => {
     };
 };
 
+const generateUserAssets = (userId, userName) => {
+    const assets = [];
+    
+    // 1. Generate a License
+    assets.push({
+        user_id: userId,
+        name: 'ABECSA Premium License',
+        type: 'License',
+        value: `ABC-${Math.random().toString(36).substr(2, 9).toUpperCase()}-${new Date().getFullYear()}`
+    });
+
+    // 2. Generate a Certificate (Mock URL)
+    assets.push({
+        user_id: userId,
+        name: 'Certified Web Owner',
+        type: 'Certificate',
+        value: `https://drive.google.com/uc?id=mock_cert_id_${Math.floor(Math.random() * 1000)}`
+    });
+
+    return assets;
+};
+
 async function seed() {
     console.log('🌱 Starting Indian Data Seed (Excluding Ritik)...');
 
@@ -130,6 +152,13 @@ async function seed() {
             
         if (siteError) console.error(`     - Website Error:`, siteError.message);
         else console.log(`     + Added Website: ${site.name}`);
+
+        // E. Create Assets (License & Certificate)
+        const assets = generateUserAssets(user.id, userData.fullName);
+        const { error: assetError } = await supabase.from('user_assets').insert(assets);
+
+        if (assetError) console.error(`     - Asset Error:`, assetError.message);
+        else console.log(`     + Added ${assets.length} Assets`);
 
         // E. Sign Out
         await supabase.auth.signOut();

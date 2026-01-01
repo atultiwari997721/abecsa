@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSignOutAlt, FaExternalLinkAlt, FaPaperPlane, FaUserCircle, FaCircle } from 'react-icons/fa';
+import { FaSignOutAlt, FaExternalLinkAlt, FaPaperPlane, FaUserCircle, FaCircle, FaCertificate, FaFileContract, FaCopy, FaEye, FaImage } from 'react-icons/fa';
 import '../styles/global.css';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../supabaseClient';
@@ -11,6 +11,7 @@ const CustomerDashboard = () => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [websites, setWebsites] = useState([]);
+  const [assets, setAssets] = useState([]);
   const [customerName, setCustomerName] = useState('');
   
   const chatContainerRef = useRef(null);
@@ -61,7 +62,17 @@ const CustomerDashboard = () => {
       }
     };
 
+    const fetchAssets = async () => {
+      const { data, error } = await supabase
+        .from('user_assets')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      if (!error) setAssets(data || []);
+    };
+
     fetchWebsites();
+    fetchAssets();
     fetchMessages();
 
     // 3. Realtime Subscription
@@ -236,6 +247,91 @@ const CustomerDashboard = () => {
                         </a>
                       )}
                     </div>
+                  </div>
+                ))
+            )}
+          </div>
+        </div>
+
+        {/* Middle Column: My Assets (Licenses & Certificates) */}
+        <div style={{ flex: 1.5 }}>
+          <h2 style={{ borderLeft: '4px solid #ffaa00', paddingLeft: '10px', marginBottom: '1.5rem' }}>My Assets</h2>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {assets.length === 0 ? (
+               <div style={{padding: '2rem', background: 'rgba(255,255,255,0.05)', borderRadius: '15px', color: '#888'}}>
+                 No licenses or certificates found.
+               </div>
+            ) : (
+                assets.map((asset) => (
+                  <div key={asset.id} style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '15px',
+                    padding: '1.5rem',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        {asset.type === 'Certificate' ? 
+                          <FaCertificate size={24} color="#00d2ff" /> : 
+                          asset.type === 'Image' ? <FaImage size={24} color="#00ff88" /> :
+                          <FaFileContract size={24} color="#ffaa00" />
+                        }
+                        <h3 style={{ margin: 0, color: '#fff', fontSize: '1.1rem' }}>{asset.name}</h3>
+                      </div>
+                      <span style={{ 
+                        fontSize: '0.7rem', 
+                        background: 'rgba(255,255,255,0.1)', 
+                        padding: '0.2rem 0.6rem', 
+                        borderRadius: '10px',
+                        color: '#aaa'
+                      }}>
+                        {asset.type}
+                      </span>
+                    </div>
+
+                    {asset.type === 'Image' ? (
+                        <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '10px' }}>
+                           <img src={asset.value} alt={asset.name} style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '5px', border: '1px solid #333' }} />
+                           <br/>
+                           <a href={asset.value} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '0.5rem', color: '#00ff88', fontSize: '0.8rem' }}>View Full Size</a>
+                        </div>
+                    ) : (
+                    <div style={{ 
+                      background: 'rgba(0,0,0,0.3)', 
+                      padding: '1rem', 
+                      borderRadius: '10px', 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      border: '1px dashed rgba(255,255,255,0.2)'
+                    }}>
+                      <code style={{ color: '#fff', fontFamily: 'monospace', fontSize: '0.9rem', wordBreak: 'break-all' }}>
+                        {asset.type === 'License' ? asset.value : 'Certificate Available'}
+                      </code>
+                      
+                      {asset.type === 'License' ? (
+                        <button 
+                          onClick={() => navigator.clipboard.writeText(asset.value)}
+                          title="Copy License Key"
+                          style={{ background: 'transparent', border: 'none', color: '#ffaa00', cursor: 'pointer' }}
+                        >
+                          <FaCopy />
+                        </button>
+                      ) : (
+                        <a 
+                          href={asset.value} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ color: '#00d2ff', display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', fontSize: '0.9rem' }}
+                        >
+                          View <FaEye />
+                        </a>
+                      )}
+                    </div>
+                    )}
                   </div>
                 ))
             )}

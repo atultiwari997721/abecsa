@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock } from 'react-icons/fa';
+import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift } from 'react-icons/fa';
 import '../styles/global.css';
 import { supabase } from '../supabaseClient';
 import { createClient } from '@supabase/supabase-js'; // For non-persisting client
@@ -28,7 +28,7 @@ const PasswordDisplay = ({ password }) => {
 };
 
 // --- Create User Modal ---
-const CreateUserModal = ({ onClose }) => {
+const CreateUserModal = ({ onClose, onRefresh }) => {
     const [formData, setFormData] = useState({ fullName: '', email: '', password: '', role: 'customer' });
     const [loading, setLoading] = useState(false);
 
@@ -75,6 +75,8 @@ const CreateUserModal = ({ onClose }) => {
                     
                     if (!retryError) {
                         alert(`User created! Note: Password could NOT be saved for display because the database needs an update. Run 'fix_password_column.sql'.`);
+                        alert(`User created! Note: Password could NOT be saved for display because the database needs an update. Run 'fix_password_column.sql'.`);
+                        onRefresh();
                         onClose();
                         return;
                     }
@@ -88,6 +90,7 @@ const CreateUserModal = ({ onClose }) => {
                 }
                 
                 alert(`User ${formData.fullName} (${formData.role}) created successfully!`);
+                onRefresh();
                 onClose();
             }
         } catch (error) {
@@ -261,6 +264,65 @@ const AllWebsitesModal = ({ websites, profiles, onClose, onRefresh }) => {
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    );
+};
+
+// --- Assign Asset Modal ---
+const AssignAssetModal = ({ profiles, onClose, onRefresh }) => {
+    const [formData, setFormData] = useState({ userId: '', name: '', type: 'License', value: '' });
+    const [loading, setLoading] = useState(false);
+
+    const handleAssign = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        
+        const payload = {
+            user_id: formData.userId,
+            name: formData.name,
+            type: formData.type,
+            value: formData.value
+        };
+
+        const { error } = await supabase.from('user_assets').insert([payload]);
+
+        if (error) {
+            alert("Error assigning asset: " + error.message);
+        } else {
+            alert("Asset Assigned Successfully!");
+            if (onRefresh) onRefresh();
+            onClose();
+        }
+        setLoading(false);
+    };
+
+    return (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: '#111', padding: '2.5rem', borderRadius: '20px', width: '90%', maxWidth: '500px', border: '1px solid #D4AF37' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
+                    <h3 style={{ margin: 0, color: '#D4AF37', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaGift /> Assign Asset to User</h3>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}><FaTimes /></button>
+                </div>
+                <form onSubmit={handleAssign} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <select value={formData.userId} onChange={e => setFormData({...formData, userId: e.target.value})} className="dark-input" required>
+                        <option value="">Select User...</option>
+                        {profiles.filter(p => p.role === 'customer').map(p => (
+                            <option key={p.id} value={p.id}>{p.full_name} ({p.email})</option>
+                        ))}
+                    </select>
+                    <input type="text" placeholder="Asset Name (e.g. Premium License, Web Cert)" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="dark-input" />
+                    <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="dark-input">
+                        <option value="License">License Key</option>
+                        <option value="Certificate">Certificate Link</option>
+                        <option value="Image">Image URL</option>
+                    </select>
+                    <input type="text" placeholder={formData.type === 'License' ? "License Key" : "URL (https://...)"} required value={formData.value} onChange={e => setFormData({...formData, value: e.target.value})} className="dark-input" />
+                    
+                    <button type="submit" disabled={loading} style={{ background: '#D4AF37', border: 'none', padding: '1rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '1rem' }}>
+                        {loading ? 'Assigning...' : 'Assign Asset'}
+                    </button>
+                </form>
             </div>
         </div>
     );
@@ -480,6 +542,7 @@ const AdminDashboard = () => {
     // New States
     const [viewingManagerId, setViewingManagerId] = useState(null);
     const [showCreateUser, setShowCreateUser] = useState(false);
+    const [showAssignAsset, setShowAssignAsset] = useState(false);
 
     const [profiles, setProfiles] = useState([]);
     const [websites, setWebsites] = useState([]);
@@ -631,6 +694,9 @@ const AdminDashboard = () => {
                     <button onClick={() => setShowCreateUser(true)} style={{ background: '#D4AF37', border: 'none', color: '#000', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', fontWeight: 'bold' }}>
                         <FaUserPlus /> Create User
                     </button>
+                    <button onClick={() => setShowAssignAsset(true)} style={{ background: '#8a2be2', border: 'none', color: '#fff', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', fontWeight: 'bold' }}>
+                        <FaGift /> Assign Asset
+                    </button>
                     <button onClick={() => { signOut(); navigate('/login'); }} style={{ background: 'transparent', border: '1px solid #ff0055', color: '#ff0055', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                         <FaSignOutAlt /> Logout
                     </button>
@@ -756,7 +822,11 @@ const AdminDashboard = () => {
             )}
 
             {showCreateUser && (
-                <CreateUserModal onClose={() => setShowCreateUser(false)} />
+                <CreateUserModal onClose={() => setShowCreateUser(false)} onRefresh={fetchData} />
+            )}
+
+            {showAssignAsset && (
+                <AssignAssetModal profiles={profiles} onClose={() => setShowAssignAsset(false)} onRefresh={fetchData} />
             )}
 
             {/* CSS Helper for inputs inside Modal */}
