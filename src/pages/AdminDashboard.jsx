@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift, FaUpload, FaCopy } from 'react-icons/fa';
+import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift, FaUpload, FaCopy, FaImages } from 'react-icons/fa';
 import '../styles/global.css';
 import { supabase } from '../supabaseClient';
 import { createClient } from '@supabase/supabase-js'; // For non-persisting client
@@ -418,6 +418,121 @@ const ImageUploadModal = ({ onClose }) => {
     );
 };
 
+// --- Image Library Modal ---
+const ImageLibraryModal = ({ profiles, onClose }) => {
+    const [files, setFiles] = useState([]);
+    const [assets, setAssets] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadLibrary();
+    }, []);
+
+    const loadLibrary = async () => {
+        setLoading(true);
+        // 1. List Files
+        const { data: fileList, error: storageError } = await supabase.storage.from('public-files').list('', { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
+        
+        // 2. Fetch Assignments
+        const { data: assetList, error: dbError } = await supabase.from('user_assets').select('*').eq('type', 'Image');
+
+        if (fileList) {
+            // map assignments
+            const enrichedFiles = fileList.map(f => {
+                const publicUrl = supabase.storage.from('public-files').getPublicUrl(f.name).data.publicUrl;
+                
+                // Find assignments using this URL
+                // We check if asset.value contains the filename (more robust than exact URL match due to potential query params or base URL diffs)
+                const assignedTo = assetList?.filter(a => a.value.includes(f.name)).map(a => {
+                    const user = profiles.find(p => p.id === a.user_id);
+                    return user ? user.full_name : 'Unknown User';
+                }) || [];
+
+                return {
+                    ...f,
+                    url: publicUrl,
+                    assignments: assignedTo
+                };
+            });
+            setFiles(enrichedFiles);
+            setAssets(assetList || []);
+        }
+        setLoading(false);
+    };
+
+    return (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: '#0a0a0a', width: '90%', height: '90%', borderRadius: '25px', border: '1px solid #2b7de9', display: 'flex', flexDirection: 'column', padding: '2.5rem', boxShadow: '0 0 50px rgba(43, 125, 233, 0.2)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
+                    <h2 style={{ margin: 0, color: '#2b7de9', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaImages /> Image Library & Stats</h2>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer', opacity: 0.7 }}><FaTimes /></button>
+                </div>
+
+                <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem' }}>
+                    <div style={{ background: '#111', padding: '1.5rem', borderRadius: '15px', flex: 1, border: '1px solid #333' }}>
+                        <h3 style={{ margin: '0 0 0.5rem 0', color: '#aaa', fontSize: '0.9rem' }}>Total Uploads</h3>
+                        <span style={{ fontSize: '2rem', fontWeight: 'bold', color: '#fff' }}>{files.length}</span>
+                    </div>
+                    <div style={{ background: '#111', padding: '1.5rem', borderRadius: '15px', flex: 1, border: '1px solid #333' }}>
+                        <h3 style={{ margin: '0 0 0.5rem 0', color: '#aaa', fontSize: '0.9rem' }}>Total Assigned</h3>
+                        <span style={{ fontSize: '2rem', fontWeight: 'bold', color: '#00ff88' }}>{files.filter(f => f.assignments.length > 0).length}</span>
+                    </div>
+                </div>
+
+                <div style={{ flex: 1, overflowY: 'auto' }}>
+                    {loading ? <div style={{color:'#fff'}}>Loading library...</div> : (
+                        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ddd', fontSize: '0.9rem' }}>
+                            <thead>
+                                <tr style={{ background: '#151515', textAlign: 'left', borderBottom: '1px solid #333' }}>
+                                    <th style={{ padding: '1rem' }}>Preview</th>
+                                    <th style={{ padding: '1rem' }}>File Name / Link</th>
+                                    <th style={{ padding: '1rem' }}>Assigned To</th>
+                                    <th style={{ padding: '1rem' }}>Metadata</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {files.map(file => (
+                                    <tr key={file.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                        <td style={{ padding: '1rem' }}>
+                                            <img src={file.url} alt="thumb" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #333' }} />
+                                        </td>
+                                        <td style={{ padding: '1rem' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                <span style={{ color: '#fff' }}>{file.name}</span>
+                                                <button 
+                                                    onClick={() => { navigator.clipboard.writeText(file.url); alert('Link Copied!'); }}
+                                                    style={{ background: 'transparent', border: 'none', color: '#2b7de9', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.8rem', padding: 0 }}
+                                                >
+                                                    <FaCopy /> Copy Link
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '1rem' }}>
+                                            {file.assignments.length > 0 ? (
+                                                file.assignments.map((name, i) => (
+                                                    <span key={i} style={{ display: 'inline-block', background: 'rgba(0, 255, 136, 0.1)', color: '#00ff88', padding: '2px 8px', borderRadius: '10px', fontSize: '0.8rem', marginRight: '5px', marginBottom: '5px' }}>
+                                                        {name}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span style={{ color: '#666', fontStyle: 'italic' }}>Unassigned</span>
+                                            )}
+                                        </td>
+                                        <td style={{ padding: '1rem', color: '#666', fontSize: '0.8rem' }}>
+                                            Size: {(file.metadata?.size / 1024).toFixed(1)} KB<br/>
+                                            Uploaded: {new Date(file.created_at).toLocaleDateString()}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // --- Global Master List (Admins, Managers, Customers) ---
 const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
     const [filterRole, setFilterRole] = useState('ALL');
@@ -634,6 +749,7 @@ const AdminDashboard = () => {
     const [showCreateUser, setShowCreateUser] = useState(false);
     const [showAssignAsset, setShowAssignAsset] = useState(false);
     const [showImageUpload, setShowImageUpload] = useState(false);
+    const [showImageLibrary, setShowImageLibrary] = useState(false);
 
     const [profiles, setProfiles] = useState([]);
     const [websites, setWebsites] = useState([]);
@@ -791,6 +907,9 @@ const AdminDashboard = () => {
                     <button onClick={() => setShowImageUpload(true)} style={{ background: '#2b7de9', border: 'none', color: '#fff', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', fontWeight: 'bold' }}>
                         <FaUpload /> Upload Image
                     </button>
+                    <button onClick={() => setShowImageLibrary(true)} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid #444', color: '#fff', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <FaImages /> Library
+                    </button>
                     <button onClick={() => { signOut(); navigate('/login'); }} style={{ background: 'transparent', border: '1px solid #ff0055', color: '#ff0055', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                         <FaSignOutAlt /> Logout
                     </button>
@@ -925,6 +1044,10 @@ const AdminDashboard = () => {
 
             {showImageUpload && (
                 <ImageUploadModal onClose={() => setShowImageUpload(false)} />
+            )}
+
+            {showImageLibrary && (
+                <ImageLibraryModal profiles={profiles} onClose={() => setShowImageLibrary(false)} />
             )}
 
             {/* CSS Helper for inputs inside Modal */}
