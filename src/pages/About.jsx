@@ -22,6 +22,14 @@ const About = () => {
           We specialize in 3D web experiences, modern UI/UX design, and robust software solutions. 
           Our mission is to elevate your brand with digital experiences that leave a lasting impression.
         </motion.p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          style={{ fontSize: '0.9rem', marginTop: '1rem', color: '#aaa' }}
+        >
+          You can also visit our sites: <a href="https://abecsa.in" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'none' }}>Abecsa.in</a>, <a href="https://abecsa.site" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'none' }}>Abecsa.site</a>
+        </motion.p>
       </div>
     </section>
   );
