@@ -8,6 +8,7 @@ const ContactPopup = ({ isOpen, onClose }) => {
     <AnimatePresence>
       {isOpen && (
         <motion.div
+          className="contact-popup-overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -22,26 +23,29 @@ const ContactPopup = ({ isOpen, onClose }) => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            padding: '1rem' // Add padding to prevent edge touching
+            padding: '1rem'
           }}
           onClick={onClose}
         >
           <motion.div
+            className="contact-popup-content"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             style={{
               background: 'var(--bg-color)',
               border: '1px solid var(--primary-color)',
-              padding: '2.5rem 2rem 2rem', // Increased top padding for close button space
+              // padding is handled in CSS for responsiveness
               borderRadius: '15px',
               maxWidth: '400px',
-              width: '100%',
-              maxHeight: '90vh', // Limit height
-              overflowY: 'auto', // Scroll internal content if needed
+              width: 'min(90vw, 400px)', // Stricter width constraint
+              maxHeight: '85vh', // Slightly reduced height to be safe
+              overflowY: 'auto',
               position: 'relative',
+              left: '-12px', // Shift slightly left as requested
               boxShadow: '0 0 20px rgba(0, 243, 255, 0.3)',
-              margin: 'auto' // Ensure centering
+              margin: 'auto',
+              boxSizing: 'border-box' // Ensure padding doesn't add to width
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -49,8 +53,8 @@ const ContactPopup = ({ isOpen, onClose }) => {
               onClick={onClose}
               style={{
                 position: 'absolute',
-                top: '10px', // Inside the box
-                right: '10px', // Inside the box
+                top: '10px',
+                right: '10px',
                 background: '#ff0055',
                 border: 'none',
                 color: '#fff',
@@ -90,12 +94,12 @@ const ContactPopup = ({ isOpen, onClose }) => {
                 onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
               >
-                <FaWhatsapp size={24} color="#25D366" />
+                <FaWhatsapp size={24} color="#25D366" style={{ flexShrink: 0 }} />
                 <span>Chat on WhatsApp</span>
               </a>
               
               <a 
-                href="mailto:akanksha.tripathi770@gmail.com"
+                href="mailto:abecsaindia@gmail.com"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -105,13 +109,14 @@ const ContactPopup = ({ isOpen, onClose }) => {
                   borderRadius: '10px',
                   color: '#fff',
                   textDecoration: 'none',
-                  transition: 'background 0.3s'
+                  transition: 'background 0.3s',
+                  wordBreak: 'break-all' // Ensure long emails break
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
               >
-                <FaEnvelope size={24} color="#EA4335" />
-                <span>akanksha.tripathi770@gmail.com</span>
+                <FaEnvelope size={24} color="#EA4335" style={{ flexShrink: 0 }} />
+                <span>abecsaindia@gmail.com</span>
               </a>
 
               <button
@@ -126,7 +131,7 @@ const ContactPopup = ({ isOpen, onClose }) => {
                   cursor: 'pointer',
                   fontWeight: 'bold',
                   transition: 'all 0.3s',
-                  width: '100%' // Full width button
+                  width: '100%'
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.background = '#ff0055';
@@ -140,6 +145,21 @@ const ContactPopup = ({ isOpen, onClose }) => {
                 Cancel
               </button>
             </div>
+            
+            <style>{`
+              .contact-popup-content {
+                padding: 2.5rem 2rem 2rem;
+              }
+              @media (max-width: 480px) {
+                .contact-popup-content {
+                  padding: 2rem 1rem 1.5rem !important;
+                  width: 95% !important;
+                }
+                .contact-popup-content h2 {
+                  font-size: 1.5rem;
+                }
+              }
+            `}</style>
           </motion.div>
         </motion.div>
       )}

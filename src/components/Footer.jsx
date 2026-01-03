@@ -18,7 +18,7 @@ const Footer = () => {
         <FaLinkedin size={24} style={{ cursor: 'pointer', color: 'var(--text-color)' }} />
       </div>
       <p style={{ color: '#888', fontSize: '0.9rem' }}>
-        &copy; {new Date().getFullYear()} ABECSA Software Solution. All rights reserved.
+        &copy; 2024 ABECSA Software Solution. All rights reserved.
       </p>
     </footer>
   );

@@ -3,12 +3,12 @@ import { motion } from 'framer-motion';
 
 const About = () => {
   return (
-    <section id="about" style={{ padding: '4rem 2rem', color: '#fff', minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+    <section id="about" style={{ padding: '1rem 0.5rem', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          style={{ fontSize: '3rem', marginBottom: '2rem', color: 'var(--primary-color)' }}
+          style={{ fontSize: '2rem', marginBottom: '0.8rem', color: 'var(--primary-color)' }}
         >
           About ABECSA
         </motion.h2>
@@ -16,7 +16,7 @@ const About = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          style={{ fontSize: '1.2rem', lineHeight: '1.8', color: '#ccc' }}
+          style={{ fontSize: '0.9rem', lineHeight: '1.4', color: '#ccc' }}
         >
           ABECSA Software Solution is a premier web development agency dedicated to crafting stunning, high-performance websites. 
           We specialize in 3D web experiences, modern UI/UX design, and robust software solutions. 
