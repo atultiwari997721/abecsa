@@ -100,21 +100,42 @@ const Tools = () => {
   };
 
   const handleQrSuccess = (text) => {
-    const cleaned = text.replace(/[^0-9+]/g, '');
-    
-    if (text.includes("wa.me") || text.includes("whatsapp.com")) {
-         window.location.href = text;
-         return;
-    }
+    let extractedNumber = '';
 
-    // Try to find a phone number in the text
-    const phoneMatch = text.match(/(\+?(\d{1,4})[\s-]?)?(\(?\d{3}\)?[\s-]?)?[\d\s-]{7,15}/);
+    // 1. Check for URL-based WhatsApp links
+    if (text.includes("wa.me") || text.includes("whatsapp.com")) {
+         // Extract numeric part if present
+         const digitMatch = text.match(/\d{7,15}/);
+         if (digitMatch) {
+             extractedNumber = digitMatch[0];
+         } else {
+             // It's a non-numeric link (e.g., contact card), just redirect
+             window.location.href = text;
+             return;
+         }
+    } else {
+        // 2. Parsed raw text
+        // Try to find a phone number
+        const cleaned = text.replace(/[^0-9]/g, '');
+        if (cleaned.length >= 10 && cleaned.length <= 15) {
+            extractedNumber = cleaned;
+        } else {
+             // Try strict regex for text with formatting
+             const phoneMatch = text.match(/(\+?(\d{1,4})[\s-]?)?(\(?\d{3}\)?[\s-]?)?[\d\s-]{7,15}/);
+             if (phoneMatch) {
+                 extractedNumber = phoneMatch[0].replace(/[^0-9]/g, '');
+             }
+        }
+    }
     
-    if (phoneMatch) {
-         let number = phoneMatch[0].replace(/[^0-9]/g, '');
-         redirectToWhatsapp(number);
+    // 3. Final decision
+    if (extractedNumber && extractedNumber.length >= 10) {
+         setEditableNumber(extractedNumber);
+         setScanResult({ type: 'success', value: extractedNumber }); // Unified success type
+         stopQrScanner();
     } else {
         setScanResult({ type: 'text', value: text });
+        stopQrScanner();
     }
   };
 
@@ -168,21 +189,20 @@ const Tools = () => {
           return;
       }
 
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.width = video.videoWidth * 2; // Scale up for better recognition
+      canvas.height = video.videoHeight * 2;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height); // Draw scaled
       
-      // Show snapshot feedback
+      // Show snapshot feedback (Use the scaled image, it's fine)
       const snapshotUrl = canvas.toDataURL('image/png');
       const feedbackEl = document.getElementById('ocr-snapshot');
       if (feedbackEl) {
           feedbackEl.src = snapshotUrl;
           feedbackEl.style.display = 'block';
-          // Hide after 1 sec
           setTimeout(() => { feedbackEl.style.display = 'none'; }, 1000);
       }
 
-      // Pre-process: Grayscale only (safer than full binarization for now)
+      // Pre-process: Grayscale
       const canvasCtx = context;
       const imgData = canvasCtx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imgData.data;
@@ -202,8 +222,13 @@ const Tools = () => {
             // logger: m => console.log(m) 
           });
           
-          setOcrText(text);
-          processOcrText(text);
+          if (!text || text.trim().length === 0) {
+              setOcrText("No text detected. Try moving closer/steadier.");
+              setScanResult({ type: 'ocr_fail', value: null, raw: "No text found" });
+          } else {
+              setOcrText(text);
+              processOcrText(text);
+          }
       } catch (err) {
           console.error("Tesseract Error:", err);
           setOcrText("Failed to recognize text.");
@@ -211,6 +236,11 @@ const Tools = () => {
           setIsProcessing(false);
       }
   };
+
+  // State for editable result
+  const [editableNumber, setEditableNumber] = useState('');
+
+  // ... (startQrScanner, etc remain same)
 
   const processOcrText = (text) => {
       // 1. Replace common substitutions
@@ -220,38 +250,34 @@ const Tools = () => {
         .replace(/I/g, '1')
         .replace(/l/g, '1')
         .replace(/S/g, '5')
-        .replace(/B/g, '8');
+        .replace(/B/g, '8')
+        .replace(/Z/g, '2');
 
       // 2. Remove all non-digits
       const digitsOnly = cleanText.replace(/\D/g, '');
 
-      // 3. Search for phone numbers (10 digits is standard in India + code, but let's be flexible)
-      //    We prefer 10-12 digit sequences.
-      const numberMatches = digitsOnly.match(/\d{7,15}/g);
+      // 3. Search for phone numbers (Min 10 digits to avoid noise)
+      //    Strictly 10-15 digits.
+      const match = digitsOnly.match(/\d{10,15}/);
 
-      if (numberMatches && numberMatches.length > 0) {
-          // Identify the most "phone-number-like" string
-          // Prefer 10 digit, then 11, then 12.
-          const bestMatch = numberMatches.reduce((prev, curr) => {
-              // Priority to 10-digit numbers (common mobile)
-              if (curr.length === 10) return curr;
-              if (prev.length === 10) return prev;
-              
-              // Then length
-              return curr.length > prev.length ? curr : prev;
-          });
-          setScanResult({ type: 'ocr_success', value: bestMatch });
+      if (match) {
+           const found = match[0];
+           setEditableNumber(found);
+           setScanResult({ type: 'success', value: found });
       } else {
-          setScanResult({ type: 'ocr_fail', value: null });
+           // Fallback: Check if we have multiple groups that combine to 10?
+           // For now, strict failure is better than wrong number.
+           setScanResult({ type: 'ocr_fail', value: null, raw: text });
       }
   };
 
   const redirectToWhatsapp = (number) => {
-    if (number.length === 10) {
-        number = "91" + number;
+    let finalNumber = number.replace(/[^0-9]/g, '');
+    if (finalNumber.length === 10) {
+        finalNumber = "91" + finalNumber;
     }
-    const url = `https://wa.me/${number}`;
-    setScanResult({ type: 'whatsapp', value: url, original: number });
+    const url = `https://wa.me/${finalNumber}`;
+    // setScanResult not strictly needed here as we redirect
     window.location.href = url;
   };
 
@@ -432,17 +458,34 @@ const Tools = () => {
 
                 <p style={{ textAlign: 'center', marginTop: '1rem', opacity: 0.6 }}>Align phone number within the frame and tap capture</p>
                 
-                {scanResult && scanResult.type === 'ocr_success' && (
+                 {(scanResult && scanResult.type === 'success') && (
                     <motion.div 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(0, 243, 255, 0.1)', borderRadius: '12px', border: '1px solid rgba(0, 243, 255, 0.3)' }}
                     >
-                        <p style={{ marginBottom: '0.5rem', opacity: 0.8 }}>Found Number:</p>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>{scanResult.value}</h2>
+                        <p style={{ marginBottom: '0.5rem', opacity: 0.8 }}>Confirm Number:</p>
+                        
+                        <input 
+                            type="text" 
+                            value={editableNumber}
+                            onChange={(e) => setEditableNumber(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '1rem',
+                                fontSize: '1.5rem',
+                                fontWeight: 'bold',
+                                marginBottom: '1rem',
+                                background: 'rgba(0,0,0,0.5)',
+                                border: '1px solid #444',
+                                borderRadius: '8px',
+                                color: '#fff',
+                                textAlign: 'center'
+                            }}
+                        />
                         
                         <button
-                            onClick={() => redirectToWhatsapp(scanResult.value)}
+                            onClick={() => redirectToWhatsapp(editableNumber)}
                             style={{
                                 width: '100%', padding: '1rem', background: '#25D366', color: 'white',
                                 border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem',
@@ -456,7 +499,14 @@ const Tools = () => {
 
                  {scanResult && scanResult.type === 'ocr_fail' && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: '1rem', textAlign: 'center', color: '#ff8888', background: 'rgba(255,0,0,0.1)', borderRadius: '8px', marginTop: '1rem' }}>
-                        No valid number found in the captured image.
+                        <p style={{ fontWeight: 'bold' }}>No valid number found.</p>
+                        {scanResult.raw && (
+                             <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#888', background: '#111', padding: '0.5rem', borderRadius: '4px' }}>
+                                 <strong>Detected Text:</strong><br/>
+                                 "{scanResult.raw}"
+                             </div>
+                        )}
+                        <p style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>Try moving closer or ensuring good lighting.</p>
                     </motion.div>
                 )}
             </div>
