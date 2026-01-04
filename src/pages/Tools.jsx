@@ -198,32 +198,42 @@ const Tools = () => {
     setIsCameraActive(false);
   };
 
-  // CV: Ink Thickening (Morphological Erosion for dark text)
-  // Essential for thin handwriting
-  const applyThickening = (ctx, w, h) => {
+  // CV: Hybrid Filter (Contrast + Thicken in one go)
+  // Optimized for speed
+  const applyHybridProcessing = (ctx, w, h) => {
       const imgData = ctx.getImageData(0, 0, w, h);
       const data = imgData.data;
+      
+      // 1. High Contrast Pass
+      // Calculate avg brightness
+      let sum = 0;
+      for (let i = 0; i < data.length; i += 4) {
+          sum += (data[i] + data[i+1] + data[i+2]) / 3;
+      }
+      const avg = sum / (data.length / 4);
+      const threshold = avg * 0.75; // Aggressive threshold
+
+      for (let i = 0; i < data.length; i += 4) {
+          const brightness = (data[i] + data[i+1] + data[i+2]) / 3;
+          const val = (brightness < threshold) ? 0 : 255;
+          data[i] = data[i+1] = data[i+2] = val;
+      }
+      
+      // 2. Simple Morphological Erosion (Thickening) - Inline for speed
+      // Only horizontal thickening is often enough for digits and faster
       const copy = new Uint8ClampedArray(data);
-  
-      for (let y = 1; y < h - 1; y++) {
+      for (let y = 0; y < h; y++) {
           for (let x = 1; x < w - 1; x++) {
               const idx = (y * w + x) * 4;
-              // We want to find the DARKEST (min) neighbor to expand the ink
-              let minVal = 255;
-              
-              // 3x3 Kernel
-              for (let ky = -1; ky <= 1; ky++) {
-                  for (let kx = -1; kx <= 1; kx++) {
-                      const neighborIdx = ((y + ky) * w + (x + kx)) * 4;
-                      // Use Green channel [1] as proxy for brightness
-                      const val = copy[neighborIdx + 1];
-                      if (val < minVal) minVal = val;
+              if (copy[idx] === 255) { // If white
+                  // Check neighbors. If neighbor is black (0), become black
+                  if (copy[idx - 4] === 0 || copy[idx + 4] === 0) {
+                      data[idx] = data[idx+1] = data[idx+2] = 0;
                   }
               }
-              // Apply darker value to current pixel
-              data[idx] = data[idx+1] = data[idx+2] = minVal;
           }
       }
+      
       ctx.putImageData(imgData, 0, 0);
   };
 
@@ -232,20 +242,24 @@ const Tools = () => {
       
       // Check if worker is ready
       if (!workerRef.current) {
-          setOcrText("Initializing AI...");
-          setScanResult({ type: 'ocr_fail', value: null, raw: "AI Engine loading... please wait 2s and try again." });
+          setOcrText("Starting AI Engine...");
+          // Try to wait a bit or just return
+          // Returning avoids crash
           return;
       }
       
       setIsProcessing(true);
       setScanResult(null); 
-      setOcrText("Pro-Focus AI Scanning...");
+      setOcrText("Scanning..."); // Short feedback
       
       const video = videoRef.current;
       const canvas = canvasRef.current;
       const context = canvas.getContext('2d');
       
-      if (video.videoWidth === 0) return;
+      if (video.videoWidth === 0) {
+          setIsProcessing(false);
+          return;
+      }
 
       // --- ROI Calculation ---
       const vw = video.videoWidth;
@@ -255,7 +269,7 @@ const Tools = () => {
       const roiX = (vw - roiWidth) / 2;
       const roiY = (vh - roiHeight) / 2;
 
-      // 1. UI Feedback Snapshot
+      // 1. Snapshot for UI
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       const feedbackEl = document.getElementById('ocr-snapshot');
       if (feedbackEl) {
@@ -264,74 +278,49 @@ const Tools = () => {
           feedbackEl.style.opacity = 0.5;
       }
 
-      // 2. Prepare ROI Canvas (Scale 1.5x)
-      const scale = 1.5;
-      canvas.width = roiWidth * scale;
-      canvas.height = roiHeight * scale;
-      context.drawImage(video, roiX, roiY, roiWidth, roiHeight, 0, 0, canvas.width, canvas.height);
+      // 2. Performance: Limit Resolution!
+      // High-res images destroy performance. Digits don't need > 800px width.
+      const MAX_WIDTH = 800;
+      let targetWidth = roiWidth;
+      let targetHeight = roiHeight;
       
-      const baseImageData = context.getImageData(0,0, canvas.width, canvas.height);
+      if (targetWidth > MAX_WIDTH) {
+          const ratio = MAX_WIDTH / targetWidth;
+          targetWidth = MAX_WIDTH;
+          targetHeight = targetHeight * ratio;
+      }
+      
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      
+      // Draw resized ROI
+      context.drawImage(video, roiX, roiY, roiWidth, roiHeight, 0, 0, targetWidth, targetHeight);
+      
+      // 3. Apply ONE optimal filter (Hybrid)
+      // No more loops. No more mult-mode. Just one fast strong pass.
+      applyHybridProcessing(context, targetWidth, targetHeight);
+      
+      const modeUrl = canvas.toDataURL('image/png');
 
-      // Cascade Strategy:
-      // 1. Raw: Fast baseline.
-      // 2. Handwriting (Thickened): ESSENTIAL for pen/pencil.
-      // 3. Contrast: For shadows.
-      // 4. Inverted: Dark mode.
-      const modes = ['raw', 'handwriting', 'contrast', 'inverted'];
-      let bestCandidate = null;
+      try {
+           const { data: { text, confidence } } = await workerRef.current.recognize(modeUrl);
 
-      for (const mode of modes) {
-           // Restore original for next pass (except first run)
-           if (mode !== 'raw') context.putImageData(baseImageData, 0, 0);
-
-           if (mode === 'contrast') {
-               applyHighContrast(context, canvas.width, canvas.height);
+           const num = extractNumber(text);
+           if (num) {
+               setEditableNumber(num);
+               setScanResult({ type: 'success', value: num });
+               setOcrText("Success!");
+           } else {
+               setOcrText("Try again");
+               setScanResult({ type: 'ocr_fail', value: null, raw: "Clean background required" });
            }
-           else if (mode === 'handwriting') {
-               // 1. Contrast first to clean up noise
-               applyHighContrast(context, canvas.width, canvas.height);
-               // 2. Then thicken the ink
-               applyThickening(context, canvas.width, canvas.height);
-           }
-           else if (mode === 'inverted') {
-               invertImage(context, canvas.width, canvas.height);
-               // Mild contrast boost after invert
-               const d = context.getImageData(0,0, canvas.width, canvas.height);
-               for(let i=0; i<d.data.length; i+=4) d.data[i] = d.data[i] < 120 ? 0 : 255;
-               context.putImageData(d, 0, 0);
-           }
-           // 'raw' uses image as is
-
-           const modeUrl = canvas.toDataURL('image/png');
-           
-           try {
-               // USE PERSISTENT WORKER (Fast!)
-               const { data: { text, confidence } } = await workerRef.current.recognize(modeUrl);
-
-               const num = extractNumber(text);
-               if (num) {
-                   // Optimization: Early exit on high confidence
-                   if (confidence > 80) {
-                       console.log(`Match found in ${mode} mode (Conf: ${confidence})`);
-                       bestCandidate = num;
-                       break;
-                   }
-                   if (!bestCandidate) bestCandidate = num; 
-               }
-           } catch (e) { console.error(e); }
+      } catch (e) { 
+          console.error(e);
+          setScanResult({ type: 'ocr_fail', value: null, raw: "Error" });
       }
 
       setIsProcessing(false);
       if (feedbackEl) feedbackEl.style.display = 'none';
-
-      if (bestCandidate) {
-           setEditableNumber(bestCandidate);
-           setScanResult({ type: 'success', value: bestCandidate });
-           setOcrText("Number detected!");
-      } else {
-           setOcrText("Detection failed.");
-           setScanResult({ type: 'ocr_fail', value: null, raw: "Try writing clearer digits." });
-      }
   };
   
   // Helper to extract number (Refined for ROI - cleaner input expected)
