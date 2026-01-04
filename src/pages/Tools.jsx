@@ -16,14 +16,34 @@ const Tools = () => {
   const qrScannerRef = useRef(null); // Instance of Html5Qrcode
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-
-  // Cleanup on unmount or tab switch
-  useEffect(() => {
-    return () => {
-      stopQrScanner();
       stopOcrStream();
     };
   }, [activeTab]);
+
+  // Initialize Worker on Mount
+  useEffect(() => {
+      const initWorker = async () => {
+          console.log("Initializing Tesseract Worker...");
+          const worker = await Tesseract.createWorker('eng');
+          
+          // Pre-configure specific parameters for numbers
+          await worker.setParameters({
+             tessedit_char_whitelist: '0123456789+ ',
+             tessedit_pageseg_mode: '7', // Single line
+          });
+          
+          workerRef.current = worker;
+          console.log("Tesseract Worker Ready");
+      };
+      
+      initWorker();
+      
+      return () => {
+          if (workerRef.current) {
+              workerRef.current.terminate(); 
+          }
+      };
+  }, []);
 
   // --- QR Scanner Logic ---
 
@@ -212,6 +232,13 @@ const Tools = () => {
   const captureAndScan = async () => {
       if (!videoRef.current || !canvasRef.current) return;
       
+      // Check if worker is ready
+      if (!workerRef.current) {
+          setOcrText("Initializing AI...");
+          setScanResult({ type: 'ocr_fail', value: null, raw: "AI Engine loading... please wait 2s and try again." });
+          return;
+      }
+      
       setIsProcessing(true);
       setScanResult(null); 
       setOcrText("Pro-Focus AI Scanning...");
@@ -280,10 +307,8 @@ const Tools = () => {
            const modeUrl = canvas.toDataURL('image/png');
            
            try {
-               const { data: { text, confidence } } = await Tesseract.recognize(modeUrl, 'eng', {
-                   tessedit_char_whitelist: '0123456789+ ',
-                   tessedit_pageseg_mode: '7' // PSM 7: Single line
-               });
+               // USE PERSISTENT WORKER (Fast!)
+               const { data: { text, confidence } } = await workerRef.current.recognize(modeUrl);
 
                const num = extractNumber(text);
                if (num) {
