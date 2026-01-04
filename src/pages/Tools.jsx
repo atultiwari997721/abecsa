@@ -27,17 +27,43 @@ const Tools = () => {
 
   // --- QR Scanner Logic ---
 
-  const startQrScanner = async () => {
+  // Handle Tab Switching & Auto-Start
+  useEffect(() => {
+    // 1. Cleanup previous scanners
+    stopQrScanner();
+    stopOcrStream();
     setScanResult(null);
     setCameraError(null);
-    setIsCameraActive(true);
+    setIsProcessing(false);
 
-    // Wait for DOM element to exist
-    await new Promise(r => setTimeout(r, 100));
+    // 2. Start new scanner if tab selected
+    if (activeTab === 'qr') {
+        const timeout = setTimeout(() => {
+            startQrScanner();
+        }, 300); // Give DOM a moment to render #qr-reader
+        return () => clearTimeout(timeout);
+    } 
+    
+    if (activeTab === 'ocr') {
+        startOcrCamera();
+    }
+  }, [activeTab]);
 
+  // --- QR Scanner Logic ---
+
+  const startQrScanner = async () => {
     try {
+        const readerElement = document.getElementById("qr-reader");
+        if (!readerElement) {
+            console.error("QR Reader element not found in DOM");
+            setCameraError("Scanner initialization failed (DOM Error). Please try again.");
+            return;
+        }
+
         const html5QrCode = new Html5Qrcode("qr-reader");
         qrScannerRef.current = html5QrCode;
+
+        setIsCameraActive(true);
 
         await html5QrCode.start(
             { facingMode: "environment" },
@@ -47,20 +73,16 @@ const Tools = () => {
                 aspectRatio: 1
             },
             (decodedText, decodedResult) => {
-                // Success callback
                 handleQrSuccess(decodedText);
-                stopQrScanner(); // Stop automatically on success
+                stopQrScanner();
             },
             (errorMessage) => {
-                // Ignore parse errors, scanning in progress
+                // Ignore parse errors
             }
-        ).catch(err => {
-            console.error("Error starting QR scanner", err);
-            setCameraError("Could not access camera. Please allow permissions.");
-            setIsCameraActive(false);
-        });
+        );
     } catch (err) {
-         setCameraError("Camera initialization failed.");
+         console.error("QR Init Error:", err);
+         setCameraError("Could not access camera. Please allow permissions.");
          setIsCameraActive(false);
     }
   };
@@ -150,7 +172,21 @@ const Tools = () => {
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       
-      // Pre-process image (grayscale high contrast could help, but kept simple for now)
+      // Pre-process image for better OCR
+      const canvasCtx = context;
+      const imgData = canvasCtx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+
+      // Simple binarization (high contrast)
+      for (let i = 0; i < data.length; i += 4) {
+          const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+          const color = avg > 128 ? 255 : 0;
+          data[i] = color;     // R
+          data[i + 1] = color; // G
+          data[i + 2] = color; // B
+      }
+      canvasCtx.putImageData(imgData, 0, 0);
+
       const imageMap = canvas.toDataURL('image/png');
       
       try {
@@ -169,14 +205,33 @@ const Tools = () => {
   };
 
   const processOcrText = (text) => {
-      // Robust number extraction
-      const rawText = text.replace(/[\s-]/g, '');
-      // Look for sequences of 7 to 15 digits
-      const numberMatches = rawText.match(/\d{7,15}/g);
+      // 1. Replace common substitutions
+      let cleanText = text
+        .replace(/O/g, '0')
+        .replace(/o/g, '0')
+        .replace(/I/g, '1')
+        .replace(/l/g, '1')
+        .replace(/S/g, '5')
+        .replace(/B/g, '8');
+
+      // 2. Remove all non-digits
+      const digitsOnly = cleanText.replace(/\D/g, '');
+
+      // 3. Search for phone numbers (10 digits is standard in India + code, but let's be flexible)
+      //    We prefer 10-12 digit sequences.
+      const numberMatches = digitsOnly.match(/\d{7,15}/g);
 
       if (numberMatches && numberMatches.length > 0) {
-          // Take the longest match which is likely the phone number
-          const bestMatch = numberMatches.reduce((a, b) => a.length > b.length ? a : b);
+          // Identify the most "phone-number-like" string
+          // Prefer 10 digit, then 11, then 12.
+          const bestMatch = numberMatches.reduce((prev, curr) => {
+              // Priority to 10-digit numbers (common mobile)
+              if (curr.length === 10) return curr;
+              if (prev.length === 10) return prev;
+              
+              // Then length
+              return curr.length > prev.length ? curr : prev;
+          });
           setScanResult({ type: 'ocr_success', value: bestMatch });
       } else {
           setScanResult({ type: 'ocr_fail', value: null });
@@ -213,7 +268,7 @@ const Tools = () => {
                 <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => { setActiveTab('qr'); setTimeout(startQrScanner, 100); }}
+                    onClick={() => setActiveTab('qr')}
                     style={{
                         padding: '3rem 2rem',
                         background: 'rgba(255,255,255,0.05)',
@@ -237,7 +292,7 @@ const Tools = () => {
                 <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => { setActiveTab('ocr'); startOcrCamera(); }}
+                    onClick={() => setActiveTab('ocr')}
                     style={{
                         padding: '3rem 2rem',
                         background: 'rgba(255,255,255,0.05)',
