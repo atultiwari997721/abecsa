@@ -210,7 +210,7 @@ const Tools = () => {
       
       setIsProcessing(true);
       setScanResult(null); 
-      setOcrText("AI analyzing handwriting..."); // Feedback
+      setOcrText("Pro-Focus AI Scanning...");
       
       const video = videoRef.current;
       const canvas = canvasRef.current;
@@ -218,7 +218,18 @@ const Tools = () => {
       
       if (video.videoWidth === 0) return;
 
-      // 1. Snapshot for UI
+      // --- ROI (Region of Interest) Logic ---
+      // We want to capture only the "Strip" area in the center.
+      // The strip is approx 60% width and 15% height of the view, specific to phone numbers.
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      
+      const roiWidth = vw * 0.8; // 80% width
+      const roiHeight = vh * 0.15; // 15% height (strip)
+      const roiX = (vw - roiWidth) / 2;
+      const roiY = (vh - roiHeight) / 2;
+
+      // 1. Snapshot for UI (Display full frame but highlight ROI? For now just full frame is fine feedback)
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       const feedbackEl = document.getElementById('ocr-snapshot');
       if (feedbackEl) {
@@ -227,57 +238,46 @@ const Tools = () => {
           feedbackEl.style.opacity = 0.5;
       }
 
-      // 2. Capture High-Res Base Image
-      const w = video.videoWidth * 2;
-      const h = video.videoHeight * 2;
-      canvas.width = w;
-      canvas.height = h;
-      context.drawImage(video, 0, 0, w, h);
+      // 2. Prepare Canvas for ROI Processing
+      // We resize canvas to MATCH the ROI size x2 (for resolution)
+      canvas.width = roiWidth * 2;
+      canvas.height = roiHeight * 2;
       
-      const baseImageData = context.getImageData(0,0,w,h); // Save original
-
-      // Strategy: Try 3 different "Vision Modes" on the SAME image to handle different handwriting styles.
-      // Mode 1: Sharp + Binarized (Good for clean ink)
-      // Mode 2: Dilated (Good for thin/faint pencil)
-      // Mode 3: Raw Grayscale (Good if binarization fails)
+      // Draw ONLY the ROI part of the video onto the canvas
+      context.drawImage(video, roiX, roiY, roiWidth, roiHeight, 0, 0, canvas.width, canvas.height);
+      
+      const baseImageData = context.getImageData(0,0, canvas.width, canvas.height);
 
       const modes = ['sharp_binary', 'dilated', 'raw'];
       let bestCandidate = null;
 
       for (const mode of modes) {
-           console.log(`Running AI Model: ${mode}`);
-           
-           // Restore original
+           console.log(`Running AI Model on ROI: ${mode}`);
            context.putImageData(baseImageData, 0, 0);
 
            if (mode === 'sharp_binary') {
-               applySharpening(context, w, h);
-               // Simple Threshold
-               const d = context.getImageData(0,0,w,h);
-               for(let i=0; i<d.data.length; i+=4) d.data[i] = d.data[i]<100 ? 0 : 255;
+               applySharpening(context, canvas.width, canvas.height);
+               const d = context.getImageData(0,0,canvas.width, canvas.height);
+               for(let i=0; i<d.data.length; i+=4) d.data[i] = d.data[i]<110 ? 0 : 255; // Slightly higher threshold
                context.putImageData(d, 0,0);
            }
            else if (mode === 'dilated') {
-               // First threshold then dilate
-               const d = context.getImageData(0,0,w,h);
-               for(let i=0; i<d.data.length; i+=4) d.data[i] = (d.data[i]+d.data[i+1]+d.data[i+2])/3 < 120 ? 0 : 255;
+               const d = context.getImageData(0,0,canvas.width, canvas.height);
+               // Aggressive binarization for dilated
+               for(let i=0; i<d.data.length; i+=4) d.data[i] = (d.data[i]+d.data[i+1]+d.data[i+2])/3 < 140 ? 0 : 255;
                context.putImageData(d, 0,0);
-               applyDilation(context, w, h);
+               applyDilation(context, canvas.width, canvas.height);
            }
-           // 'raw' does nothing, just pass image
 
            const modeUrl = canvas.toDataURL('image/png');
            
            try {
-               // Whitelist digits for handwriting precision
                const { data: { text, confidence } } = await Tesseract.recognize(modeUrl, 'eng', {
                    tessedit_char_whitelist: '0123456789+ '
                });
 
                const num = extractNumber(text);
                if (num) {
-                   // If we find a highly confident number, stop early (conf > 80)
-                   // Tesseract confidence is a bit flaky, but let's try.
                    if (confidence > 80) {
                        bestCandidate = num;
                        break;
@@ -293,14 +293,14 @@ const Tools = () => {
       if (bestCandidate) {
            setEditableNumber(bestCandidate);
            setScanResult({ type: 'success', value: bestCandidate });
-           setOcrText("Handwriting detected!");
+           setOcrText("Number detected in ROI!");
       } else {
-           setOcrText("Could not read writing.");
-           setScanResult({ type: 'ocr_fail', value: null, raw: "AI tried 3 modes but failed." });
+           setOcrText("Could not read number in box.");
+           setScanResult({ type: 'ocr_fail', value: null, raw: "Ensure number is INSIDE the box." });
       }
   };
   
-  // Helper to extract number
+  // Helper to extract number (Refined for ROI - cleaner input expected)
   const extractNumber = (text) => {
       let clean = text.replace(/O/g, '0').replace(/o/g, '0').replace(/I/g, '1')
                       .replace(/l/g, '1').replace(/S/g, '5').replace(/B/g, '8').replace(/Z/g, '2');
@@ -487,6 +487,33 @@ const Tools = () => {
                         muted 
                         style={{ width: '100%', height: '350px', objectFit: 'cover', display: isCameraActive ? 'block' : 'none' }} 
                     />
+                    
+                    {/* Visual Focus Grid / Strip */}
+                    {isCameraActive && (
+                        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                            {/* Darkened Overlay */}
+                            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.4)' }}></div>
+                            
+                            {/* Clear Strip (The ROI) */}
+                            {/* ROI is approx 80% width, 15% height, Centered */}
+                            <div style={{
+                                position: 'absolute',
+                                top: '50%', left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                width: '80%', height: '15%',
+                                border: '2px solid #00F3FF',
+                                borderRadius: '8px',
+                                boxShadow: '0 0 20px rgba(0, 243, 255, 0.3)',
+                                background: 'transparent',
+                                zIndex: 5
+                            }}>
+                                <span style={{ position: 'absolute', top: '-25px', left: '0', width: '100%', textAlign: 'center', color: '#00F3FF', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                    PLACE NUMBER IN BOX
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
                     <img id="ocr-snapshot" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'none', border: '4px solid #fff', boxSizing: 'border-box', zIndex: 10 }} />
                     <canvas ref={canvasRef} style={{ display: 'none' }} />
                     
@@ -506,7 +533,8 @@ const Tools = () => {
                     {!cameraError && isCameraActive && (
                         <div style={{ 
                             position: 'absolute', bottom: '20px', left: '0', width: '100%', 
-                            display: 'flex', justifyContent: 'center', alignItems: 'center' 
+                            display: 'flex', justifyContent: 'center', alignItems: 'center',
+                            zIndex: 20
                         }}>
                             <button
                                 onClick={captureAndScan}
