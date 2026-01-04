@@ -14,6 +14,13 @@ const Navbar = () => {
   const location = useLocation();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  
+  // Listen for global contact open event
+  React.useEffect(() => {
+    const handleOpenContact = () => setIsContactOpen(true);
+    window.addEventListener('open-contact', handleOpenContact);
+    return () => window.removeEventListener('open-contact', handleOpenContact);
+  }, []);
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const isDashboard = location.pathname.includes('/dashboard') || location.pathname.includes('/admin');

@@ -1,12 +1,12 @@
 import React from 'react';
-import HeroSection from '../components/HeroSection';
+import Hero3D from '../components/Hero3D';
 import Packages from '../components/Packages';
 import About from './About';
 
 const Home = () => {
   return (
     <main>
-      <HeroSection />
+      <Hero3D />
       <Packages />
       <About />
       {/* Add more sections here if needed */}

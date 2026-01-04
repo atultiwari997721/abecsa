@@ -1,25 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@400;700;900&family=Syne:wght@700;800&display=swap');
+
 :root {
-  /* Default Dark / 3D Mode */
-  --bg-color: #050505;
-  --text-color: #ffffff;
-  --primary-color: #00f3ff;
-  --secondary-color: #bc13fe;
-  --accent-color: #ff0055;
-  --card-bg: rgba(255, 255, 255, 0.05);
-  --card-border: rgba(255, 255, 255, 0.1);
-  --nav-bg: rgba(0, 0, 0, 0.8);
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --hero-overlay: linear-gradient(to bottom, transparent, #050505);
+  /* Master Vision: The Ethereal Digital NEXUS */
+  --bg-color: #050511; /* Deep Void */
+  --text-color: #F0F8FF; /* Holographic White */
+  
+  --primary-color: #00F3FF; /* Neon Cyan */
+  --secondary-color: #bc13fe; /* Existing purple retained as secondary */
+  --accent-color: #FF0055; /* Cyber Magenta */
+  
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --card-border: rgba(0, 243, 255, 0.2);
+  
+  --nav-bg: rgba(5, 5, 17, 0.85);
+  --glass-bg: rgba(255, 255, 255, 0.02);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  
+  --hero-overlay: radial-gradient(circle at center, transparent 0%, #050511 100%);
+  
+  --font-heading: 'Orbitron', sans-serif;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
 }
 
 .light-mode {
-  /* Simple / White Mode */
+  /* Simple Mode Retained */
   --bg-color: #ffffff;
   --text-color: #1a1a1a;
-  --primary-color: #007bff; /* Standard Blue */
-  --secondary-color: #6610f2; /* Standard Purple */
-  --accent-color: #dc3545; /* Standard Red */
+  --primary-color: #007bff;
+  --secondary-color: #6610f2;
+  --accent-color: #dc3545;
   --card-bg: #f8f9fa;
   --card-border: #dee2e6;
   --nav-bg: rgba(255, 255, 255, 0.95);
@@ -33,14 +43,28 @@ body {
   padding: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: 1px;
+}
+
+.display-text {
+  font-family: var(--font-display);
 }
 
 a {
   text-decoration: none;
   color: inherit;
+  transition: color 0.3s ease;
+}
+
+button {
+  font-family: var(--font-heading);
 }
 
 button:active, a:active {
@@ -48,13 +72,9 @@ button:active, a:active {
   transition: transform 0.1s;
 }
 
-ul {
-  list-style: none;
-}
-
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -63,7 +83,7 @@ ul {
 
 ::-webkit-scrollbar-thumb {
   background: var(--primary-color);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .app-container {

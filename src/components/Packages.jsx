@@ -66,22 +66,46 @@ const Packages = () => {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
-    <section id="services" style={{ padding: isMobile ? '2rem 1rem' : '4rem 2rem', position: 'relative' }}>
+    <section id="services" style={{ padding: isMobile ? '2rem 1rem' : '6rem 2rem', position: 'relative', overflow: 'hidden' }}>
+      {/* Ambient background glow */}
+      <div style={{
+          position: 'absolute',
+          top: '20%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '600px',
+          height: '600px',
+          background: 'radial-gradient(circle, rgba(0, 243, 255, 0.1) 0%, transparent 70%)',
+          pointerEvents: 'none',
+          zIndex: 0
+      }} />
+
       <h2 style={{ 
         textAlign: 'center', 
-        fontSize: isMobile ? '2rem' : '2.5rem', 
-        marginBottom: isMobile ? '1.5rem' : '3rem', 
-        color: 'var(--text-color)' 
+        fontSize: isMobile ? '2.5rem' : '3.5rem', 
+        marginBottom: isMobile ? '2rem' : '4rem', 
+        color: '#fff',
+        fontFamily: 'var(--font-heading)',
+        textTransform: 'uppercase',
+        letterSpacing: '2px',
+        position: 'relative',
+        zIndex: 1
       }}>
-        Our <span style={{ color: 'var(--primary-color)' }}>Packages</span>
+        Our <span style={{ 
+          color: 'transparent', 
+          WebkitTextStroke: '1px var(--primary-color)',
+          textShadow: '0 0 20px rgba(0, 243, 255, 0.5)' 
+        }}>Packages</span>
       </h2>
       
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-        gap: isMobile ? '1rem' : '2rem',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gap: isMobile ? '1.5rem' : '2.5rem',
         maxWidth: '1200px',
-        margin: '0 auto'
+        margin: '0 auto',
+        position: 'relative',
+        zIndex: 1
       }}>
         {packages.map((pkg, index) => (
           <motion.div 
@@ -91,62 +115,129 @@ const Packages = () => {
             transition={{ delay: index * 0.1 }}
             viewport={{ once: true }}
             style={{
-              background: 'var(--glass-bg)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid var(--glass-border)',
-              borderRadius: '15px',
-              padding: '2rem',
+              background: 'rgba(255, 255, 255, 0.03)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              borderTop: `1px solid ${pkg.color}`,
+              borderRadius: '20px',
+              padding: '2.5rem',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              transition: 'transform 0.3s',
               cursor: 'pointer',
-              boxShadow: isMobile ? `0 0 20px ${pkg.color}` : 'none'
+              position: 'relative',
+              overflow: 'hidden'
             }}
-            whileHover={{ scale: 1.05, boxShadow: `0 0 20px ${pkg.color}` }}
+            whileHover={{ 
+              y: -10, 
+              boxShadow: `0 10px 40px -10px ${pkg.color}66`,
+              borderColor: pkg.color
+            }}
             onClick={() => setSelectedPreview(pkg)}
           >
-            <h3 style={{ color: pkg.color, marginBottom: '1rem', textAlign: 'center' }}>{pkg.title}</h3>
-            <div style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1.5rem', color: 'var(--text-color)' }}>{pkg.price}</div>
-            <ul style={{ marginBottom: '2rem', width: '100%' }}>
+            {/* Hover Gradient Overlay */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: `radial-gradient(circle at top right, ${pkg.color}22, transparent 50%)`,
+              opacity: 0,
+              transition: 'opacity 0.3s'
+            }} 
+            className="card-glow"
+            />
+            <style>{`.card-glow:hover { opacity: 1; }`}</style>
+
+            <h3 style={{ 
+              color: '#fff', 
+              marginBottom: '1rem', 
+              textAlign: 'center',
+              fontFamily: 'var(--font-heading)',
+              fontSize: '1.2rem',
+              letterSpacing: '1px'
+            }}>{pkg.title}</h3>
+            
+            <div style={{ 
+              fontSize: '2.5rem', 
+              fontWeight: 'bold', 
+              marginBottom: '2rem', 
+              color: pkg.color,
+              fontFamily: 'var(--font-display)',
+              textShadow: `0 0 20px ${pkg.color}44`
+            }}>{pkg.price}</div>
+            
+            <ul style={{ marginBottom: '2.5rem', width: '100%', paddingLeft: 0 }}>
               {pkg.features.map((feature, i) => (
-                <li key={i} style={{ marginBottom: '0.5rem', textAlign: 'center', color: 'var(--text-color)', opacity: 0.8 }}>• {feature}</li>
+                <li key={i} style={{ 
+                  marginBottom: '0.8rem', 
+                  textAlign: 'center', 
+                  color: 'rgba(255,255,255,0.7)', 
+                  fontSize: '0.95rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem'
+                }}>
+                  <span style={{ color: pkg.color }}>▹</span> {feature}
+                </li>
               ))}
             </ul>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            
+            <div style={{ display: 'flex', gap: '1rem', width: '100%', justifyContent: 'center' }}>
               <button 
                 onClick={(e) => { e.stopPropagation(); handleBuy(pkg.title); }}
                 style={{
-                  background: pkg.color,
-                  color: '#000',
-                  border: 'none',
+                  background: 'transparent',
+                  color: pkg.color,
+                  border: `1px solid ${pkg.color}`,
                   padding: '0.8rem 1.5rem',
-                  borderRadius: '25px',
+                  borderRadius: '4px',
                   fontWeight: 'bold',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  fontSize: '1rem'
+                  fontSize: '0.9rem',
+                  fontFamily: 'var(--font-heading)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  transition: 'all 0.3s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = pkg.color;
+                  e.currentTarget.style.color = '#000';
+                  e.currentTarget.style.boxShadow = `0 0 20px ${pkg.color}`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = pkg.color;
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <FaWhatsapp size={20} /> Buy Now
+                Buy Now
               </button>
+              
               <button
                 onClick={(e) => { e.stopPropagation(); setSelectedPreview(pkg); }}
                 style={{
-                  background: 'rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.05)',
                   color: '#fff',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  padding: '0.8rem',
-                  borderRadius: '50%',
+                  border: 'none',
+                  width: '45px',
+                  height: '45px',
+                  borderRadius: '4px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  transition: 'all 0.3s'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
               >
-                <FaEye size={20} />
+                <FaEye size={18} />
               </button>
             </div>
           </motion.div>

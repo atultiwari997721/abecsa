@@ -55,53 +55,12 @@ const Login = () => {
       width: '100vw', 
       height: '100vh', 
       overflow: 'hidden',
-      background: '#050505',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: "'Exo 2', sans-serif"
+      fontFamily: "var(--font-body)"
     }}>
       
-      {/* Abstract Background Elements */}
-      <motion.div 
-        animate={{ 
-          scale: [1, 1.2, 1],
-          rotate: [0, 90, 0],
-          opacity: [0.3, 0.5, 0.3] 
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        style={{
-          position: 'absolute',
-          top: '-20%',
-          left: '-10%',
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(60px)',
-          zIndex: 0
-        }}
-      />
-      <motion.div 
-        animate={{ 
-          scale: [1, 1.1, 1],
-          x: [0, 50, 0],
-          opacity: [0.2, 0.4, 0.2] 
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: 'absolute',
-          bottom: '-20%',
-          right: '-10%',
-          width: '500px',
-          height: '500px',
-          background: 'radial-gradient(circle, rgba(138, 43, 226, 0.15) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(60px)',
-          zIndex: 0
-        }}
-      />
-
       <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -113,7 +72,8 @@ const Login = () => {
               color: '#fff', padding: '0.8rem 1.2rem', borderRadius: '30px',
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
               zIndex: 10, backdropFilter: 'blur(10px)',
-              transition: 'all 0.3s'
+              transition: 'all 0.3s',
+              fontFamily: 'var(--font-heading)'
           }}
           whileHover={{ background: 'rgba(255,255,255,0.1)', scale: 1.05 }}
       >
@@ -125,9 +85,9 @@ const Login = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         style={{
-          background: 'rgba(20, 20, 20, 0.6)',
+          background: 'var(--glass-bg)',
           backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(212, 175, 55, 0.2)',
+          border: '1px solid var(--glass-border)',
           padding: '3rem',
           borderRadius: '20px',
           width: '90%',
@@ -154,12 +114,12 @@ const Login = () => {
             <span style={{ color: '#4caf50' }}>S</span>
             <span style={{ color: '#e93e3a' }}>A</span>
           </h2>
-          <p style={{ color: '#888', fontSize: '0.9rem', margin: 0 }}>Secure Personnel Access</p>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', margin: 0, letterSpacing: '1px' }}>SECURE ACCESS</p>
         </div>
         
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div style={{ position: 'relative' }}>
-            <FaEnvelope style={{ position: 'absolute', top: '50%', left: '15px', transform: 'translateY(-50%)', color: '#D4AF37' }} />
+            <FaEnvelope style={{ position: 'absolute', top: '50%', left: '15px', transform: 'translateY(-50%)', color: 'var(--primary-color)' }} />
             <input
               type="email" name="email" placeholder="Email Address"
               value={formData.email} onChange={handleChange}
@@ -169,7 +129,7 @@ const Login = () => {
           </div>
 
           <div style={{ position: 'relative' }}>
-            <FaLock style={{ position: 'absolute', top: '50%', left: '15px', transform: 'translateY(-50%)', color: '#D4AF37' }} />
+            <FaLock style={{ position: 'absolute', top: '50%', left: '15px', transform: 'translateY(-50%)', color: 'var(--primary-color)' }} />
             <input
               type="password" name="password" placeholder="Password"
               value={formData.password} onChange={handleChange}
@@ -181,10 +141,10 @@ const Login = () => {
           <motion.button 
             type="submit" 
             disabled={loading}
-            whileHover={{ scale: 1.02 }} 
+            whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(0, 243, 255, 0.4)' }} 
             whileTap={{ scale: 0.98 }}
             style={{
-              background: 'linear-gradient(45deg, #D4AF37, #F5B700)',
+              background: 'linear-gradient(45deg, var(--primary-color), #00a8ff)',
               color: '#000', 
               border: 'none', 
               padding: '14px', 
@@ -193,10 +153,13 @@ const Login = () => {
               fontWeight: 'bold', 
               cursor: 'pointer', 
               marginTop: '1rem',
-              boxShadow: '0 4px 15px rgba(212, 175, 55, 0.3)'
+              boxShadow: '0 4px 15px rgba(0, 243, 255, 0.2)',
+              fontFamily: 'var(--font-heading)',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
             }}
           >
-            {loading ? 'Authenticating...' : 'Secure Login'}
+            {loading ? 'Authenticating...' : 'Enter System'}
           </motion.button>
         </form>
       </motion.div>
@@ -205,7 +168,7 @@ const Login = () => {
         .login-input {
           width: 100%;
           padding: 14px 14px 14px 45px;
-          background: rgba(0, 0, 0, 0.4);
+          background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 10px;
           color: #fff;
@@ -213,14 +176,15 @@ const Login = () => {
           outline: none;
           transition: all 0.3s;
           box-sizing: border-box;
+          font-family: var(--font-body);
         }
         .login-input:focus {
-          border-color: #D4AF37;
-          background: rgba(0, 0, 0, 0.6);
-          box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+          border-color: var(--primary-color);
+          background: rgba(255, 255, 255, 0.1);
+          box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
         }
         .login-input::placeholder {
-          color: #666;
+          color: rgba(255, 255, 255, 0.4);
         }
       `}</style>
     </div>

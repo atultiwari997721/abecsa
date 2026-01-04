@@ -6,9 +6,9 @@ import './styles/global.css'
 import { AuthProvider } from './contexts/AuthContext';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+  <React.Fragment>
     <AuthProvider>
       <App />
     </AuthProvider>
-  </React.StrictMode>,
+  </React.Fragment>,
 )

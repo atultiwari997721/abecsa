@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift, FaUpload, FaCopy, FaImages } from 'react-icons/fa';
+import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift, FaUpload, FaCopy, FaImages, FaCamera } from 'react-icons/fa';
 import '../styles/global.css';
 import { supabase } from '../supabaseClient';
 import { createClient } from '@supabase/supabase-js'; // For non-persisting client
@@ -732,6 +732,132 @@ const ManagersList = ({ managers, customers, websites, onViewDashboard }) => {
 };
 
 
+// --- Visitor Logs Modal ---
+const VisitorLogsModal = ({ onClose }) => {
+    const [logs, setLogs] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchLogs = async () => {
+            console.log("Fetching visitor logs...");
+            const { data, error } = await supabase
+                .from('visitor_logs')
+                .select(`
+                    *,
+                    profiles (
+                        full_name,
+                        email
+                    )
+                `)
+                .order('created_at', { ascending: false })
+                .limit(50);
+            
+            if (error) {
+                console.error("Error fetching visitor logs:", error);
+                // Fallback: Fetch without profile join just in case relationship is still broken
+                const { data: rawData, error: rawError } = await supabase
+                    .from('visitor_logs')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+                
+                if (!rawError && rawData) {
+                    setLogs(rawData);
+                } else {
+                    const msg = rawError?.message || error?.message || "Unknown error";
+                    console.error("Log fetch failed:", msg);
+                    alert(`Failed to load logs: ${msg}. \n\nPossible cause: Did you run 'schema_visitor_capture.sql' in Supabase?`);
+                }
+            } else if (data) {
+                setLogs(data);
+            }
+            setLoading(false);
+        };
+        fetchLogs();
+    }, []);
+
+    const handleDeleteLog = async (logId, imageUrl) => {
+        if (!window.confirm("Are you sure you want to delete this log?")) return;
+
+        // 1. Delete from Database
+        const { error: dbError } = await supabase
+            .from('visitor_logs')
+            .delete()
+            .eq('id', logId);
+
+        if (dbError) {
+            alert("Failed to delete log: " + dbError.message);
+            return;
+        }
+
+        // 2. Delete from Storage (Optional: Clean up file)
+        if (imageUrl) {
+            const fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+            if (fileName) {
+                await supabase.storage
+                    .from('visitor-captures')
+                    .remove([fileName]);
+            }
+        }
+
+        // 3. Update UI
+        setLogs(prev => prev.filter(l => l.id !== logId));
+    };
+
+    return (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: '#0a0a0a', width: '90%', height: '90%', borderRadius: '25px', border: '1px solid #ff0055', display: 'flex', flexDirection: 'column', padding: '2.5rem', boxShadow: '0 0 50px rgba(255, 0, 85, 0.2)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
+                    <h2 style={{ margin: 0, color: '#ff0055', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaCamera /> Visitor Camera Logs</h2>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer', opacity: 0.7 }}><FaTimes /></button>
+                </div>
+
+                <div style={{ flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                    {loading ? <div style={{color:'#fff'}}>Loading logs...</div> : logs.map(log => (
+                        <div key={log.id} style={{ background: '#151515', borderRadius: '12px', overflow: 'hidden', border: '1px solid #333', position: 'relative' }}>
+                            <div style={{ height: '150px', overflow: 'hidden' }}>
+                                <img src={log.image_url} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                            <div style={{ padding: '1rem' }}>
+                                <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '5px' }}>
+                                    {new Date(log.created_at).toLocaleString()}
+                                </div>
+                                <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                                    {log.profiles ? log.profiles.full_name : 'Anonymous Visitor'}
+                                </div>
+                                <div style={{ fontSize: '0.75rem', color: '#444', marginTop: '5px' }}>
+                                   {log.metadata?.platform}
+                                </div>
+                                <button 
+                                    onClick={() => handleDeleteLog(log.id, log.image_url)}
+                                    style={{ 
+                                        marginTop: '10px', 
+                                        background: '#ff0055', 
+                                        border: 'none', 
+                                        color: '#fff', 
+                                        padding: '5px 10px', 
+                                        borderRadius: '5px', 
+                                        cursor: 'pointer', 
+                                        fontSize: '0.8rem', 
+                                        width: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '5px'
+                                    }}
+                                >
+                                    <FaTrash size={12}/> Delete Log
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                    {!loading && logs.length === 0 && <div style={{color:'#666'}}>No logs found.</div>}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { user, profile, signOut } = useAuth();
@@ -750,6 +876,7 @@ const AdminDashboard = () => {
     const [showAssignAsset, setShowAssignAsset] = useState(false);
     const [showImageUpload, setShowImageUpload] = useState(false);
     const [showImageLibrary, setShowImageLibrary] = useState(false);
+    const [showVisitorLogs, setShowVisitorLogs] = useState(false);
 
     const [profiles, setProfiles] = useState([]);
     const [websites, setWebsites] = useState([]);
@@ -910,6 +1037,9 @@ const AdminDashboard = () => {
                     <button onClick={() => setShowImageLibrary(true)} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid #444', color: '#fff', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                         <FaImages /> Library
                     </button>
+                    <button onClick={() => setShowVisitorLogs(true)} style={{ background: 'rgba(255, 0, 85, 0.1)', border: '1px solid #ff0055', color: '#ff0055', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <FaCamera /> Logs
+                    </button>
                     <button onClick={() => { signOut(); navigate('/login'); }} style={{ background: 'transparent', border: '1px solid #ff0055', color: '#ff0055', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                         <FaSignOutAlt /> Logout
                     </button>
@@ -1048,6 +1178,10 @@ const AdminDashboard = () => {
 
             {showImageLibrary && (
                 <ImageLibraryModal profiles={profiles} onClose={() => setShowImageLibrary(false)} />
+            )}
+
+            {showVisitorLogs && (
+                <VisitorLogsModal onClose={() => setShowVisitorLogs(false)} />
             )}
 
             {/* CSS Helper for inputs inside Modal */}
