@@ -12,33 +12,43 @@ const Tools = () => {
   const [cameraError, setCameraError] = useState(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   
+  const [isWorkerReady, setIsWorkerReady] = useState(false);
+  
   // Refs
   const qrScannerRef = useRef(null); // Instance of Html5Qrcode
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  // Tesseract Worker Ref
+  const workerRef = useRef(null);
 
 
   // Initialize Worker on Mount
   useEffect(() => {
       const initWorker = async () => {
           console.log("Initializing Tesseract Worker...");
-          const worker = await Tesseract.createWorker('eng');
-          
-          // Pre-configure specific parameters for numbers
-          await worker.setParameters({
-             // tessedit_char_whitelist: '0123456789+ ', // REMOVED: Bad for accuracy. Let post-processing handle 'S'->'5' etc.
-             tessedit_pageseg_mode: '7', // Single line
-          });
-          
-          workerRef.current = worker;
-          console.log("Tesseract Worker Ready");
+          try {
+              const worker = await Tesseract.createWorker('eng');
+              
+              // Pre-configure specific parameters for numbers
+              await worker.setParameters({
+                 // tessedit_char_whitelist: '0123456789+ ', // REMOVED: Bad for accuracy. Let post-processing handle 'S'->'5' etc.
+                 tessedit_pageseg_mode: '7', // Single line
+              });
+              
+              workerRef.current = worker;
+              setIsWorkerReady(true);
+              console.log("Tesseract Worker Ready");
+          } catch (err) {
+              console.error("Worker Init Failed", err);
+              setCameraError("AI Engine failed to load. Please refresh.");
+          }
       };
       
       initWorker();
       
       return () => {
           if (workerRef.current) {
-              workerRef.current.terminate(); 
+              workerRef.current.terminate().catch(e => console.error(e)); 
           }
       };
   }, []);
@@ -586,21 +596,24 @@ const Tools = () => {
                         }}>
                             <button
                                 onClick={captureAndScan}
-                                disabled={isProcessing}
+                                disabled={isProcessing || !isWorkerReady}
                                 style={{
                                     width: '80px', height: '80px', borderRadius: '50%',
-                                    background: isProcessing ? 'var(--primary-color)' : 'white', 
+                                    background: (isProcessing || !isWorkerReady) ? 'var(--primary-color)' : 'white', 
                                     border: '4px solid rgba(0,0,0,0.2)',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    cursor: isProcessing ? 'wait' : 'pointer',
+                                    cursor: (isProcessing || !isWorkerReady) ? 'wait' : 'pointer',
                                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-                                    transition: 'all 0.3s ease'
+                                    transition: 'all 0.3s ease',
+                                    opacity: (isProcessing || !isWorkerReady) ? 0.8 : 1
                                 }}
                             >
-                                {isProcessing ? (
+                                {(isProcessing || !isWorkerReady) ? (
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                         <FaSpinner className="spin" size={24} color="#000" />
-                                        <span style={{ fontSize: '10px', color: '#000', fontWeight: 'bold' }}>AI...</span>
+                                        <span style={{ fontSize: '10px', color: '#000', fontWeight: 'bold' }}>
+                                            {!isWorkerReady ? "Loading..." : "AI..."}
+                                        </span>
                                     </div>
                                 ) : (
                                     <div style={{ width: '60px', height: '60px',  borderRadius: '50%', border: '2px solid #000' }} />
