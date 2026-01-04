@@ -134,7 +134,13 @@ const Tools = () => {
          setScanResult({ type: 'success', value: extractedNumber }); // Unified success type
          stopQrScanner();
     } else {
-        setScanResult({ type: 'text', value: text });
+        // NEW: Check for generic URL
+        const urlRegex = /^(https?:\/\/[^\s]+)/;
+        if (urlRegex.test(text)) {
+            setScanResult({ type: 'url', value: text });
+        } else {
+            setScanResult({ type: 'text', value: text });
+        }
         stopQrScanner();
     }
   };
@@ -390,6 +396,30 @@ const Tools = () => {
                     <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}>
                         <p>Scanned: {scanResult.value}</p>
                     </div>
+                )}
+
+                {scanResult && scanResult.type === 'url' && (
+                     <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(0, 243, 255, 0.1)', borderRadius: '12px', border: '1px solid rgba(0, 243, 255, 0.3)' }}
+                    >
+                        <p style={{ marginBottom: '0.5rem', opacity: 0.8 }}>Web Link Found:</p>
+                        <p style={{ fontWeight: 'bold', marginBottom: '1rem', wordBreak: 'break-all' }}>{scanResult.value}</p>
+                        
+                        <a
+                            href={scanResult.value}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                width: '100%', padding: '1rem', background: 'var(--primary-color)', color: '#000',
+                                border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', cursor: 'pointer', textDecoration: 'none'
+                            }}
+                        >
+                             Open Link ↗
+                        </a>
+                    </motion.div>
                 )}
             </div>
         )}
