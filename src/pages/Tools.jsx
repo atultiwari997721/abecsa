@@ -180,47 +180,31 @@ const Tools = () => {
     setIsCameraActive(false);
   };
 
-  // CV: Adaptive Thresholding (Handles shadows/gradients)
-  const applyAdaptiveThreshold = (ctx, w, h) => {
+  // CV: Ink Thickening (Morphological Erosion for dark text)
+  // Essential for thin handwriting
+  const applyThickening = (ctx, w, h) => {
       const imgData = ctx.getImageData(0, 0, w, h);
       const data = imgData.data;
       const copy = new Uint8ClampedArray(data);
-      const windowSize = 12; // Local window radius
-      const c = 10;          // Constant subtraction
-
-      for (let y = 0; y < h; y++) {
-          for (let x = 0; x < w; x++) {
+  
+      for (let y = 1; y < h - 1; y++) {
+          for (let x = 1; x < w - 1; x++) {
               const idx = (y * w + x) * 4;
-              let sum = 0;
-              let count = 0;
-
-              // Simple local mean (slow but effective for small ROI)
-              for (let dy = -windowSize; dy <= windowSize; dy += 4) { // Step 4 for speed
-                  for (let dx = -windowSize; dx <= windowSize; dx += 4) {
-                       const ny = y + dy;
-                       const nx = x + dx;
-                       if (ny >= 0 && ny < h && nx >= 0 && nx < w) {
-                           sum += copy[(ny * w + nx) * 4 + 1]; // Green channel
-                           count++;
-                       }
+              // We want to find the DARKEST (min) neighbor to expand the ink
+              let minVal = 255;
+              
+              // 3x3 Kernel
+              for (let ky = -1; ky <= 1; ky++) {
+                  for (let kx = -1; kx <= 1; kx++) {
+                      const neighborIdx = ((y + ky) * w + (x + kx)) * 4;
+                      // Use Green channel [1] as proxy for brightness
+                      const val = copy[neighborIdx + 1];
+                      if (val < minVal) minVal = val;
                   }
               }
-              const mean = sum / count;
-              // If pixel is significantly darker than local mean => Text
-              const val = (copy[idx+1] < mean - c) ? 0 : 255;
-              data[idx] = data[idx+1] = data[idx+2] = val;
+              // Apply darker value to current pixel
+              data[idx] = data[idx+1] = data[idx+2] = minVal;
           }
-      }
-      ctx.putImageData(imgData, 0, 0);
-  };
-
-  const invertImage = (ctx, w, h) => {
-      const imgData = ctx.getImageData(0, 0, w, h);
-      const data = imgData.data;
-      for (let i = 0; i < data.length; i += 4) {
-          data[i] = 255 - data[i];     // R
-          data[i+1] = 255 - data[i+1]; // G
-          data[i+2] = 255 - data[i+2]; // B
       }
       ctx.putImageData(imgData, 0, 0);
   };
@@ -255,49 +239,57 @@ const Tools = () => {
           feedbackEl.style.opacity = 0.5;
       }
 
-      // 2. Prepare ROI Canvas (Scale x2 for resolution)
-      canvas.width = roiWidth * 2;
-      canvas.height = roiHeight * 2;
+      // 2. Prepare ROI Canvas (Scale 1.5x)
+      const scale = 1.5;
+      canvas.width = roiWidth * scale;
+      canvas.height = roiHeight * scale;
       context.drawImage(video, roiX, roiY, roiWidth, roiHeight, 0, 0, canvas.width, canvas.height);
       
       const baseImageData = context.getImageData(0,0, canvas.width, canvas.height);
 
-      // Modes: 
-      // 1. Adaptive: Best for shadows/gradients (e.g. thumb shadow)
-      // 2. Inverted: Best for white text on dark card
-      // 3. Raw: Baseline
-      const modes = ['adaptive', 'inverted', 'raw'];
+      // Cascade Strategy:
+      // 1. Raw: Fast baseline.
+      // 2. Handwriting (Thickened): ESSENTIAL for pen/pencil.
+      // 3. Contrast: For shadows.
+      // 4. Inverted: Dark mode.
+      const modes = ['raw', 'handwriting', 'contrast', 'inverted'];
       let bestCandidate = null;
 
       for (const mode of modes) {
-           console.log(`Running AI Model: ${mode}`);
-           context.putImageData(baseImageData, 0, 0);
+           // Restore original for next pass (except first run)
+           if (mode !== 'raw') context.putImageData(baseImageData, 0, 0);
 
-           if (mode === 'adaptive') {
-               applyAdaptiveThreshold(context, canvas.width, canvas.height);
+           if (mode === 'contrast') {
+               applyHighContrast(context, canvas.width, canvas.height);
+           }
+           else if (mode === 'handwriting') {
+               // 1. Contrast first to clean up noise
+               applyHighContrast(context, canvas.width, canvas.height);
+               // 2. Then thicken the ink
+               applyThickening(context, canvas.width, canvas.height);
            }
            else if (mode === 'inverted') {
-               // Invert then adaptive threshold? Or just simple invert?
-               // Let's do simple invert then simple contrast boost
                invertImage(context, canvas.width, canvas.height);
-               // Contrast stretch
+               // Mild contrast boost after invert
                const d = context.getImageData(0,0, canvas.width, canvas.height);
-               for(let i=0; i<d.data.length; i+=4) d.data[i] = d.data[i] < 100 ? 0 : 255;
+               for(let i=0; i<d.data.length; i+=4) d.data[i] = d.data[i] < 120 ? 0 : 255;
                context.putImageData(d, 0, 0);
            }
-           
+           // 'raw' uses image as is
+
            const modeUrl = canvas.toDataURL('image/png');
            
            try {
                const { data: { text, confidence } } = await Tesseract.recognize(modeUrl, 'eng', {
                    tessedit_char_whitelist: '0123456789+ ',
-                   tessedit_pageseg_mode: '7' // PSM 7: Treat image as a single text line
+                   tessedit_pageseg_mode: '7' // PSM 7: Single line
                });
 
                const num = extractNumber(text);
                if (num) {
-                   // If confident, stop
-                   if (confidence > 75) {
+                   // Optimization: Early exit on high confidence
+                   if (confidence > 80) {
+                       console.log(`Match found in ${mode} mode (Conf: ${confidence})`);
                        bestCandidate = num;
                        break;
                    }
@@ -312,10 +304,10 @@ const Tools = () => {
       if (bestCandidate) {
            setEditableNumber(bestCandidate);
            setScanResult({ type: 'success', value: bestCandidate });
-           setOcrText("Number detected in ROI!");
+           setOcrText("Number detected!");
       } else {
            setOcrText("Detection failed.");
-           setScanResult({ type: 'ocr_fail', value: null, raw: "Try clear lighting inside box." });
+           setScanResult({ type: 'ocr_fail', value: null, raw: "Try writing clearer digits." });
       }
   };
   
