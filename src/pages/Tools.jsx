@@ -16,9 +16,7 @@ const Tools = () => {
   const qrScannerRef = useRef(null); // Instance of Html5Qrcode
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-      stopOcrStream();
-    };
-  }, [activeTab]);
+
 
   // Initialize Worker on Mount
   useEffect(() => {
