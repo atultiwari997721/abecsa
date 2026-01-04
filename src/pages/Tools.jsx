@@ -26,7 +26,7 @@ const Tools = () => {
           
           // Pre-configure specific parameters for numbers
           await worker.setParameters({
-             tessedit_char_whitelist: '0123456789+ ',
+             // tessedit_char_whitelist: '0123456789+ ', // REMOVED: Bad for accuracy. Let post-processing handle 'S'->'5' etc.
              tessedit_pageseg_mode: '7', // Single line
           });
           
