@@ -243,14 +243,12 @@ const Tools = () => {
       // Check if worker is ready
       if (!workerRef.current) {
           setOcrText("Starting AI Engine...");
-          // Try to wait a bit or just return
-          // Returning avoids crash
           return;
       }
       
       setIsProcessing(true);
       setScanResult(null); 
-      setOcrText("Scanning..."); // Short feedback
+      setOcrText("Scanning..."); 
       
       const video = videoRef.current;
       const canvas = canvasRef.current;
@@ -278,45 +276,72 @@ const Tools = () => {
           feedbackEl.style.opacity = 0.5;
       }
 
-      // 2. Performance: Limit Resolution!
-      // High-res images destroy performance. Digits don't need > 800px width.
-      const MAX_WIDTH = 800;
-      let targetWidth = roiWidth;
-      let targetHeight = roiHeight;
-      
-      if (targetWidth > MAX_WIDTH) {
-          const ratio = MAX_WIDTH / targetWidth;
-          targetWidth = MAX_WIDTH;
-          targetHeight = targetHeight * ratio;
-      }
-      
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
-      
-      // Draw resized ROI
-      context.drawImage(video, roiX, roiY, roiWidth, roiHeight, 0, 0, targetWidth, targetHeight);
-      
-      // 3. Apply ONE optimal filter (Hybrid)
-      // No more loops. No more mult-mode. Just one fast strong pass.
-      applyHybridProcessing(context, targetWidth, targetHeight);
-      
-      const modeUrl = canvas.toDataURL('image/png');
+      let bestNumber = null;
 
+      // ============================================
+      // STAGE 1: HIGH SPEED (Optimized for standard text)
+      // ============================================
       try {
-           const { data: { text, confidence } } = await workerRef.current.recognize(modeUrl);
+          // Resize for speed (800px width cap)
+          const MAX_WIDTH = 800;
+          let targetWidth = roiWidth;
+          let targetHeight = roiHeight;
+          if (targetWidth > MAX_WIDTH) {
+              const ratio = MAX_WIDTH / targetWidth;
+              targetWidth = MAX_WIDTH;
+              targetHeight = targetHeight * ratio;
+          }
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+          context.drawImage(video, roiX, roiY, roiWidth, roiHeight, 0, 0, targetWidth, targetHeight);
+          
+          // Apply Contrast/Hybrid Filter
+          applyHybridProcessing(context, targetWidth, targetHeight);
+          
+          const speedUrl = canvas.toDataURL('image/png');
+          const { data: { text, confidence } } = await workerRef.current.recognize(speedUrl);
+          
+          const num = extractNumber(text);
+          if (num && confidence > 70) {
+              bestNumber = num;
+              console.log("Stage 1 (Speed) Success:", num);
+          }
+      } catch (e) { console.error("Stage 1 Error", e); }
 
-           const num = extractNumber(text);
-           if (num) {
-               setEditableNumber(num);
-               setScanResult({ type: 'success', value: num });
-               setOcrText("Success!");
-           } else {
-               setOcrText("Try again");
-               setScanResult({ type: 'ocr_fail', value: null, raw: "Clean background required" });
-           }
-      } catch (e) { 
-          console.error(e);
-          setScanResult({ type: 'ocr_fail', value: null, raw: "Error" });
+
+      // ============================================
+      // STAGE 2: FAILSAFE (Raw Accuracy)
+      // Only runs if Stage 1 failed.
+      // ============================================
+      if (!bestNumber) {
+          console.log("Stage 1 failed, trying Stage 2 (Raw Accuracy)...");
+          try {
+              // Use RAW ROI (No resize, or minimal resize for huge cameras)
+              // We restart with the raw video data
+              canvas.width = roiWidth;
+              canvas.height = roiHeight;
+              context.drawImage(video, roiX, roiY, roiWidth, roiHeight, 0, 0, roiWidth, roiHeight);
+              
+              // NO FILTERS - Just raw image (sometimes filters destroy data)
+              const rawUrl = canvas.toDataURL('image/png');
+              const { data: { text } } = await workerRef.current.recognize(rawUrl);
+              
+              const num = extractNumber(text);
+              if (num) {
+                  bestNumber = num;
+                  console.log("Stage 2 (Raw) Success:", num);
+              }
+          } catch (e) { console.error("Stage 2 Error", e); }
+      }
+
+      // Result Handling
+      if (bestNumber) {
+           setEditableNumber(bestNumber);
+           setScanResult({ type: 'success', value: bestNumber });
+           setOcrText("Success!");
+      } else {
+           setOcrText("Try again");
+           setScanResult({ type: 'ocr_fail', value: null, raw: "Could not read number." });
       }
 
       setIsProcessing(false);
