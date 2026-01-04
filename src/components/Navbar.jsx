@@ -64,6 +64,21 @@ const Navbar = () => {
             {item}
           </a>
         ))}
+        
+        <button onClick={() => navigate('/tools')} style={{
+          background: 'transparent',
+          border: 'none',
+          color: 'var(--text-color)',
+          fontSize: '1rem',
+          cursor: 'pointer',
+          transition: 'color 0.3s'
+        }}
+        onMouseEnter={(e) => e.target.style.color = 'var(--primary-color)'}
+        onMouseLeave={(e) => e.target.style.color = 'var(--text-color)'}
+        >
+          Tools
+        </button>
+
         <button onClick={() => setIsContactOpen(true)} style={{
           background: 'transparent',
           border: 'none',
@@ -156,6 +171,9 @@ const Navbar = () => {
               {item}
             </a>
           ))}
+          <button onClick={() => { navigate('/tools'); setIsMenuOpen(false); }} style={{ fontSize: '1.2rem', background: 'transparent', border: 'none', color: 'var(--text-color)' }}>
+            Tools
+          </button>
           <button onClick={() => { setIsContactOpen(true); setIsMenuOpen(false); }} style={{ fontSize: '1.2rem', background: 'transparent', border: 'none', color: 'var(--text-color)' }}>
             Contact
           </button>
