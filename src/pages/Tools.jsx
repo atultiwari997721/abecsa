@@ -172,21 +172,29 @@ const Tools = () => {
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       
-      // Pre-process image for better OCR
+      // Show snapshot feedback
+      const snapshotUrl = canvas.toDataURL('image/png');
+      const feedbackEl = document.getElementById('ocr-snapshot');
+      if (feedbackEl) {
+          feedbackEl.src = snapshotUrl;
+          feedbackEl.style.display = 'block';
+          // Hide after 1 sec
+          setTimeout(() => { feedbackEl.style.display = 'none'; }, 1000);
+      }
+
+      // Pre-process: Grayscale only (safer than full binarization for now)
       const canvasCtx = context;
       const imgData = canvasCtx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imgData.data;
 
-      // Simple binarization (high contrast)
       for (let i = 0; i < data.length; i += 4) {
           const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-          const color = avg > 128 ? 255 : 0;
-          data[i] = color;     // R
-          data[i + 1] = color; // G
-          data[i + 2] = color; // B
+          data[i] = avg;     // R
+          data[i + 1] = avg; // G
+          data[i + 2] = avg; // B
       }
       canvasCtx.putImageData(imgData, 0, 0);
-
+      
       const imageMap = canvas.toDataURL('image/png');
       
       try {
@@ -384,6 +392,7 @@ const Tools = () => {
                         muted 
                         style={{ width: '100%', height: '350px', objectFit: 'cover', display: isCameraActive ? 'block' : 'none' }} 
                     />
+                    <img id="ocr-snapshot" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'none', border: '4px solid #fff', boxSizing: 'border-box', zIndex: 10 }} />
                     <canvas ref={canvasRef} style={{ display: 'none' }} />
                     
                     {cameraError && (
