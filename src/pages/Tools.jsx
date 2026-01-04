@@ -180,67 +180,133 @@ const Tools = () => {
     setIsCameraActive(false);
   };
 
+  // CV: Dilation (Thickens text - good for thin handwriting)
+  const applyDilation = (ctx, w, h) => {
+      const imgData = ctx.getImageData(0, 0, w, h);
+      const data = imgData.data;
+      const copy = new Uint8ClampedArray(data);
+      
+      for (let y = 1; y < h - 1; y++) {
+          for (let x = 1; x < w - 1; x++) {
+              const idx = (y * w + x) * 4;
+              // If neighbor is dark (ink), make self dark
+              // Using Green channel as proxy for brightness
+              let minVal = 255; 
+              // Check 3x3 window
+              for(let ky=-1; ky<=1; ky++){
+                  for(let kx=-1; kx<=1; kx++){
+                      const nIdx = ((y+ky)*w + (x+kx)) * 4;
+                      if(copy[nIdx+1] < minVal) minVal = copy[nIdx+1];
+                  }
+              }
+              data[idx] = data[idx+1] = data[idx+2] = minVal;
+          }
+      }
+      ctx.putImageData(imgData, 0, 0);
+  };
+
   const captureAndScan = async () => {
       if (!videoRef.current || !canvasRef.current) return;
       
       setIsProcessing(true);
+      setScanResult(null); 
+      setOcrText("AI analyzing handwriting..."); // Feedback
+      
       const video = videoRef.current;
       const canvas = canvasRef.current;
       const context = canvas.getContext('2d');
       
-      // Ensure dimensions match
-      if (video.videoWidth === 0 || video.videoHeight === 0) {
-          setCameraError("Camera not ready.");
-          setIsProcessing(false);
-          return;
-      }
+      if (video.videoWidth === 0) return;
 
-      canvas.width = video.videoWidth * 2; // Scale up for better recognition
-      canvas.height = video.videoHeight * 2;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height); // Draw scaled
-      
-      // Show snapshot feedback (Use the scaled image, it's fine)
-      const snapshotUrl = canvas.toDataURL('image/png');
+      // 1. Snapshot for UI
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
       const feedbackEl = document.getElementById('ocr-snapshot');
       if (feedbackEl) {
-          feedbackEl.src = snapshotUrl;
+          feedbackEl.src = canvas.toDataURL('image/png');
           feedbackEl.style.display = 'block';
-          setTimeout(() => { feedbackEl.style.display = 'none'; }, 1000);
+          feedbackEl.style.opacity = 0.5;
       }
 
-      // Pre-process: Grayscale
-      const canvasCtx = context;
-      const imgData = canvasCtx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imgData.data;
+      // 2. Capture High-Res Base Image
+      const w = video.videoWidth * 2;
+      const h = video.videoHeight * 2;
+      canvas.width = w;
+      canvas.height = h;
+      context.drawImage(video, 0, 0, w, h);
+      
+      const baseImageData = context.getImageData(0,0,w,h); // Save original
 
-      for (let i = 0; i < data.length; i += 4) {
-          const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-          data[i] = avg;     // R
-          data[i + 1] = avg; // G
-          data[i + 2] = avg; // B
+      // Strategy: Try 3 different "Vision Modes" on the SAME image to handle different handwriting styles.
+      // Mode 1: Sharp + Binarized (Good for clean ink)
+      // Mode 2: Dilated (Good for thin/faint pencil)
+      // Mode 3: Raw Grayscale (Good if binarization fails)
+
+      const modes = ['sharp_binary', 'dilated', 'raw'];
+      let bestCandidate = null;
+
+      for (const mode of modes) {
+           console.log(`Running AI Model: ${mode}`);
+           
+           // Restore original
+           context.putImageData(baseImageData, 0, 0);
+
+           if (mode === 'sharp_binary') {
+               applySharpening(context, w, h);
+               // Simple Threshold
+               const d = context.getImageData(0,0,w,h);
+               for(let i=0; i<d.data.length; i+=4) d.data[i] = d.data[i]<100 ? 0 : 255;
+               context.putImageData(d, 0,0);
+           }
+           else if (mode === 'dilated') {
+               // First threshold then dilate
+               const d = context.getImageData(0,0,w,h);
+               for(let i=0; i<d.data.length; i+=4) d.data[i] = (d.data[i]+d.data[i+1]+d.data[i+2])/3 < 120 ? 0 : 255;
+               context.putImageData(d, 0,0);
+               applyDilation(context, w, h);
+           }
+           // 'raw' does nothing, just pass image
+
+           const modeUrl = canvas.toDataURL('image/png');
+           
+           try {
+               // Whitelist digits for handwriting precision
+               const { data: { text, confidence } } = await Tesseract.recognize(modeUrl, 'eng', {
+                   tessedit_char_whitelist: '0123456789+ '
+               });
+
+               const num = extractNumber(text);
+               if (num) {
+                   // If we find a highly confident number, stop early (conf > 80)
+                   // Tesseract confidence is a bit flaky, but let's try.
+                   if (confidence > 80) {
+                       bestCandidate = num;
+                       break;
+                   }
+                   if (!bestCandidate) bestCandidate = num; 
+               }
+           } catch (e) { console.error(e); }
       }
-      canvasCtx.putImageData(imgData, 0, 0);
-      
-      const imageMap = canvas.toDataURL('image/png');
-      
-      try {
-          const { data: { text } } = await Tesseract.recognize(imageMap, 'eng', {
-            // logger: m => console.log(m) 
-          });
-          
-          if (!text || text.trim().length === 0) {
-              setOcrText("No text detected. Try moving closer/steadier.");
-              setScanResult({ type: 'ocr_fail', value: null, raw: "No text found" });
-          } else {
-              setOcrText(text);
-              processOcrText(text);
-          }
-      } catch (err) {
-          console.error("Tesseract Error:", err);
-          setOcrText("Failed to recognize text.");
-      } finally {
-          setIsProcessing(false);
+
+      setIsProcessing(false);
+      if (feedbackEl) feedbackEl.style.display = 'none';
+
+      if (bestCandidate) {
+           setEditableNumber(bestCandidate);
+           setScanResult({ type: 'success', value: bestCandidate });
+           setOcrText("Handwriting detected!");
+      } else {
+           setOcrText("Could not read writing.");
+           setScanResult({ type: 'ocr_fail', value: null, raw: "AI tried 3 modes but failed." });
       }
+  };
+  
+  // Helper to extract number
+  const extractNumber = (text) => {
+      let clean = text.replace(/O/g, '0').replace(/o/g, '0').replace(/I/g, '1')
+                      .replace(/l/g, '1').replace(/S/g, '5').replace(/B/g, '8').replace(/Z/g, '2');
+      const digits = clean.replace(/\D/g, '');
+      const match = digits.match(/\d{10,15}/);
+      return match ? match[0] : null;
   };
 
   // State for editable result
@@ -248,34 +314,7 @@ const Tools = () => {
 
   // ... (startQrScanner, etc remain same)
 
-  const processOcrText = (text) => {
-      // 1. Replace common substitutions
-      let cleanText = text
-        .replace(/O/g, '0')
-        .replace(/o/g, '0')
-        .replace(/I/g, '1')
-        .replace(/l/g, '1')
-        .replace(/S/g, '5')
-        .replace(/B/g, '8')
-        .replace(/Z/g, '2');
 
-      // 2. Remove all non-digits
-      const digitsOnly = cleanText.replace(/\D/g, '');
-
-      // 3. Search for phone numbers (Min 10 digits to avoid noise)
-      //    Strictly 10-15 digits.
-      const match = digitsOnly.match(/\d{10,15}/);
-
-      if (match) {
-           const found = match[0];
-           setEditableNumber(found);
-           setScanResult({ type: 'success', value: found });
-      } else {
-           // Fallback: Check if we have multiple groups that combine to 10?
-           // For now, strict failure is better than wrong number.
-           setScanResult({ type: 'ocr_fail', value: null, raw: text });
-      }
-  };
 
   const redirectToWhatsapp = (number) => {
     let finalNumber = number.replace(/[^0-9]/g, '');
@@ -473,14 +512,23 @@ const Tools = () => {
                                 onClick={captureAndScan}
                                 disabled={isProcessing}
                                 style={{
-                                    width: '70px', height: '70px', borderRadius: '50%',
-                                    background: 'white', border: '4px solid rgba(0,0,0,0.2)',
+                                    width: '80px', height: '80px', borderRadius: '50%',
+                                    background: isProcessing ? 'var(--primary-color)' : 'white', 
+                                    border: '4px solid rgba(0,0,0,0.2)',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     cursor: isProcessing ? 'wait' : 'pointer',
-                                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+                                    transition: 'all 0.3s ease'
                                 }}
                             >
-                                {isProcessing ? <FaSpinner className="spin" size={24} color="#000" /> : <div style={{ width: '50px', height: '50px',  borderRadius: '50%', border: '2px solid #000' }} />}
+                                {isProcessing ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <FaSpinner className="spin" size={24} color="#000" />
+                                        <span style={{ fontSize: '10px', color: '#000', fontWeight: 'bold' }}>AI...</span>
+                                    </div>
+                                ) : (
+                                    <div style={{ width: '60px', height: '60px',  borderRadius: '50%', border: '2px solid #000' }} />
+                                )}
                             </button>
                         </div>
                     )}
