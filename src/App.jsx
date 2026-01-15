@@ -1,19 +1,21 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
 import Footer from './components/Footer';
 import CursorEffect from './components/CursorEffect';
 import VisitorCapture from './components/VisitorCapture';
-
-import Background3D from './components/Background3D';
-
-import Login from './components/Login';
-import CustomerDashboard from './pages/CustomerDashboard';
-import MarketingManagerDashboard from './pages/MarketingManagerDashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import Tools from './pages/Tools';
+import Loader from './components/Loader';
 import { ThemeProvider } from './context/ThemeContext';
+
+// Lazy load components
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./components/Login'));
+const CustomerDashboard = lazy(() => import('./pages/CustomerDashboard'));
+const MarketingManagerDashboard = lazy(() => import('./pages/MarketingManagerDashboard'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const Tools = lazy(() => import('./pages/Tools'));
+const Test = lazy(() => import('./pages/Test'));
+const Background3D = lazy(() => import('./components/Background3D'));
 
 const MainContent = () => {
   const location = useLocation();
@@ -22,18 +24,23 @@ const MainContent = () => {
 
   return (
     <div className="app-container">
-      {!isDashboard && <Background3D />}
+      <Suspense fallback={<Loader />}>
+        {!isDashboard && <Background3D />}
+      </Suspense>
       <CursorEffect />
       <VisitorCapture />
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<CustomerDashboard />} />
-        <Route path="/manager-dashboard" element={<MarketingManagerDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/tools" element={<Tools />} />
-      </Routes>
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<CustomerDashboard />} />
+          <Route path="/manager-dashboard" element={<MarketingManagerDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/test"  element={<Test/>} />
+        </Routes>
+      </Suspense>
       {!isDashboard && <Footer />}
     </div>
   );
