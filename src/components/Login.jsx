@@ -98,7 +98,7 @@ const Login = () => {
           <div className="relative">
             <FaEnvelope className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400 dark:text-blue-400" />
             <input
-              type="text" name="email" placeholder="Email or Student ID"
+              type="text" name="email" placeholder="Email or ID"
               value={formData.email} onChange={handleChange}
               required
               className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-white/10 transition-all font-body text-base"
