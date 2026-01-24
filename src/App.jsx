@@ -3,12 +3,10 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CursorEffect from './components/CursorEffect';
-
 import Loader from './components/Loader';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -25,7 +23,7 @@ const MarketingManagerDashboard = lazy(() => import('./pages/MarketingManagerDas
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Tools = lazy(() => import('./pages/Tools'));
 const StudentAmbassadorDashboard = lazy(() => import('./pages/StudentAmbassadorDashboard'));
-const Test = lazy(() => import('./pages/Test')); // Keeping Test as it was, checking if needs change
+const Test = lazy(() => import('./pages/Test')); 
 const LernWithAbecsa = lazy(() => import('./pages/LernWithAbecsa'));
 const Background3D = lazy(() => import('./components/Background3D'));
 
@@ -34,7 +32,7 @@ const MainContent = () => {
   const { theme } = useTheme();
   
   // Check if currentpath is a dashboard route
-  const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/tools');
+  const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/tools') || location.pathname.startsWith('/manager-dashboard') || location.pathname.startsWith('/student-ambassador-dashboard');
 
   return (
     <div className={`app-container ${theme} bg-white dark:bg-[#0B1120] text-slate-900 dark:text-white transition-colors duration-300 min-h-screen`}>
