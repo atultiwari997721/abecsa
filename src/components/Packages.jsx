@@ -115,22 +115,22 @@ const Packages = () => {
 
       <div className="hide-scrollbar" style={{ 
         display: isMobile ? 'flex' : 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-        flexWrap: isMobile ? 'nowrap' : 'wrap', // Ensure nowrap on mobile
-        justifyContent: isMobile ? 'flex-start' : 'center', // Fix mobile alignment
-        gap: isMobile ? '1rem' : '2.5rem',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        flexWrap: isMobile ? 'nowrap' : 'wrap', 
+        justifyContent: isMobile ? 'flex-start' : 'center', 
+        gap: isMobile ? '1.5rem' : '2.5rem', // Increased mobile gap for better separation
         maxWidth: '1200px',
         margin: '0 auto',
         position: 'relative',
         zIndex: 1,
         overflowX: isMobile ? 'auto' : 'visible',
-        padding: isMobile ? '20px 20px 40px 20px' : '20px', // More padding for shadow visibility
+        padding: isMobile ? '20px 5vw 40px 5vw' : '20px', // Center the first card with padding
         scrollSnapType: isMobile ? 'x mandatory' : 'none',
-        scrollPaddingLeft: isMobile ? '20px' : '0', // Match padding for smooth snap
+        scrollPaddingLeft: isMobile ? '5vw' : '0', // Match padding for centered snap
         WebkitOverflowScrolling: 'touch', 
         touchAction: 'pan-x pan-y',
         width: '100%', 
-        alignItems: 'stretch', // Ensure all cards stretch to same height
+        alignItems: 'stretch', 
       }}>
         {packages.map((pkg, index) => (
           <motion.div 
@@ -153,8 +153,8 @@ const Packages = () => {
               cursor: 'default',
               position: 'relative',
               overflow: 'hidden', // Ensure content stays inside
-              minWidth: isMobile ? '80vw' : 'auto', // Slightly narrower to show next card
-              maxWidth: isMobile ? '350px' : 'none', // Max width constraint
+              minWidth: isMobile ? '75vw' : 'auto', // Better width for peeking
+              maxWidth: isMobile ? '320px' : 'none', // Constraint max width
               height: 'auto', // Let flex stretch handle height
               flexShrink: 0, 
               scrollSnapAlign: 'center', 
