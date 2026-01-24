@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaArrowRight, FaMouse } from 'react-icons/fa';
 
+
 const Hero3D = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -14,150 +15,83 @@ const Hero3D = () => {
   }, []);
 
   return (
-    <div style={{ width: '100%', height: isMobile ? '40vh' : '100vh', position: 'relative', overflow: isMobile ? 'visible' : 'hidden' }}>
-      {/* 3D Scene is now in Background3D component */}
+    <div className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-white dark:bg-[#0B1120] transition-colors duration-300"> 
+      
+      {/* Light Mode Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-50 opacity-100 dark:opacity-0 transition-opacity duration-300 pointer-events-none" />
 
-      {/* HTML Overlay Content */}
-      <div style={{ 
-        position: 'absolute', 
-        top: 0, 
-        left: 0, 
-        width: '100%', 
-        height: '100%', 
-        zIndex: 1,
-        pointerEvents: 'none' 
-      }}>
-        <div style={{ 
-          maxWidth: '1200px', 
-          margin: '0 auto', 
-          padding: isMobile ? '0' : '0 2rem', // ZERO padding on mobile
-          height: '100%', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: isMobile ? 'flex-start' : 'center', // Start from top on mobile to control position better
-          paddingTop: isMobile ? '60vh' : '0' // Adjusted to 60vh to push buttons below 3D logo
-        }}>
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            style={{ 
-              pointerEvents: 'auto', 
-              width: '100%'
-            }}
-          >
-            {/* Desktop alignment container */}
-            <div 
-              style={{ textAlign: isMobile ? 'center' : 'left' }}
-            >
-            
+      {/* Dark Mode Gradient Overlay - Mobile */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0B1120]/90 via-transparent to-[#0B1120] opacity-0 dark:opacity-100 transition-opacity duration-300 z-0 pointer-events-none md:hidden" />
+      
+      {/* Dark Mode Gradient Overlay - Desktop */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0B1120] via-[#0B1120]/40 to-transparent opacity-0 dark:opacity-100 transition-opacity duration-300 z-0 pointer-events-none hidden md:block" />
 
-            
-            {!isMobile && (
-            <div style={{ 
-              display: 'flex', 
-              gap: isMobile ? '0.2rem' : '1.5rem', 
-              flexWrap: isMobile ? 'nowrap' : 'wrap', 
-              justifyContent: isMobile ? 'center' : 'flex-start', 
-              width: '100%',
-              padding: '0',
-              marginTop: isMobile ? '0' : '45vh', // Push far down to bottom
-              paddingBottom: isMobile ? '0' : '8vh' // Add spacing from very bottom edge
-            }}>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  const element = document.getElementById('packages');
-                  if (element) {
-                    const yOffset = -50; 
-                    const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                    window.scrollTo({top: y, behavior: 'smooth'});
-                  }
-                }}
-                style={{
-                  flex: isMobile ? 1 : 'initial', 
-                  padding: isMobile ? '1rem 0' : '1rem 2rem', 
-                  background: 'var(--accent-color)',
-                  color: '#050511', // Dark text on bright button
-                  border: 'none',
-                  fontSize: isMobile ? '0.9rem' : '1.1rem', 
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  // Use PX values for clip path to prevent distortion on wide buttons
-                  clipPath: 'polygon(20px 0, 100% 0, 100% 70%, calc(100% - 20px) 100%, 0 100%, 0 20px)',
-                  textTransform: 'uppercase',
-                  letterSpacing: isMobile ? '0px' : '1px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.2rem',
-                  whiteSpace: 'nowrap',
-                  minWidth: 0,
-                  position: 'relative',
-                  zIndex: 2,
-                  overflow: 'visible'
-                }}
-              >
-                {isMobile ? 'PROJECTS' : 'Explore Projects'} {!isMobile && <FaArrowRight />}
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.05, background: 'rgba(255, 255, 255, 0.1)' }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => window.dispatchEvent(new Event('open-contact'))}
-                style={{
-                  flex: isMobile ? 1 : 'initial', 
-                  padding: isMobile ? '1rem 0' : '1rem 2rem',
-                  background: 'transparent',
-                  color: 'var(--accent-color)',
-                  border: '1px solid var(--accent-color)',
-                  fontSize: isMobile ? '0.9rem' : '1.1rem',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  borderRadius: '10px', // Slightly larger radius
-                  textTransform: 'uppercase',
-                  letterSpacing: isMobile ? '0px' : '1px',
-                   whiteSpace: 'nowrap',
-                   display: 'flex',
-                   alignItems: 'center',
-                   justifyContent: 'center',
-                   minWidth: 0,
-                   position: 'relative',
-                   zIndex: 2
-                }}
-              >
-                {isMobile ? 'CONTACT' : 'Contact Us'}
-              </motion.button>
+      {/* Content Overlay */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col justify-center h-full pt-16 md:pt-20">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-4xl text-center md:text-left"
+        >
+          {/* Headline */}
+           <div className="text-5xl md:text-7xl font-bold tracking-widest mb-4 flex justify-center md:justify-start gap-1" >
+               <span className="text-blue-600 dark:text-blue-500">A</span>
+               <span className="text-red-600 dark:text-red-500">B</span>
+               <span className="text-yellow-500 dark:text-yellow-400">E</span>
+               <span className="text-blue-600 dark:text-blue-500">C</span>
+               <span className="text-green-600 dark:text-green-500">S</span>
+               <span className="text-red-600 dark:text-red-500">A</span>
             </div>
-            )}
+          <h1 className="text-3xl md:text-6xl lg:text-7xl font-bold font-heading leading-snug mb-4 md:mb-6 text-slate-900 dark:text-white drop-shadow-sm dark:drop-shadow-lg transition-colors">
+            
+            Empowering <span className="block md:inline">Innovation:</span> 
+            <span className="text-blue-600 dark:text-electricBlue block mt-2 md:mt-0 text-2xl md:text-6xl lg:text-7xl transition-colors">Full-Scale Software</span> 
+            <span className="block mt-2 md:mt-0">Solutions.</span>
+          </h1>
+
+          {/* Sub-headline */}
+          <p className="text-sm md:text-xl text-slate-600 dark:text-gray-300 mb-8 max-w-2xl font-body leading-relaxed drop-shadow-sm dark:drop-shadow-md mx-auto md:mx-0 transition-colors">
+            From independent students to large-scale organizations. Custom web dev, social growth, and software management.
+          </p>
+
+          {/* Buttons */}
+          <div className="flex flex-col md:flex-row gap-3 md:gap-6 w-full md:w-auto px-4 md:px-0">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => window.dispatchEvent(new Event('open-contact'))}
+              className="px-6 py-3 bg-blue-600 dark:bg-electricBlue text-white rounded-lg font-bold text-sm md:text-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 dark:shadow-none w-full md:w-auto"
+            >
+              Get a Free Quote <FaArrowRight />
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                const element = document.getElementById('portfolio');
+                if (element) element.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-6 py-3 bg-white dark:bg-[#1E293B] border border-gray-200 dark:border-gray-700 text-slate-700 dark:text-white rounded-lg font-bold text-sm md:text-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 flex items-center justify-center w-full md:w-auto shadow-sm dark:shadow-md"
+            >
+              View Our Services
+            </motion.button>
           </div>
-          </motion.div>
-        </div>
-        
-        {/* Scroll Indicator */}
-        {!isMobile && (
-          <motion.div 
-            style={{ 
-              position: 'absolute', 
-              bottom: '2rem', 
-              left: '50%', 
-              transform: 'translateX(-50%)',
-              color: '#fff',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.5rem',
-              opacity: 0.7
-            }}
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <span style={{ fontSize: '1rem', letterSpacing: '1px', fontWeight: '400' }}>Scroll to explore</span>
-            <FaMouse size={20} />
-          </motion.div>
-        )}
+        </motion.div>
       </div>
+
+       {/* Scroll Indicator */}
+       {!isMobile && (
+        <motion.div 
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-slate-400 dark:text-gray-400 flex flex-col items-center gap-2 opacity-70 transition-colors"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+         
+          <FaMouse size={22} />
+        </motion.div>
+      )}
     </div>
   );
 };

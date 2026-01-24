@@ -45,8 +45,13 @@ const CreateUserModal = ({ onClose, onRefresh }) => {
             );
 
             // 2. Sign Up User
+            let registerEmail = formData.email;
+            if (!registerEmail.includes('@')) {
+                registerEmail = `${registerEmail}@abecsa.edu`;
+            }
+
             const { data: { user }, error: authError } = await tempSupabase.auth.signUp({
-                email: formData.email,
+                email: registerEmail,
                 password: formData.password,
             });
 
@@ -61,7 +66,7 @@ const CreateUserModal = ({ onClose, onRefresh }) => {
                     id: user.id,
                     full_name: formData.fullName,
                     role: formData.role,
-                    email: formData.email,
+                    email: registerEmail,
                     visible_password: formData.password
                 };
 
@@ -109,9 +114,13 @@ const CreateUserModal = ({ onClose, onRefresh }) => {
                 </div>
                 <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <input type="text" placeholder="Full Name" required value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="dark-input" />
-                    <input type="email" placeholder="Email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="dark-input" />
+                    <div style={{display:'flex', flexDirection:'column', gap:'5px'}}>
+                        <input type="text" placeholder="Email OR Student ID" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="dark-input" />
+                        {!formData.email.includes('@') && formData.email.length > 0 && <span style={{color:'#888', fontSize:'0.8rem'}}>Will register as: {formData.email}@abecsa.edu</span>}
+                    </div>
                     <input type="password" placeholder="Password" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="dark-input" />
                     <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="dark-input">
+                        <option value="student">Student</option>
                         <option value="customer">Customer</option>
                         <option value="marketing_manager">Marketing Manager</option>
                         <option value="admin">Admin</option>

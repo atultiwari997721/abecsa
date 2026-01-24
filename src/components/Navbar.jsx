@@ -1,198 +1,206 @@
-import React, { useState } from 'react';
-import { FaBars, FaTimes, FaCube, FaLaptop } from 'react-icons/fa';
-import ContactPopup from './ContactPopup';
-import '../styles/global.css';
+import React, { useState, useEffect } from 'react';
+import { FaBars, FaTimes, FaSun, FaMoon, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
-
-import { useTheme } from '../context/ThemeContext';
+import ContactPopup from './ContactPopup'; 
+import { useTheme } from '../context/ThemeContext'; 
+import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isContactOpen, setIsContactOpen] = useState(false);
-  const { is3DMode, toggleTheme } = useTheme();
-  const navigate = useNavigate();
-  const location = useLocation();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [isContactOpen, setIsContactOpen] = useState(false);
+    const { toggleTheme, theme } = useTheme(); 
+    const { user, signOut } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  
-  // Listen for global contact open event
-  React.useEffect(() => {
-    const handleOpenContact = () => setIsContactOpen(true);
-    window.addEventListener('open-contact', handleOpenContact);
-    return () => window.removeEventListener('open-contact', handleOpenContact);
-  }, []);
+    // Handle scroll effect
+    useEffect(() => {
+        const handleScroll = () => {
+        setIsScrolled(window.scrollY > 20);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const isDashboard = location.pathname.includes('/dashboard') || location.pathname.includes('/admin');
+    // Listen for global contact open event
+    useEffect(() => {
+        const handleOpenContact = () => setIsContactOpen(true);
+        window.addEventListener('open-contact', handleOpenContact);
+        return () => window.removeEventListener('open-contact', handleOpenContact);
+    }, []);
 
-  return (
-    <nav style={{
-      position: 'fixed',
-      top: 0,
-      width: '100%',
-      zIndex: 1000,
-      background: 'var(--glass-bg)',
-      backdropFilter: 'blur(10px)',
-      borderBottom: '1px solid var(--glass-border)',
-      padding: isMobile ? '1rem 1rem' : '1rem 5%',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      boxSizing: 'border-box' // Ensure padding doesn't cause overflow
-    }}>
-      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '2px', display: 'flex', gap: '2px', cursor: 'pointer' }} onClick={() => navigate('/')}>
-        <span style={{ color: '#2b7de9' }}>A</span>
-        <span style={{ color: '#e93e3a' }}>B</span>
-        <span style={{ color: '#f5b700' }}>E</span>
-        <span style={{ color: '#2b7de9' }}>C</span>
-        <span style={{ color: '#4caf50' }}>S</span>
-        <span style={{ color: '#e93e3a' }}>A</span>
-      </div>
+    const navLinks = [
+        { name: 'Services', href: '#services' },
+        { name: 'Solutions', href: '#solutions' },
+        { name: 'Case Studies', href: '#portfolio' }, 
+    ];
 
-      {/* Desktop Menu */}
-      {!location.pathname.includes('/admin') && (
-      <div className="desktop-menu" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-        {['Home', 'About', 'Services'].map((item) => (
-          <a key={item} href={`#${item.toLowerCase()}`} style={{
-            color: 'var(--text-color)',
-            fontSize: '1rem',
-            transition: 'color 0.3s'
-          }}
-          onMouseEnter={(e) => e.target.style.color = 'var(--primary-color)'}
-          onMouseLeave={(e) => e.target.style.color = 'var(--text-color)'}
-          >
-            {item}
-          </a>
-        ))}
-        
-        <button onClick={() => navigate('/tools')} style={{
-          background: 'transparent',
-          border: 'none',
-          color: 'var(--text-color)',
-          fontSize: '1rem',
-          cursor: 'pointer',
-          transition: 'color 0.3s'
-        }}
-        onMouseEnter={(e) => e.target.style.color = 'var(--primary-color)'}
-        onMouseLeave={(e) => e.target.style.color = 'var(--text-color)'}
+    const handleLogout = async () => {
+        await signOut();
+        navigate('/login');
+        setIsMenuOpen(false);
+    };
+
+    const isDashboard = location.pathname.includes('/dashboard') || location.pathname.includes('/admin');
+
+    if (isDashboard) return null; 
+
+    return (
+        <>
+        <nav
+            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+            isScrolled || isMenuOpen
+                ? 'bg-white/90 dark:bg-[#0B1120]/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm'
+                : 'bg-transparent'
+            }`}
         >
-          Tools
-        </button>
+            <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            {/* Logo */}
+            <div 
+                className="text-2xl font-bold tracking-widest cursor-pointer flex gap-0.5" 
+                onClick={() => navigate('/')}
+            >
+               <span className="text-blue-600 dark:text-blue-500">A</span>
+               <span className="text-red-600 dark:text-white">B</span>
+               <span className="text-yellow-500 dark:text-yellow-400">E</span>
+               <span className="text-blue-600 dark:text-blue-500">C</span>
+               <span className="text-green-600 dark:text-green-500">S</span>
+               <span className="text-red-600 dark:text-red-500">A</span>
+            </div>
 
-        <button onClick={() => setIsContactOpen(true)} style={{
-          background: 'transparent',
-          border: 'none',
-          color: 'var(--text-color)',
-          fontSize: '1rem',
-          cursor: 'pointer',
-          transition: 'color 0.3s'
-        }}
-        onMouseEnter={(e) => e.target.style.color = 'var(--primary-color)'}
-        onMouseLeave={(e) => e.target.style.color = 'var(--text-color)'}
-        >
-          Contact
-        </button>
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center gap-8">
+                {navLinks.map((link) => (
+                <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-slate-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white transition-colors text-sm font-medium tracking-wide uppercase"
+                >
+                    {link.name}
+                </a>
+                ))}
 
-        <button onClick={() => navigate('/login')} style={{
-          background: 'transparent',
-          border: 'none',
-          color: 'var(--text-color)',
-          fontSize: '1rem',
-          cursor: 'pointer',
-          transition: 'color 0.3s'
-        }}
-        onMouseEnter={(e) => e.target.style.color = 'var(--primary-color)'}
-        onMouseLeave={(e) => e.target.style.color = 'var(--text-color)'}
-        >
-          Customer Login
-        </button>
-        
-        
-        <button onClick={toggleTheme} style={{
-          background: 'var(--primary-color)',
-          border: 'none',
-          color: is3DMode ? '#000' : '#fff',
-          padding: '0.5rem 1rem',
-          borderRadius: '20px',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          transition: 'all 0.3s',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
-          {is3DMode ? <><FaLaptop /> Simple</> : <><FaCube /> 3D</>}
-        </button>
-      </div>
-      )}
+                {/* Theme Toggle */}
+                <button 
+                    onClick={toggleTheme}
+                    className="p-2 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                    {theme === 'light' ? <FaMoon size={18} /> : <FaSun size={18} />}
+                </button>
 
-      {/* Mobile Controls (Right Side) */}
-      {!location.pathname.includes('/admin') && (
-      <div className="mobile-controls" style={{ display: 'none', alignItems: 'center', gap: '1rem' }}>
-        <button onClick={toggleTheme} style={{
-          background: 'var(--primary-color)',
-          border: 'none',
-          color: is3DMode ? '#000' : '#fff',
-          width: '40px',
-          height: '40px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          fontSize: '1.2rem'
-        }}>
-          {is3DMode ? <FaLaptop /> : <FaCube />}
-        </button>
-        
-        <div onClick={toggleMenu} style={{ cursor: 'pointer', fontSize: '1.5rem', color: 'var(--text-color)' }}>
-          {isMenuOpen ? <FaTimes /> : <FaBars />}
-        </div>
-      </div>
-      )}
+                {user ? (
+                    <div className="flex items-center gap-4">
+                        <button 
+                            onClick={() => navigate('/dashboard')}
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-slate-700 dark:text-white rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-bold"
+                        >
+                            <FaUserCircle /> Dashboard
+                        </button>
+                        <button 
+                            onClick={handleLogout}
+                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
+                            title="Sign Out"
+                        >
+                            <FaSignOutAlt size={18} />
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-4">
+                        <button 
+                            onClick={() => navigate('/login')}
+                            className="text-slate-600 dark:text-white font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        >
+                            Login
+                        </button>
+                        <button 
+                            onClick={() => setIsContactOpen(true)}
+                            className="px-6 py-2 bg-blue-600 dark:bg-electricBlue text-white rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-300 font-semibold shadow-md shadow-blue-500/20"
+                        >
+                            Hire Us
+                        </button>
+                    </div>
+                )}
+            </div>
 
-      {/* Mobile Menu Dropdown */}
-      {isMenuOpen && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: 0,
-          width: '100%',
-          background: 'var(--nav-bg)',
-          padding: '2rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.5rem',
-          alignItems: 'center',
-          borderBottom: '1px solid var(--glass-border)'
-        }}>
-          {['Home', 'About', 'Services'].map((item) => (
-            <a key={item} href={`#${item.toLowerCase()}`} onClick={toggleMenu} style={{ fontSize: '1.2rem', color: 'var(--text-color)' }}>
-              {item}
-            </a>
-          ))}
-          <button onClick={() => { navigate('/tools'); setIsMenuOpen(false); }} style={{ fontSize: '1.2rem', background: 'transparent', border: 'none', color: 'var(--text-color)' }}>
-            Tools
-          </button>
-          <button onClick={() => { setIsContactOpen(true); setIsMenuOpen(false); }} style={{ fontSize: '1.2rem', background: 'transparent', border: 'none', color: 'var(--text-color)' }}>
-            Contact
-          </button>
-          <button onClick={() => { navigate('/login'); setIsMenuOpen(false); }} style={{ fontSize: '1.2rem', background: 'transparent', border: 'none', color: 'var(--text-color)' }}>
-            Customer Login
-          </button>
-        </div>
-      )}
+            {/* Mobile Controls */}
+            <div className="md:hidden flex items-center gap-4">
+                 {/* Theme Toggle Mobile */}
+                 <button 
+                    onClick={toggleTheme}
+                    className="p-2 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                    {theme === 'light' ? <FaMoon size={18} /> : <FaSun size={18} />}
+                </button>
 
-      <ContactPopup isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
+                <button
+                    className="text-slate-900 dark:text-gray-200 text-2xl p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                >
+                    {isMenuOpen ? <FaTimes /> : <FaBars />}
+                </button>
+            </div>
+            </div>
 
-      <style>{`
-        @media (max-width: 768px) {
-          .desktop-menu { display: none !important; }
-          .mobile-controls { display: flex !important; }
-        }
-      `}</style>
-    </nav>
-  );
+            {/* Mobile Menu Dropdown */}
+            <div
+            className={`md:hidden absolute top-full left-0 w-full bg-white dark:bg-[#0B1120] border-b border-gray-200 dark:border-gray-800 transition-all duration-300 overflow-hidden ${
+                isMenuOpen ? 'max-h-[500px] opacity-100 py-6' : 'max-h-0 opacity-0 py-0'
+            }`}
+            >
+            <div className="flex flex-col items-center gap-6 px-6">
+                {navLinks.map((link) => (
+                <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-slate-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white text-lg font-medium w-full text-center py-2 border-b border-gray-100 dark:border-gray-800/50"
+                >
+                    {link.name}
+                </a>
+                ))}
+
+                {user ? (
+                    <>
+                        <button 
+                            onClick={() => { navigate('/dashboard'); setIsMenuOpen(false); }}
+                            className="w-full py-3 bg-gray-100 dark:bg-gray-800 text-slate-700 dark:text-white rounded-lg font-bold flex items-center justify-center gap-2"
+                        >
+                            <FaUserCircle /> Dashboard
+                        </button>
+                         <button 
+                            onClick={handleLogout}
+                            className="w-full py-3 text-red-500 font-bold flex items-center justify-center gap-2"
+                        >
+                            <FaSignOutAlt /> Sign Out
+                        </button>
+                    </>
+                ) : (
+                    <>
+                         <button 
+                            onClick={() => { navigate('/login'); setIsMenuOpen(false); }}
+                            className="w-full py-3 text-slate-700 dark:text-white font-bold border border-gray-200 dark:border-gray-700 rounded-lg"
+                        >
+                            Login
+                        </button>
+                        <button
+                            onClick={() => {
+                                setIsContactOpen(true);
+                                setIsMenuOpen(false);
+                            }}
+                            className="w-full py-3 bg-blue-600 dark:bg-electricBlue text-white rounded-lg font-bold shadow-md"
+                        >
+                        Hire Us
+                        </button>
+                    </>
+                )}
+            </div>
+            </div>
+        </nav>
+
+        <ContactPopup isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
+        </>
+    );
 };
 
 export default Navbar;

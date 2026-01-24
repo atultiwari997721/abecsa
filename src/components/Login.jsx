@@ -19,8 +19,14 @@ const Login = () => {
     setLoading(true);
     
     try {
+      let loginEmail = formData.email;
+      // Support "Student ID" login by appending domain if no @ found
+      if (!loginEmail.includes('@')) {
+          loginEmail = `${loginEmail}@abecsa.edu`;
+      }
+
       const { data: { user }, error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
+          email: loginEmail,
           password: formData.password,
       });
 
@@ -50,32 +56,21 @@ const Login = () => {
   };
 
   return (
-    <div style={{ 
-      position: 'relative', 
-      width: '100vw', 
-      height: '100vh', 
-      overflow: 'hidden',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: "var(--font-body)"
-    }}>
+    <div className="relative w-full h-screen overflow-hidden flex items-center justify-center font-body bg-gray-50 dark:bg-[#0B1120] text-slate-900 dark:text-white transition-colors duration-300">
       
+      {/* Light Mode Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-50 opacity-100 dark:opacity-0 pointer-events-none transition-opacity duration-300" />
+      
+      {/* Dark Mode Gradient */}
+      <div className="absolute inset-0 bg-radial-[circle_at_center,_var(--tw-gradient-stops)] from-[#1a2333] to-[#0B1120] opacity-0 dark:opacity-100 pointer-events-none transition-opacity duration-300" />
+
+      {/* Back Button - Bottom on Mobile, Top-Left on Desktop */}
       <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           onClick={() => navigate('/')}
-          style={{
-              position: 'absolute', top: '2rem', left: '2rem',
-              background: 'rgba(255,255,255,0.05)', 
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#fff', padding: '0.8rem 1.2rem', borderRadius: '30px',
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
-              zIndex: 10, backdropFilter: 'blur(10px)',
-              transition: 'all 0.3s',
-              fontFamily: 'var(--font-heading)'
-          }}
-          whileHover={{ background: 'rgba(255,255,255,0.1)', scale: 1.05 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 md:bottom-auto md:top-12 md:left-12 md:translate-x-0 z-10 flex items-center gap-2 px-5 py-3 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:backdrop-blur-md text-slate-600 dark:text-white hover:bg-gray-50 dark:hover:bg-white/10 transition-all duration-300 font-heading whitespace-nowrap"
+          whileHover={{ scale: 1.05 }}
       >
           <FaArrowLeft /> Back to Home
       </motion.button>
@@ -84,109 +79,56 @@ const Login = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        style={{
-          background: 'var(--glass-bg)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid var(--glass-border)',
-          padding: '3rem',
-          borderRadius: '20px',
-          width: '90%',
-          maxWidth: '400px',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-          zIndex: 2,
-          position: 'relative'
-        }}
+        className="relative z-20 bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-white/50 dark:border-white/10 p-8 md:p-12 rounded-2xl w-[90%] max-w-[400px] shadow-2xl shadow-blue-500/10 dark:shadow-black/50 mb-16 md:mb-0" // mb-16 to make room for bottom button on mobile
       >
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <h2 style={{ 
-            fontSize: '2rem', 
-            fontWeight: '700', 
-            margin: '0 0 0.5rem 0',
-            letterSpacing: '2px',
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '2px'
-          }}>
-            <span style={{ color: '#2b7de9' }}>A</span>
-            <span style={{ color: '#e93e3a' }}>B</span>
-            <span style={{ color: '#f5b700' }}>E</span>
-            <span style={{ color: '#2b7de9' }}>C</span>
-            <span style={{ color: '#4caf50' }}>S</span>
-            <span style={{ color: '#e93e3a' }}>A</span>
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold mb-2 tracking-widest flex justify-center gap-0.5">
+            <span className="text-blue-600 dark:text-[#2b7de9]">A</span>
+            <span className="text-red-600 dark:text-[#e93e3a]">B</span>
+            <span className="text-yellow-500 dark:text-[#f5b700]">E</span>
+            <span className="text-blue-600 dark:text-[#2b7de9]">C</span>
+            <span className="text-green-600 dark:text-[#4caf50]">S</span>
+            <span className="text-red-600 dark:text-[#e93e3a]">A</span>
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', margin: 0, letterSpacing: '1px' }}>SECURE ACCESS</p>
+          <p className="text-slate-500 dark:text-white/60 text-sm tracking-widest uppercase font-semibold">SECURE ACCESS</p>
         </div>
         
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div style={{ position: 'relative' }}>
-            <FaEnvelope style={{ position: 'absolute', top: '50%', left: '15px', transform: 'translateY(-50%)', color: 'var(--primary-color)' }} />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <div className="relative">
+            <FaEnvelope className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400 dark:text-blue-400" />
             <input
-              type="email" name="email" placeholder="Email Address"
+              type="text" name="email" placeholder="Email or Student ID"
               value={formData.email} onChange={handleChange}
               required
-              className="login-input"
+              className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-white/10 transition-all font-body text-base"
             />
           </div>
 
-          <div style={{ position: 'relative' }}>
-            <FaLock style={{ position: 'absolute', top: '50%', left: '15px', transform: 'translateY(-50%)', color: 'var(--primary-color)' }} />
+          <div className="relative">
+            <FaLock className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400 dark:text-blue-400" />
             <input
               type="password" name="password" placeholder="Password"
               value={formData.password} onChange={handleChange}
               required
-              className="login-input"
+              className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-white/10 transition-all font-body text-base"
             />
           </div>
 
           <motion.button 
             type="submit" 
             disabled={loading}
-            whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(0, 243, 255, 0.4)' }} 
+            whileHover={{ scale: 1.02 }} 
             whileTap={{ scale: 0.98 }}
-            style={{
-              background: 'linear-gradient(45deg, var(--primary-color), #00a8ff)',
-              color: '#000', 
-              border: 'none', 
-              padding: '14px', 
-              borderRadius: '10px',
-              fontSize: '1rem', 
-              fontWeight: 'bold', 
-              cursor: 'pointer', 
-              marginTop: '1rem',
-              boxShadow: '0 4px 15px rgba(0, 243, 255, 0.2)',
-              fontFamily: 'var(--font-heading)',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}
+            className={`w-full py-3.5 rounded-xl font-bold text-base uppercase tracking-wider shadow-lg transition-all mt-4 ${
+                loading 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/30'
+            }`}
           >
             {loading ? 'Authenticating...' : 'Enter System'}
           </motion.button>
         </form>
       </motion.div>
-
-      <style>{`
-        .login-input {
-          width: 100%;
-          padding: 14px 14px 14px 45px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-          color: #fff;
-          font-size: 1rem;
-          outline: none;
-          transition: all 0.3s;
-          box-sizing: border-box;
-          font-family: var(--font-body);
-        }
-        .login-input:focus {
-          border-color: var(--primary-color);
-          background: rgba(255, 255, 255, 0.1);
-          box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
-        }
-        .login-input::placeholder {
-          color: rgba(255, 255, 255, 0.4);
-        }
-      `}</style>
     </div>
   );
 };

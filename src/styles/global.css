@@ -1,54 +1,31 @@
+@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@400;700;900&family=Syne:wght@700;800&display=swap');
 
-:root {
-  /* Master Vision: The Ethereal Digital NEXUS */
-  --bg-color: #050511; /* Deep Void */
-  --text-color: #F0F8FF; /* Holographic White */
-  
-  --primary-color: #00F3FF; /* Neon Cyan */
-  --secondary-color: #bc13fe; /* Existing purple retained as secondary */
-  --accent-color: #FF0055; /* Cyber Magenta */
-  
-  --card-bg: rgba(255, 255, 255, 0.03);
-  --card-border: rgba(0, 243, 255, 0.2);
-  
-  --nav-bg: rgba(5, 5, 17, 0.85);
-  --glass-bg: rgba(255, 255, 255, 0.02);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  
-  --hero-overlay: radial-gradient(circle at center, transparent 0%, #050511 100%);
-  
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-deepSlate: #0f172a;
+  --color-electricBlue: #3b82f6;
   --font-heading: 'Orbitron', sans-serif;
   --font-display: 'Syne', sans-serif;
   --font-body: 'Inter', sans-serif;
 }
 
-.light-mode {
-  /* Simple Mode Retained */
-  --bg-color: #ffffff;
-  --text-color: #1a1a1a;
-  --primary-color: #007bff;
-  --secondary-color: #6610f2;
-  --accent-color: #dc3545;
-  --card-bg: #f8f9fa;
-  --card-border: #dee2e6;
-  --nav-bg: rgba(255, 255, 255, 0.95);
-  --glass-bg: rgba(0, 0, 0, 0.05);
-  --glass-border: rgba(0, 0, 0, 0.1);
-  --hero-overlay: none;
+:root {
+  --font-heading: 'Orbitron', sans-serif;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--bg-color);
-  color: var(--text-color);
   font-family: var(--font-body);
   overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  /* Tailwind handles background and text color based on dark mode */
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, button {
   font-family: var(--font-heading);
   letter-spacing: 1px;
 }
@@ -63,10 +40,6 @@ a {
   transition: color 0.3s ease;
 }
 
-button {
-  font-family: var(--font-heading);
-}
-
 button:active, a:active {
   transform: scale(0.95);
   transition: transform 0.1s;
@@ -78,12 +51,16 @@ button:active, a:active {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-color);
+  background-color: #f1f1f1;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background-color: #0f172a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
-  border-radius: 3px;
+  background-color: #3b82f6;
+  border-radius: 9999px;
 }
 
 .app-container {

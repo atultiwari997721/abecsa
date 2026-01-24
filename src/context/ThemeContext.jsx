@@ -1,28 +1,37 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
 export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider = ({ children }) => {
-  const [is3DMode, setIs3DMode] = useState(true);
-
-  const toggleTheme = () => {
-    setIs3DMode(prevMode => !prevMode);
-  };
+  // Default to 'light' as per request (Blue and White theme)
+  // Default to 'light' and use a new key to avoid stale 'dark' state from previous versions
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('abecsa-theme') || 'light';
+  });
+  
+  const [is3DMode, setIs3DMode] = useState(true); 
 
   useEffect(() => {
-    if (is3DMode) {
-      document.body.classList.remove('light-mode');
-      document.body.classList.add('dark-mode');
+    const root = window.document.documentElement;
+    // Remove both potential classes to be safe
+    root.classList.remove('dark', 'light');
+    
+    if (theme === 'dark') {
+      root.classList.add('dark');
     } else {
-      document.body.classList.remove('dark-mode');
-      document.body.classList.add('light-mode');
+      root.classList.add('light'); // Optional but helps with specificity
     }
-  }, [is3DMode]);
+    localStorage.setItem('abecsa-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   return (
-    <ThemeContext.Provider value={{ is3DMode, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, is3DMode, setIs3DMode }}>
       {children}
     </ThemeContext.Provider>
   );
