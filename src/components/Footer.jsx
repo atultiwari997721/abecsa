@@ -16,9 +16,9 @@ const Footer = () => {
     ];
 
     const rightButtons = [
-        { label: "Business Login", path: "/business_login" },
-        { label: "Manager Login", path: "/manager_login" },
-        { label: "Client Login", path: "/client_login" },
+        { label: "Business Login", path: "/login" },
+        { label: "Manager Login", path: "/login" },
+        { label: "Client Login", path: "/login" },
     ];
 
   return (

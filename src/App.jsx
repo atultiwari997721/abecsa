@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 import CursorEffect from './components/CursorEffect';
 import Loader from './components/Loader';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
@@ -43,6 +44,9 @@ const Tools = lazy(() => import('./pages/Tools'));
 const StudentAmbassadorDashboard = lazy(() => import('./pages/StudentAmbassadorDashboard'));
 const Test = lazy(() => import('./pages/Test')); 
 const LernWithAbecsa = lazy(() => import('./pages/LernWithAbecsa'));
+const Internship = lazy(() => import('./pages/Internship'));
+const OurProgram = lazy(() => import('./pages/OurProgram'));
+const WorkWithUs = lazy(() => import('./pages/WorkWithUs'));
 const Background3D = lazy(() => import('./components/Background3D'));
 
 const MainContent = () => {
@@ -96,11 +100,15 @@ const MainContent = () => {
            <Route path="/tools" element={<Tools />} />
            <Route path="/test"  element={<Test/>} />
          
-          <Route path="/lern_with_abecsa" element={
+           <Route path="/lern_with_abecsa" element={
             <ProtectedRoute>
               <LernWithAbecsa />
             </ProtectedRoute>
           } />
+          
+          <Route path="/internship" element={<Internship />} />
+          <Route path="/our_program" element={<OurProgram />} />
+          <Route path="/work_with_us" element={<WorkWithUs />} />
           
           {/* Catch-all redirect to Home or Login */}
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -117,6 +125,7 @@ function App() {
     <ThemeProvider>
       <AuthProvider> 
         <Router>
+          <ScrollToTop />
           <MainContent />
         </Router>
       </AuthProvider>
