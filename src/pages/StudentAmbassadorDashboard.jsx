@@ -10,15 +10,7 @@ const StudentAmbassadorDashboard = () => {
     const { user, profile, signOut, loading } = useAuth();
     const [ambassadorName, setAmbassadorName] = useState('');
 
-    useEffect(() => {
-        if (!loading && (!user || (profile && profile.role !== 'student_ambassador'))) {
-             // If not student ambassador, maybe they are logged in as something else or not at all.
-             // For now, strict check.
-             if(profile?.role !== 'student_ambassador') {
-                navigate('/login');
-             }
-        }
-    }, [user, profile, loading, navigate]);
+
 
     useEffect(() => {
         if(profile && profile.full_name) {
@@ -39,169 +31,80 @@ const StudentAmbassadorDashboard = () => {
     if (loading || !profile) return <div style={{ color: '#fff', padding: '2rem' }}>Loading...</div>;
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: '#050505',
-            color: '#fff',
-            paddingTop: '100px',
-            paddingLeft: window.innerWidth < 768 ? '1rem' : '5%',
-            paddingRight: window.innerWidth < 768 ? '1rem' : '5%',
-            paddingBottom: '2rem',
-            fontFamily: "'Exo 2', sans-serif"
-        }}>
+        <div className="min-h-screen bg-gray-50 dark:bg-[#050505] text-slate-900 dark:text-white transition-colors duration-300 pt-[100px] px-4 md:px-[5%] pb-8 font-body">
 
             {/* Header */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '3rem',
-                borderBottom: '1px solid rgba(255,255,255,0.1)',
-                paddingBottom: '1rem'
-            }}>
+            <div className="flex justify-between items-center mb-12 border-b border-gray-200 dark:border-white/10 pb-4">
                 <div>
-                    <h1 style={{ fontSize: '1.8rem', margin: 0, color: '#00d2ff' }}>Student Ambassador Dashboard</h1>
-                    <span style={{ fontSize: '0.9rem', color: '#888' }}>
+                    <h1 className="text-3xl font-bold m-0 text-blue-600 dark:text-[#00d2ff]">Student Ambassador Dashboard</h1>
+                    <span className="text-sm text-slate-500 dark:text-gray-400">
                         Welcome back, {ambassadorName}
                     </span>
                 </div>
                 <button
                     onClick={handleLogout}
-                    style={{
-                        background: 'transparent',
-                        border: '1px solid #ff0055',
-                        color: '#ff0055',
-                        padding: '0.5rem 1rem',
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        transition: 'all 0.3s'
-                    }}
-                    onMouseEnter={(e) => { e.target.style.background = '#ff0055'; e.target.style.color = '#fff'; }}
-                    onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#ff0055'; }}
+                    className="bg-transparent border border-red-500 text-red-500 dark:text-[#ff0055] dark:border-[#ff0055] px-4 py-2 rounded-md cursor-pointer flex items-center gap-2 transition-all duration-300 hover:bg-red-500 hover:text-white"
                 >
                     <FaSignOutAlt /> Logout
                 </button>
             </div>
 
             {/* Actions Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginTop: '2rem' }}>
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8 mt-8">
                 
                 {/* Learn Card */}
                 <div 
                     onClick={handleLearn}
-                    style={{
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '15px',
-                        padding: '2rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '1rem',
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s, border-color 0.2s',
-                        textAlign: 'center'
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.borderColor = '#00ff88'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; }}
+                    className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-green-400 dark:hover:border-[#00ff88] shadow-sm hover:shadow-md text-center group"
                 >
-                    <div style={{ background: 'rgba(0, 255, 136, 0.1)', padding: '1.5rem', borderRadius: '50%' }}>
-                        <FaGraduationCap size={40} color="#00ff88" />
+                    <div className="bg-green-100 dark:bg-[#00ff88]/10 p-6 rounded-full">
+                        <FaGraduationCap size={40} className="text-green-500 dark:text-[#00ff88]" />
                     </div>
                     <div>
-                        <h3 style={{ margin: '0 0 0.5rem 0', color: '#fff' }}>Abecsa Learn</h3>
-                        <p style={{ margin: 0, color: '#aaa', fontSize: '0.9rem' }}>Access premium courses and learning materials.</p>
+                        <h3 className="m-0 mb-2 text-slate-800 dark:text-white font-bold text-lg">Abecsa Learn</h3>
+                        <p className="m-0 text-slate-500 dark:text-gray-400 text-sm">Access premium courses and learning materials.</p>
                     </div>
                 </div>
 
                 {/* Internship Card - Placeholder Action */}
                 <div 
-                    style={{
-                         background: 'rgba(255, 255, 255, 0.05)',
-                         border: '1px solid rgba(255, 255, 255, 0.1)',
-                         borderRadius: '15px',
-                         padding: '2rem',
-                         display: 'flex',
-                         flexDirection: 'column',
-                         alignItems: 'center',
-                         justifyContent: 'center',
-                         gap: '1rem',
-                         cursor: 'pointer',
-                         transition: 'transform 0.2s, border-color 0.2s',
-                         textAlign: 'center'
-                    }}
-                     onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.borderColor = '#bc13fe'; }}
-                     onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; }}
+                    className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-purple-500 dark:hover:border-[#bc13fe] shadow-sm hover:shadow-md text-center group"
                      onClick={() => alert("Apply for Internship feature coming soon!")}
                 >
-                    <div style={{ background: 'rgba(188, 19, 254, 0.1)', padding: '1.5rem', borderRadius: '50%' }}>
-                        <FaUserTie size={40} color="#bc13fe" />
+                    <div className="bg-purple-100 dark:bg-[#bc13fe]/10 p-6 rounded-full">
+                        <FaUserTie size={40} className="text-purple-500 dark:text-[#bc13fe]" />
                     </div>
                      <div>
-                        <h3 style={{ margin: '0 0 0.5rem 0', color: '#fff' }}>Apply for Internship</h3>
-                        <p style={{ margin: 0, color: '#aaa', fontSize: '0.9rem' }}>Join our team and gain real-world experience.</p>
+                        <h3 className="m-0 mb-2 text-slate-800 dark:text-white font-bold text-lg">Apply for Internship</h3>
+                        <p className="m-0 text-slate-500 dark:text-gray-400 text-sm">Join our team and gain real-world experience.</p>
                     </div>
                 </div>
 
                 {/* Job Card - Placeholder Action */}
                 <div 
-                     style={{
-                         background: 'rgba(255, 255, 255, 0.05)',
-                         border: '1px solid rgba(255, 255, 255, 0.1)',
-                         borderRadius: '15px',
-                         padding: '2rem',
-                         display: 'flex',
-                         flexDirection: 'column',
-                         alignItems: 'center',
-                         justifyContent: 'center',
-                         gap: '1rem',
-                         cursor: 'pointer',
-                         transition: 'transform 0.2s, border-color 0.2s',
-                         textAlign: 'center'
-                     }}
-                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.borderColor = '#00d2ff'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; }}
+                     className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-blue-400 dark:hover:border-[#00d2ff] shadow-sm hover:shadow-md text-center group"
                       onClick={() => alert("Apply for Job feature coming soon!")}
                 >
-                    <div style={{ background: 'rgba(0, 210, 255, 0.1)', padding: '1.5rem', borderRadius: '50%' }}>
-                        <FaBriefcase size={40} color="#00d2ff" />
+                    <div className="bg-blue-100 dark:bg-[#00d2ff]/10 p-6 rounded-full">
+                        <FaBriefcase size={40} className="text-blue-500 dark:text-[#00d2ff]" />
                     </div>
                      <div>
-                        <h3 style={{ margin: '0 0 0.5rem 0', color: '#fff' }}>Apply for Job</h3>
-                        <p style={{ margin: 0, color: '#aaa', fontSize: '0.9rem' }}>Explore career opportunities at Abecsa.</p>
+                        <h3 className="m-0 mb-2 text-slate-800 dark:text-white font-bold text-lg">Apply for Job</h3>
+                        <p className="m-0 text-slate-500 dark:text-gray-400 text-sm">Explore career opportunities at Abecsa.</p>
                     </div>
                 </div>
 
                 {/* Certificate Card - Placeholder Action */}
                 <div 
-                     style={{
-                         background: 'rgba(255, 255, 255, 0.05)',
-                         border: '1px solid rgba(255, 255, 255, 0.1)',
-                         borderRadius: '15px',
-                         padding: '2rem',
-                         display: 'flex',
-                         flexDirection: 'column',
-                         alignItems: 'center',
-                         justifyContent: 'center',
-                         gap: '1rem',
-                         cursor: 'pointer',
-                         transition: 'transform 0.2s, border-color 0.2s',
-                         textAlign: 'center'
-                     }}
-                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.borderColor = '#ffd700'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; }}
+                     className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400 dark:hover:border-[#ffd700] shadow-sm hover:shadow-md text-center group"
                       onClick={() => alert("Get Certificate feature coming soon!")}
                 >
-                    <div style={{ background: 'rgba(255, 215, 0, 0.1)', padding: '1.5rem', borderRadius: '50%' }}>
-                        <FaCertificate size={40} color="#ffd700" />
+                    <div className="bg-yellow-100 dark:bg-[#ffd700]/10 p-6 rounded-full">
+                        <FaCertificate size={40} className="text-yellow-500 dark:text-[#ffd700]" />
                     </div>
                      <div>
-                        <h3 style={{ margin: '0 0 0.5rem 0', color: '#fff' }}>Get Certificate</h3>
-                        <p style={{ margin: 0, color: '#aaa', fontSize: '0.9rem' }}>Claim your completion certificates.</p>
+                        <h3 className="m-0 mb-2 text-slate-800 dark:text-white font-bold text-lg">Get Certificate</h3>
+                        <p className="m-0 text-slate-500 dark:text-gray-400 text-sm">Claim your completion certificates.</p>
                     </div>
                 </div>
 

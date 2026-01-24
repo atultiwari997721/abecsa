@@ -12,14 +12,7 @@ const MarketingManagerDashboard = ({ managerId }) => {
   const [assignedCustomers, setAssignedCustomers] = useState([]);
   const [managerName, setManagerName] = useState('');
 
-  useEffect(() => {
-     // If managerId prop exists, we are in "Impersonation Mode" (Admin View), so skip check
-     if (managerId) return;
 
-     if (!loading && (!user || (profile && profile.role !== 'marketing_manager'))) {
-          navigate('/login');
-     }
-  }, [user, profile, loading, navigate, managerId]);
 
   useEffect(() => {
      // If managerId is passed (Admin viewing), use it. Otherwise use logged in user.
@@ -65,150 +58,85 @@ const MarketingManagerDashboard = ({ managerId }) => {
   const liveCount = websitesSold.filter(w => w.status === 'Live').length;
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: '#050505', 
-      color: '#fff', 
-      color: '#fff', 
-      paddingTop: '100px',
-      paddingLeft: window.innerWidth < 768 ? '1rem' : '5%',
-      paddingRight: window.innerWidth < 768 ? '1rem' : '5%',
-      paddingBottom: '2rem',
-      fontFamily: "'Exo 2', sans-serif"
-    }}>
+
+    <div className="min-h-screen bg-gray-50 dark:bg-[#050505] text-slate-900 dark:text-white transition-colors duration-300 pt-[100px] px-4 md:px-[5%] pb-8 font-body">
       
       {/* Header */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '3rem',
-        borderBottom: '1px solid rgba(255,255,255,0.1)',
-        paddingBottom: '1rem'
-      }}>
+      <div className="flex justify-between items-center mb-12 border-b border-gray-200 dark:border-white/10 pb-4">
         <div>
-          <h1 style={{ fontSize: '1.8rem', margin: 0, color: '#bc13fe' }}>Abecsa Empower Dashboard</h1>
-          <span style={{ fontSize: '0.9rem', color: '#888' }}>
+          <h1 className="text-3xl font-bold m-0 text-purple-600 dark:text-[#bc13fe]">Abecsa Empower Dashboard</h1>
+          <span className="text-sm text-slate-500 dark:text-gray-400">
             Welcome back, {managerId ? (managerName || 'Loading...') : (profile ? profile.full_name : '')}
           </span>
         </div>
         <button 
           onClick={handleLogout}
-          style={{
-            background: 'transparent',
-            border: '1px solid #ff0055',
-            color: '#ff0055',
-            padding: '0.5rem 1rem',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            transition: 'all 0.3s'
-          }}
-          onMouseEnter={(e) => { e.target.style.background = '#ff0055'; e.target.style.color = '#fff'; }}
-          onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#ff0055'; }}
+          className="bg-transparent border border-red-500 text-red-500 dark:text-[#ff0055] dark:border-[#ff0055] px-4 py-2 rounded-md cursor-pointer flex items-center gap-2 transition-all duration-300 hover:bg-red-500 hover:text-white"
         >
           <FaSignOutAlt /> Logout
         </button>
       </div>
 
       {/* Stats Row */}
-      <div style={{ display: 'flex', gap: '2rem', marginBottom: '3rem', flexWrap: 'wrap' }}>
-        <div style={{ 
-          flex: 1, 
-          background: 'linear-gradient(135deg, rgba(188, 19, 254, 0.1), rgba(188, 19, 254, 0.05))',
-          border: '1px solid rgba(188, 19, 254, 0.3)',
-          borderRadius: '15px',
-          padding: '2rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1.5rem'
-        }}>
-          <FaChartLine size={40} color="#bc13fe" />
+      <div className="flex flex-wrap gap-8 mb-12">
+        <div className="flex-1 bg-purple-50 dark:bg-[#bc13fe]/5 border border-purple-200 dark:border-[#bc13fe]/30 rounded-2xl p-8 flex items-center gap-6 min-w-[250px]">
+          <FaChartLine size={40} className="text-purple-600 dark:text-[#bc13fe]" />
           <div>
-            <h3 style={{ margin: 0, fontSize: '2.5rem' }}>{totalSold}</h3>
-            <span style={{ color: '#aaa' }}>Total Sales</span>
+            <h3 className="m-0 text-4xl font-bold text-slate-800 dark:text-white">{totalSold}</h3>
+            <span className="text-slate-500 dark:text-gray-400">Total Sales</span>
           </div>
         </div>
 
-        <div style={{ 
-          flex: 1, 
-          background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05))',
-          border: '1px solid rgba(0, 255, 136, 0.3)',
-          borderRadius: '15px',
-          padding: '2rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1.5rem'
-        }}>
-          <FaGlobe size={40} color="#00ff88" />
+        <div className="flex-1 bg-green-50 dark:bg-[#00ff88]/5 border border-green-200 dark:border-[#00ff88]/30 rounded-2xl p-8 flex items-center gap-6 min-w-[250px]">
+          <FaGlobe size={40} className="text-green-600 dark:text-[#00ff88]" />
           <div>
-            <h3 style={{ margin: 0, fontSize: '2.5rem' }}>{liveCount}</h3>
-            <span style={{ color: '#aaa' }}>Live Websites</span>
+            <h3 className="m-0 text-4xl font-bold text-slate-800 dark:text-white">{liveCount}</h3>
+            <span className="text-slate-500 dark:text-gray-400">Live Websites</span>
           </div>
         </div>
 
-         <div style={{ 
-          flex: 1, 
-          background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05))',
-          border: '1px solid rgba(212, 175, 55, 0.3)',
-          borderRadius: '15px',
-          padding: '2rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1.5rem'
-        }}>
-          <FaUsers size={40} color="#D4AF37" />
+         <div className="flex-1 bg-yellow-50 dark:bg-[#D4AF37]/5 border border-yellow-200 dark:border-[#D4AF37]/30 rounded-2xl p-8 flex items-center gap-6 min-w-[250px]">
+          <FaUsers size={40} className="text-yellow-600 dark:text-[#D4AF37]" />
           <div>
-            <h3 style={{ margin: 0, fontSize: '2.5rem' }}>{assignedCustomers.length}</h3>
-            <span style={{ color: '#aaa' }}>Assigned Clients</span>
+            <h3 className="m-0 text-4xl font-bold text-slate-800 dark:text-white">{assignedCustomers.length}</h3>
+            <span className="text-slate-500 dark:text-gray-400">Assigned Clients</span>
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* Websites List */}
           <div>
-            <h2 style={{ borderLeft: '4px solid #bc13fe', paddingLeft: '10px', marginBottom: '1.5rem' }}>
-              <FaGlobe style={{ marginRight: '10px', verticalAlign: 'middle' }} />
+            <h2 className="border-l-4 border-purple-600 dark:border-[#bc13fe] pl-4 mb-6 flex items-center font-bold text-xl text-slate-800 dark:text-white">
+              <FaGlobe className="mr-3" />
               Sold Websites
             </h2>
             
-            <div style={{ 
-              background: 'rgba(255,255,255,0.05)', 
-              borderRadius: '15px', 
-              overflow: 'hidden',
-              border: '1px solid rgba(255,255,255,0.1)'
-            }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
-                <thead>
-                  <tr style={{ background: 'rgba(0,0,0,0.3)', textAlign: 'left' }}>
-                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Website Name</th>
-                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>URL</th>
-                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Status</th>
+            <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden">
+              <table className="w-full border-collapse text-left">
+                <thead className="bg-gray-50 dark:bg-black/30 text-slate-700 dark:text-white">
+                  <tr>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10">Website Name</th>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10">URL</th>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10">Status</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="text-slate-600 dark:text-gray-300">
                   {websitesSold.length === 0 ? (
                     <tr>
-                       <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>No websites found.</td>
+                       <td colSpan="3" className="p-8 text-center text-slate-400">No websites found.</td>
                     </tr>
                   ) : (
                     websitesSold.map((site, index) => (
-                      <tr key={index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                        <td style={{ padding: '1rem', fontWeight: 'bold' }}>{site.name}</td>
-                        <td style={{ padding: '1rem', color: '#aaa' }}><a href={site.url} style={{color:'#2b7de9'}} target="_blank" rel="noreferrer">{site.url || '-'}</a></td>
-                        <td style={{ padding: '1rem' }}>
-                          <span style={{
-                             padding: '0.3rem 0.8rem',
-                             borderRadius: '20px',
-                             fontSize: '0.8rem',
-                             background: site.status === 'Live' ? 'rgba(0,255,136,0.1)' : 'rgba(245, 183, 0, 0.1)',
-                             color: site.status === 'Live' ? '#00ff88' : '#f5b700',
-                             border: `1px solid ${site.status === 'Live' ? '#00ff88' : '#f5b700'}`
-                          }}>
+                      <tr key={index} className="border-b border-gray-200 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                        <td className="p-4 font-bold text-slate-800 dark:text-white">{site.name}</td>
+                        <td className="p-4"><a href={site.url} className="text-blue-600 hover:underline" target="_blank" rel="noreferrer">{site.url || '-'}</a></td>
+                        <td className="p-4">
+                          <span className={`
+                             px-3 py-1 rounded-full text-xs font-bold border
+                             ${site.status === 'Live' ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-[#00ff88] dark:border-[#00ff88]' : 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/10 dark:text-[#f5b700] dark:border-[#f5b700]'}
+                          `}>
                             {site.status}
                           </span>
                         </td>
@@ -222,37 +150,32 @@ const MarketingManagerDashboard = ({ managerId }) => {
 
           {/* Assigned Clients List */}
           <div>
-            <h2 style={{ borderLeft: '4px solid #D4AF37', paddingLeft: '10px', marginBottom: '1.5rem', color: '#D4AF37' }}>
-              <FaUsers style={{ marginRight: '10px', verticalAlign: 'middle' }} />
+            <h2 className="border-l-4 border-yellow-500 dark:border-[#D4AF37] pl-4 mb-6 flex items-center font-bold text-xl text-yellow-600 dark:text-[#D4AF37]">
+              <FaUsers className="mr-3" />
               Assigned Clients
             </h2>
             
-            <div style={{ 
-              background: 'rgba(255,255,255,0.05)', 
-              borderRadius: '15px', 
-              overflow: 'hidden',
-              border: '1px solid rgba(255,255,255,0.1)'
-            }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
-                <thead>
-                  <tr style={{ background: 'rgba(0,0,0,0.3)', textAlign: 'left' }}>
-                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Name</th>
-                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Email</th>
-                    <th style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>Role</th>
+            <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden">
+              <table className="w-full border-collapse text-left">
+                <thead className="bg-gray-50 dark:bg-black/30 text-slate-700 dark:text-white">
+                  <tr>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10">Name</th>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10">Email</th>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10">Role</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="text-slate-600 dark:text-gray-300">
                   {assignedCustomers.length === 0 ? (
                     <tr>
-                       <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>No clients assigned yet.</td>
+                       <td colSpan="3" className="p-8 text-center text-slate-400">No clients assigned yet.</td>
                     </tr>
                   ) : (
                     assignedCustomers.map((client, index) => (
-                      <tr key={index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                        <td style={{ padding: '1rem', fontWeight: 'bold' }}>{client.full_name}</td>
-                        <td style={{ padding: '1rem', color: '#aaa' }}>{client.email}</td>
-                        <td style={{ padding: '1rem' }}>
-                            <span style={{ background: '#333', padding: '0.2rem 0.6rem', borderRadius: '5px', fontSize: '0.8rem' }}>
+                      <tr key={index} className="border-b border-gray-200 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                        <td className="p-4 font-bold text-slate-800 dark:text-white">{client.full_name}</td>
+                        <td className="p-4">{client.email}</td>
+                        <td className="p-4">
+                            <span className="bg-gray-200 dark:bg-[#333] text-slate-700 dark:text-white px-2 py-1 rounded text-xs uppercase font-bold tracking-wider">
                                 {client.role.replace('_', ' ')}
                             </span>
                         </td>

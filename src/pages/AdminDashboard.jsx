@@ -773,13 +773,7 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
     const { user, profile, signOut } = useAuth();
     
-    // Security: Redirect if not admin
-    useEffect(() => {
-        if (profile && profile.role !== 'admin') {
-            alert("Access Denied: Admins Only");
-            navigate('/login');
-        }
-    }, [profile, navigate]);
+
     
     // New States
     const [viewingManagerId, setViewingManagerId] = useState(null);

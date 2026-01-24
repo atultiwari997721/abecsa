@@ -16,9 +16,7 @@ const CustomerDashboard = () => {
   
   const chatContainerRef = useRef(null);
 
-  useEffect(() => {
-    if (!loading && !user) navigate('/login');
-  }, [user, loading, navigate]);
+
 
   // Fetch Data (Websites, Messages & Profile Name)
   useEffect(() => {
@@ -130,53 +128,27 @@ const CustomerDashboard = () => {
   if (loading || !user) return <div style={{color:'#fff', padding:'2rem'}}>Loading...</div>;
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: '#050505', 
-      color: '#fff', 
-      padding: '2rem', 
-      paddingTop: '100px',
-      fontFamily: "'Exo 2', sans-serif"
-    }}>
+
+    <div className="min-h-screen bg-gray-50 dark:bg-[#050505] text-slate-900 dark:text-white transition-colors duration-300 pt-[100px] px-8 font-body">
       
       {/* Header */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '3rem',
-        borderBottom: '1px solid rgba(255,255,255,0.1)',
-        paddingBottom: '1rem'
-      }}>
+      <div className="flex justify-between items-center mb-12 border-b border-gray-200 dark:border-white/10 pb-4">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <FaUserCircle size={40} color="var(--primary-color)" />
           <div>
-            <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Welcome, {customerName || profile?.full_name || user.email}</h1>
-            <span style={{ fontSize: '0.9rem', color: '#888' }}>Customer Dashboard</span>
+            <h1 className="text-2xl font-bold m-0 text-slate-800 dark:text-white">Welcome, {customerName || profile?.full_name || user.email}</h1>
+            <span className="text-sm text-slate-500 dark:text-gray-400">Customer Dashboard</span>
           </div>
         </div>
         <button 
           onClick={handleLogout}
-          style={{
-            background: 'transparent',
-            border: '1px solid #ff0055',
-            color: '#ff0055',
-            padding: '0.5rem 1rem',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            transition: 'all 0.3s'
-          }}
-          onMouseEnter={(e) => { e.target.style.background = '#ff0055'; e.target.style.color = '#fff'; }}
-          onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#ff0055'; }}
+          className="bg-transparent border border-red-500 text-red-500 dark:text-[#ff0055] dark:border-[#ff0055] px-4 py-2 rounded-md cursor-pointer flex items-center gap-2 transition-all duration-300 hover:bg-red-500 hover:text-white"
         >
           <FaSignOutAlt /> Logout
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8">
         
         {/* Left Column: My Websites */}
         <div style={{ flex: 2 }}>
@@ -184,40 +156,25 @@ const CustomerDashboard = () => {
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {websites.length === 0 ? (
-               <div style={{padding: '2rem', background: 'rgba(255,255,255,0.05)', borderRadius: '15px', color: '#888'}}>
+               <div className="p-8 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl text-slate-500 dark:text-gray-400">
                  No websites found. Contact admin to link your projects.
                </div>
             ) : (
                 websites.map((site) => (
-                  <div key={site.id} style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '15px',
-                    padding: '1.5rem',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '1rem'
-                  }}>
+                  <div key={site.id} className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6 flex flex-wrap justify-between items-center gap-4">
                     <div>
-                      <h3 style={{ margin: '0 0 0.5rem 0', color: '#fff' }}>{site.name}</h3>
-                      <p style={{ margin: 0, color: '#aaa', fontSize: '0.9rem' }}>Plan: <span style={{ color: 'var(--primary-color)' }}>{site.plan}</span></p>
-                      <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: '#666' }}>Expires: {site.expiry_date}</p>
+                      <h3 className="m-0 mb-2 font-bold text-slate-800 dark:text-white">{site.name}</h3>
+                      <p className="m-0 text-sm text-slate-500 dark:text-gray-400">Plan: <span className="text-blue-600 dark:text-blue-400">{site.plan}</span></p>
+                      <p className="mt-2 m-0 text-xs text-slate-400 dark:text-gray-500">Expires: {site.expiry_date}</p>
                     </div>
                     
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                      <div style={{ 
-                        display: 'inline-flex', 
-                        alignItems: 'center', 
-                        gap: '0.3rem', 
-                        background: site.status === 'Live' ? 'rgba(0, 255, 136, 0.1)' : 'rgba(255, 170, 0, 0.1)', 
-                        color: site.status === 'Live' ? '#00ff88' : '#ffaa00',
-                        padding: '0.2rem 0.6rem',
-                        borderRadius: '20px',
-                        fontSize: '0.8rem',
-                        fontWeight: 'bold'
-                      }}>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className={`
+                        inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold
+                        ${site.status === 'Live' 
+                            ? 'bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-[#00ff88]' 
+                            : 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 dark:text-[#ffaa00]'}
+                      `}>
                         <FaCircle size={8} /> {site.status}
                       </div>
                       
@@ -226,22 +183,7 @@ const CustomerDashboard = () => {
                           href={site.url} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            background: 'var(--primary-color)',
-                            color: '#fff',
-                            textDecoration: 'none',
-                            padding: '0.6rem 1.2rem',
-                            borderRadius: '8px',
-                            fontSize: '0.9rem',
-                            fontWeight: 'bold',
-                            marginTop: '0.5rem',
-                            transition: 'transform 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-                          onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white no-underline px-5 py-2.5 rounded-lg text-sm font-bold mt-2 transition-transform hover:-translate-y-0.5"
                         >
                           Visit Website <FaExternalLinkAlt size={12} />
                         </a>
@@ -257,58 +199,37 @@ const CustomerDashboard = () => {
         <div style={{ flex: 1.5 }}>
           <h2 style={{ borderLeft: '4px solid #ffaa00', paddingLeft: '10px', marginBottom: '1.5rem' }}>My Assets</h2>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="flex flex-col gap-6">
             {assets.length === 0 ? (
-               <div style={{padding: '2rem', background: 'rgba(255,255,255,0.05)', borderRadius: '15px', color: '#888'}}>
+               <div className="p-8 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl text-slate-500 dark:text-gray-400">
                  No licenses or certificates found.
                </div>
             ) : (
                 assets.map((asset) => (
-                  <div key={asset.id} style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '15px',
-                    padding: '1.5rem',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                  <div key={asset.id} className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6 relative overflow-hidden">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
                         {asset.type === 'Certificate' ? 
-                          <FaCertificate size={24} color="#00d2ff" /> : 
-                          asset.type === 'Image' ? <FaImage size={24} color="#00ff88" /> :
-                          <FaFileContract size={24} color="#ffaa00" />
+                          <FaCertificate size={24} className="text-blue-500 dark:text-[#00d2ff]" /> : 
+                          asset.type === 'Image' ? <FaImage size={24} className="text-green-500 dark:text-[#00ff88]" /> :
+                          <FaFileContract size={24} className="text-yellow-500 dark:text-[#ffaa00]" />
                         }
-                        <h3 style={{ margin: 0, color: '#fff', fontSize: '1.1rem' }}>{asset.name}</h3>
+                        <h3 className="m-0 text-slate-800 dark:text-white text-lg font-bold">{asset.name}</h3>
                       </div>
-                      <span style={{ 
-                        fontSize: '0.7rem', 
-                        background: 'rgba(255,255,255,0.1)', 
-                        padding: '0.2rem 0.6rem', 
-                        borderRadius: '10px',
-                        color: '#aaa'
-                      }}>
+                      <span className="text-xs bg-gray-100 dark:bg-white/10 px-2.5 py-1 rounded-md text-slate-500 dark:text-gray-400 uppercase font-bold tracking-wider">
                         {asset.type}
                       </span>
                     </div>
 
                     {asset.type === 'Image' ? (
-                        <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '10px' }}>
-                           <img src={asset.value} alt={asset.name} style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '5px', border: '1px solid #333' }} />
+                        <div className="text-center bg-gray-50 dark:bg-black/30 p-4 rounded-lg">
+                           <img src={asset.value} alt={asset.name} className="max-w-full max-h-[200px] rounded border border-gray-200 dark:border-gray-800" />
                            <br/>
-                           <a href={asset.value} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '0.5rem', color: '#00ff88', fontSize: '0.8rem' }}>View Full Size</a>
+                           <a href={asset.value} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-green-600 dark:text-[#00ff88] text-sm hover:underline">View Full Size</a>
                         </div>
                     ) : (
-                    <div style={{ 
-                      background: 'rgba(0,0,0,0.3)', 
-                      padding: '1rem', 
-                      borderRadius: '10px', 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'center',
-                      border: '1px dashed rgba(255,255,255,0.2)'
-                    }}>
-                      <code style={{ color: '#fff', fontFamily: 'monospace', fontSize: '0.9rem', wordBreak: 'break-all' }}>
+                    <div className="bg-gray-50 dark:bg-black/30 p-4 rounded-lg flex justify-between items-center border border-dashed border-gray-300 dark:border-white/20">
+                      <code className="text-slate-700 dark:text-white font-mono text-sm break-all">
                         {asset.type === 'License' ? asset.value : 'Certificate Available'}
                       </code>
                       
@@ -316,7 +237,7 @@ const CustomerDashboard = () => {
                         <button 
                           onClick={() => navigator.clipboard.writeText(asset.value)}
                           title="Copy License Key"
-                          style={{ background: 'transparent', border: 'none', color: '#ffaa00', cursor: 'pointer' }}
+                          className="bg-transparent border-none text-yellow-600 dark:text-[#ffaa00] cursor-pointer hover:scale-110 transition-transform"
                         >
                           <FaCopy />
                         </button>
@@ -325,7 +246,7 @@ const CustomerDashboard = () => {
                           href={asset.value} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          style={{ color: '#00d2ff', display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', fontSize: '0.9rem' }}
+                          className="text-blue-600 dark:text-[#00d2ff] flex items-center gap-2 no-underline text-sm font-bold hover:underline"
                         >
                           View <FaEye />
                         </a>
@@ -342,34 +263,25 @@ const CustomerDashboard = () => {
         <div style={{ flex: 1, minWidth: '300px' }}>
           <h2 style={{ borderLeft: '4px solid #bc13fe', paddingLeft: '10px', marginBottom: '1.5rem' }}>Support Chat</h2>
           
-          <div style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '15px',
-            height: '400px',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden'
-          }}>
+          <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl h-[400px] flex flex-col overflow-hidden">
             {/* Messages Area */}
             <div 
               ref={chatContainerRef}
-              style={{ flex: 1, padding: '1rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', scrollBehavior: 'smooth' }}
+              className="flex-1 p-4 overflow-y-auto flex flex-col gap-4 scroll-smooth"
             >
               {chatHistory.map((msg, index) => {
                 const isUser = msg.sender_id === user.id;
                 return (
-                  <div key={index} style={{
-                    alignSelf: isUser ? 'flex-end' : 'flex-start',
-                    maxWidth: '70%',
-                    background: isUser ? '#bc13fe' : 'rgba(255,255,255,0.1)',
-                    color: '#fff',
-                    padding: '0.8rem',
-                    borderRadius: isUser ? '15px 15px 0 15px' : '15px 15px 15px 0',
-                    boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                  }}>
-                    <div style={{ fontSize: '0.9rem' }}>{msg.content}</div>
-                    <div style={{ fontSize: '0.7rem', opacity: 0.7, marginTop: '0.3rem', textAlign: 'right' }}>
+                  <div key={index} className={`
+                    self-${isUser ? 'end' : 'start'}
+                    max-w-[70%]
+                    p-3 rounded-2xl shadow-sm
+                    ${isUser 
+                        ? 'bg-purple-600 text-white rounded-br-none' 
+                        : 'bg-gray-100 dark:bg-white/10 text-slate-800 dark:text-white rounded-bl-none'}
+                  `}>
+                    <div className="text-sm">{msg.content}</div>
+                    <div className="text-xs opacity-70 mt-1 text-right">
                        {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
@@ -378,42 +290,18 @@ const CustomerDashboard = () => {
             </div>
 
             {/* Input Area */}
-            <form onSubmit={handleSendMessage} style={{ 
-              padding: '1rem', 
-              background: 'rgba(0,0,0,0.2)', 
-              borderTop: '1px solid rgba(255,255,255,0.05)',
-              display: 'flex',
-              gap: '0.5rem'
-            }}>
+            <form onSubmit={handleSendMessage} className="p-4 bg-gray-50 dark:bg-black/20 border-t border-gray-200 dark:border-white/5 flex gap-2">
               <input 
                 type="text" 
                 placeholder="Type your message..." 
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                style={{
-                  flex: 1,
-                  background: 'transparent',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '20px',
-                  padding: '0.8rem',
-                  color: '#fff',
-                  outline: 'none'
-                }}
+                className="flex-1 bg-transparent border border-gray-300 dark:border-white/20 rounded-full px-4 py-3 text-slate-900 dark:text-white outline-none focus:border-purple-500"
               />
               <button 
                 type="submit" 
-                style={{
-                  background: '#bc13fe',
-                  border: 'none',
-                  color: '#fff',
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+                title="Send Message"
               >
                 <FaPaperPlane size={14} />
               </button>
