@@ -116,14 +116,21 @@ const Packages = () => {
       <div className="hide-scrollbar" style={{ 
         display: isMobile ? 'flex' : 'grid', 
         gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        flexWrap: isMobile ? 'nowrap' : 'wrap', // Ensure nowrap on mobile
+        justifyContent: isMobile ? 'flex-start' : 'center', // Fix mobile alignment
         gap: isMobile ? '1rem' : '2.5rem',
         maxWidth: '1200px',
         margin: '0 auto',
         position: 'relative',
         zIndex: 1,
         overflowX: isMobile ? 'auto' : 'visible',
-        padding: isMobile ? '0 1rem 2rem 1rem' : '0', // Side padding for mobile scroll
-        scrollSnapType: isMobile ? 'x mandatory' : 'none'
+        padding: isMobile ? '20px 20px 40px 20px' : '20px', // More padding for shadow visibility
+        scrollSnapType: isMobile ? 'x mandatory' : 'none',
+        scrollPaddingLeft: isMobile ? '20px' : '0', // Match padding for smooth snap
+        WebkitOverflowScrolling: 'touch', 
+        touchAction: 'pan-x pan-y',
+        width: '100%', 
+        alignItems: 'stretch', // Ensure all cards stretch to same height
       }}>
         {packages.map((pkg, index) => (
           <motion.div 
@@ -138,16 +145,21 @@ const Packages = () => {
               border: '1px solid rgba(255, 255, 255, 0.1)',
               borderTop: `1px solid ${pkg.color}`,
               borderRadius: '20px',
-              padding: '2.5rem',
+              padding: '2rem', 
               display: 'flex',
               flexDirection: 'column',
+              justifyContent: 'space-between', // Push button to bottom
               alignItems: 'center',
               cursor: 'default',
               position: 'relative',
-              overflow: 'hidden',
-              minWidth: isMobile ? '85vw' : 'auto', // Mobile card width
-              scrollSnapAlign: 'center', // Snap to center
-              boxShadow: isMobile ? '0 5px 20px rgba(0,0,0,0.3)' : '0 4px 6px rgba(0,0,0,0.05)'
+              overflow: 'hidden', // Ensure content stays inside
+              minWidth: isMobile ? '80vw' : 'auto', // Slightly narrower to show next card
+              maxWidth: isMobile ? '350px' : 'none', // Max width constraint
+              height: 'auto', // Let flex stretch handle height
+              flexShrink: 0, 
+              scrollSnapAlign: 'center', 
+              boxShadow: isMobile ? '0 5px 15px rgba(0,0,0,0.1)' : '0 4px 6px rgba(0,0,0,0.05)',
+              margin: isMobile ? '0' : '0', // Reset margins
             }}
             whileHover={!isMobile ? { 
               y: -10, 
@@ -204,9 +216,9 @@ const Packages = () => {
               <button 
                 onClick={(e) => { e.stopPropagation(); handleBuy(pkg.title); }}
                 style={{
-                  background: 'transparent',
-                  color: pkg.color,
-                  border: `1px solid ${pkg.color}`,
+                  background: pkg.color, // Solid background
+                  color: '#000', // Black text for contrast on bright colors
+                  border: 'none',
                   padding: '0.8rem 1.5rem',
                   borderRadius: '4px',
                   fontWeight: 'bold',
@@ -218,17 +230,16 @@ const Packages = () => {
                   fontFamily: 'var(--font-heading)',
                   textTransform: 'uppercase',
                   letterSpacing: '1px',
-                  transition: 'all 0.3s'
+                  transition: 'all 0.3s',
+                  boxShadow: `0 4px 15px ${pkg.color}66` // Glow effect
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = pkg.color;
-                  e.currentTarget.style.color = '#000';
-                  e.currentTarget.style.boxShadow = `0 0 20px ${pkg.color}`;
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = `0 6px 20px ${pkg.color}aa`;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = pkg.color;
-                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = `0 4px 15px ${pkg.color}66`;
                 }}
               >
                 Buy Now

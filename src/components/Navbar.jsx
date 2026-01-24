@@ -55,10 +55,10 @@ const Navbar = () => {
                 : 'bg-transparent'
             }`}
         >
-            <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
             {/* Logo */}
             <div 
-                className="text-2xl font-bold tracking-widest cursor-pointer flex gap-0.5" 
+                className="text-xl font-bold tracking-widest cursor-pointer flex gap-0.5" 
                 onClick={() => navigate('/')}
             >
                <span className="text-blue-600 dark:text-blue-500">A</span>
@@ -70,12 +70,12 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-6">
                 {navLinks.map((link) => (
                 <a
                     key={link.name}
                     href={link.href}
-                    className="text-slate-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white transition-colors text-sm font-medium tracking-wide uppercase"
+                    className="text-slate-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white transition-colors text-xs font-medium tracking-wide uppercase"
                 >
                     {link.name}
                 </a>
@@ -84,38 +84,38 @@ const Navbar = () => {
                 {/* Theme Toggle */}
                 <button 
                     onClick={toggleTheme}
-                    className="p-2 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    className="p-1.5 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
-                    {theme === 'light' ? <FaMoon size={18} /> : <FaSun size={18} />}
+                    {theme === 'light' ? <FaMoon size={16} /> : <FaSun size={16} />}
                 </button>
 
                 {user ? (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         <button 
                             onClick={() => navigate('/dashboard')}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-slate-700 dark:text-white rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-bold"
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-slate-700 dark:text-white rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-xs font-bold"
                         >
                             <FaUserCircle /> Dashboard
                         </button>
                         <button 
                             onClick={handleLogout}
-                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
+                            className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
                             title="Sign Out"
                         >
-                            <FaSignOutAlt size={18} />
+                            <FaSignOutAlt size={16} />
                         </button>
                     </div>
                 ) : (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         <button 
                             onClick={() => navigate('/login')}
-                            className="text-slate-600 dark:text-white font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            className="text-slate-600 dark:text-white text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                         >
                             Login
                         </button>
                         <button 
                             onClick={() => setIsContactOpen(true)}
-                            className="px-6 py-2 bg-blue-600 dark:bg-electricBlue text-white rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-300 font-semibold shadow-md shadow-blue-500/20"
+                            className="px-4 py-1.5 bg-blue-600 dark:bg-electricBlue text-white text-sm rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-300 font-semibold shadow-md shadow-blue-500/20"
                         >
                             Hire Us
                         </button>
@@ -124,17 +124,17 @@ const Navbar = () => {
             </div>
 
             {/* Mobile Controls */}
-            <div className="md:hidden flex items-center gap-4">
+            <div className="md:hidden flex items-center gap-3">
                  {/* Theme Toggle Mobile */}
                  <button 
                     onClick={toggleTheme}
-                    className="p-2 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    className="p-1.5 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
-                    {theme === 'light' ? <FaMoon size={18} /> : <FaSun size={18} />}
+                    {theme === 'light' ? <FaMoon size={16} /> : <FaSun size={16} />}
                 </button>
 
                 <button
-                    className="text-slate-900 dark:text-gray-200 text-2xl p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    className="text-slate-900 dark:text-gray-200 text-xl p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                 >
                     {isMenuOpen ? <FaTimes /> : <FaBars />}
