@@ -5,18 +5,27 @@ import '../styles/global.css'; // Assuming global styles are here
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../supabaseClient';
 
-const StudentAmbassadorDashboard = () => {
+const StudentAmbassadorDashboard = ({ ambassadorId }) => {
     const navigate = useNavigate();
     const { user, profile, signOut, loading } = useAuth();
     const [ambassadorName, setAmbassadorName] = useState('');
+    
+    // For admin viewing
+    const targetId = ambassadorId || user?.id;
 
 
 
     useEffect(() => {
-        if(profile && profile.full_name) {
-            setAmbassadorName(profile.full_name);
-        }
-    }, [profile]);
+        const fetchName = async () => {
+             if (ambassadorId) {
+                 const { data } = await supabase.from('profiles').select('full_name').eq('id', ambassadorId).single();
+                 if (data) setAmbassadorName(data.full_name);
+             } else if (profile && profile.full_name) {
+                 setAmbassadorName(profile.full_name);
+             }
+        };
+        fetchName();
+    }, [profile, ambassadorId]);
 
 
     const handleLogout = async () => {
@@ -38,12 +47,12 @@ const StudentAmbassadorDashboard = () => {
                 <div>
                     <h1 className="text-3xl font-bold m-0 text-blue-600 dark:text-[#00d2ff]">Student Ambassador Dashboard</h1>
                     <span className="text-sm text-slate-500 dark:text-gray-400">
-                        Welcome back, {ambassadorName}
+                        {ambassadorId ? 'Viewing Dashboard (Admin View)' : `Welcome back, ${ambassadorName}`}
                     </span>
                 </div>
                 <button
                     onClick={handleLogout}
-                    className="bg-transparent border border-red-500 text-red-500 dark:text-[#ff0055] dark:border-[#ff0055] px-4 py-2 rounded-md cursor-pointer flex items-center gap-2 transition-all duration-300 hover:bg-red-500 hover:text-white"
+                    className="bg-transparent border border-red-500 text-red-500 dark:text-[#ff0055] dark:border-[#ff0055] px-3 py-1 text-sm rounded-md cursor-pointer flex items-center gap-2 transition-all duration-300 hover:bg-red-500 hover:text-white"
                 >
                     <FaSignOutAlt /> Logout
                 </button>

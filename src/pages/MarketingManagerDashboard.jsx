@@ -71,7 +71,7 @@ const MarketingManagerDashboard = ({ managerId }) => {
         </div>
         <button 
           onClick={handleLogout}
-          className="bg-transparent border border-red-500 text-red-500 dark:text-[#ff0055] dark:border-[#ff0055] px-4 py-2 rounded-md cursor-pointer flex items-center gap-2 transition-all duration-300 hover:bg-red-500 hover:text-white"
+          className="bg-transparent border border-red-500 text-red-500 dark:text-[#ff0055] dark:border-[#ff0055] px-3 py-1 text-sm rounded-md cursor-pointer flex items-center gap-2 transition-all duration-300 hover:bg-red-500 hover:text-white"
         >
           <FaSignOutAlt /> Logout
         </button>
@@ -113,13 +113,13 @@ const MarketingManagerDashboard = ({ managerId }) => {
               Sold Websites
             </h2>
             
-            <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden">
-              <table className="w-full border-collapse text-left">
+            <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden overflow-x-auto">
+              <table className="w-full border-collapse text-left min-w-[500px]">
                 <thead className="bg-gray-50 dark:bg-black/30 text-slate-700 dark:text-white">
                   <tr>
-                    <th className="p-4 border-b border-gray-200 dark:border-white/10">Website Name</th>
-                    <th className="p-4 border-b border-gray-200 dark:border-white/10">URL</th>
-                    <th className="p-4 border-b border-gray-200 dark:border-white/10">Status</th>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10 whitespace-nowrap">Website Name</th>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10 whitespace-nowrap">URL</th>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10 whitespace-nowrap">Status</th>
                   </tr>
                 </thead>
                 <tbody className="text-slate-600 dark:text-gray-300">
@@ -130,11 +130,11 @@ const MarketingManagerDashboard = ({ managerId }) => {
                   ) : (
                     websitesSold.map((site, index) => (
                       <tr key={index} className="border-b border-gray-200 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                        <td className="p-4 font-bold text-slate-800 dark:text-white">{site.name}</td>
-                        <td className="p-4"><a href={site.url} className="text-blue-600 hover:underline" target="_blank" rel="noreferrer">{site.url || '-'}</a></td>
-                        <td className="p-4">
+                        <td className="p-4 font-bold text-slate-800 dark:text-white whitespace-nowrap">{site.name}</td>
+                        <td className="p-4 whitespace-nowrap"><a href={site.url} className="text-blue-600 hover:underline" target="_blank" rel="noreferrer">{site.url || '-'}</a></td>
+                        <td className="p-4 whitespace-nowrap">
                           <span className={`
-                             px-3 py-1 rounded-full text-xs font-bold border
+                             px-3 py-1 rounded-full text-xs font-bold border whitespace-nowrap inline-block
                              ${site.status === 'Live' ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-[#00ff88] dark:border-[#00ff88]' : 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/10 dark:text-[#f5b700] dark:border-[#f5b700]'}
                           `}>
                             {site.status}
@@ -155,13 +155,13 @@ const MarketingManagerDashboard = ({ managerId }) => {
               Assigned Clients
             </h2>
             
-            <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden">
-              <table className="w-full border-collapse text-left">
+            <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden overflow-x-auto">
+              <table className="w-full border-collapse text-left min-w-[500px]">
                 <thead className="bg-gray-50 dark:bg-black/30 text-slate-700 dark:text-white">
                   <tr>
-                    <th className="p-4 border-b border-gray-200 dark:border-white/10">Name</th>
-                    <th className="p-4 border-b border-gray-200 dark:border-white/10">Email</th>
-                    <th className="p-4 border-b border-gray-200 dark:border-white/10">Role</th>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10 whitespace-nowrap">Name</th>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10 whitespace-nowrap">Email</th>
+                    <th className="p-4 border-b border-gray-200 dark:border-white/10 whitespace-nowrap">Role</th>
                   </tr>
                 </thead>
                 <tbody className="text-slate-600 dark:text-gray-300">
@@ -172,10 +172,10 @@ const MarketingManagerDashboard = ({ managerId }) => {
                   ) : (
                     assignedCustomers.map((client, index) => (
                       <tr key={index} className="border-b border-gray-200 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                        <td className="p-4 font-bold text-slate-800 dark:text-white">{client.full_name}</td>
-                        <td className="p-4">{client.email}</td>
-                        <td className="p-4">
-                            <span className="bg-gray-200 dark:bg-[#333] text-slate-700 dark:text-white px-2 py-1 rounded text-xs uppercase font-bold tracking-wider">
+                        <td className="p-4 font-bold text-slate-800 dark:text-white whitespace-nowrap">{client.full_name}</td>
+                        <td className="p-4 whitespace-nowrap">{client.email}</td>
+                        <td className="p-4 whitespace-nowrap">
+                            <span className="bg-gray-200 dark:bg-[#333] text-slate-700 dark:text-white px-2 py-1 rounded text-xs uppercase font-bold tracking-wider whitespace-nowrap inline-block">
                                 {client.role.replace('_', ' ')}
                             </span>
                         </td>

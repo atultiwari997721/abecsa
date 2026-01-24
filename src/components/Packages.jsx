@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FaWhatsapp } from 'react-icons/fa';
 import { config } from '../config';
@@ -56,6 +56,8 @@ const packages = [
 
 const Packages = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const scrollRef = useRef(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -65,6 +67,24 @@ const Packages = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      const progress = scrollLeft / (scrollWidth - clientWidth || 1);
+      setScrollProgress(progress);
+    }
+  };
+
+  // Color mapping function
+  const getProgressColor = (p) => {
+    if (p <= 0.2) return '#3b82f6'; // Blue
+    if (p <= 0.4) return '#ef4444'; // Red
+    if (p <= 0.6) return '#22c55e'; // Green
+    if (p <= 0.8) return '#eab308'; // Yellow
+    if (p <= 0.9) return '#ef4444'; // Red again
+    return '#3b82f6'; // Back to Blue
+  };
+
   const handleBuy = (pkgTitle) => {
     const message = `Hello! I am interested in buying the ${pkgTitle} package from ABECSA.`;
     const link = `https://wa.me/${config.whatsappNumber}?text=${encodeURIComponent(message)}`;
@@ -72,7 +92,7 @@ const Packages = () => {
   };
 
   return (
-    <section id="services" style={{ padding: isMobile ? '6rem 1rem' : '6rem 2rem', position: 'relative', overflow: 'hidden' }}>
+    <section id="services" style={{ padding: isMobile ? '4rem 0' : '6rem 2rem', position: 'relative', overflow: 'hidden' }}>
       {/* Ambient background glow */}
       <div style={{
           position: 'absolute',
@@ -103,71 +123,74 @@ const Packages = () => {
       
       <style>
         {`
-          .hide-scrollbar::-webkit-scrollbar {
-            display: none;
+          .manual-scrollbar::-webkit-scrollbar {
+            display: none; /* Hide standard bar as we have custom indicator */
           }
-          .hide-scrollbar {
+          .manual-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
           }
         `}
       </style>
 
-      <div className="hide-scrollbar" style={{ 
-        display: isMobile ? 'flex' : 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-        flexWrap: isMobile ? 'nowrap' : 'wrap', 
-        justifyContent: isMobile ? 'flex-start' : 'center', 
-        gap: isMobile ? '1.5rem' : '2.5rem', // Increased mobile gap for better separation
-        maxWidth: '1200px',
-        margin: '0 auto',
-        position: 'relative',
-        zIndex: 1,
-        overflowX: isMobile ? 'auto' : 'visible',
-        padding: isMobile ? '20px 5vw 40px 5vw' : '20px', // Center the first card with padding
-        scrollSnapType: isMobile ? 'x mandatory' : 'none',
-        scrollPaddingLeft: isMobile ? '5vw' : '0', // Match padding for centered snap
-        WebkitOverflowScrolling: 'touch', 
-        touchAction: 'pan-x pan-y',
-        width: '100%', 
-        alignItems: 'stretch', 
-      }}>
+      <div 
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="manual-scrollbar" 
+        style={{ 
+          display: isMobile ? 'flex' : 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+          flexWrap: isMobile ? 'nowrap' : 'wrap', 
+          justifyContent: isMobile ? 'flex-start' : 'center', 
+          gap: '1.5rem',
+          maxWidth: '1200px',
+          margin: '0 auto',
+          position: 'relative',
+          zIndex: 1,
+          overflowX: isMobile ? 'auto' : 'visible',
+          padding: isMobile ? '10px 20px 20px 20px' : '20px', 
+          WebkitOverflowScrolling: 'touch', 
+          scrollSnapType: isMobile ? 'x proximity' : 'none',
+          touchAction: 'pan-x pan-y',
+          width: '100%', 
+          alignItems: 'stretch', 
+        }}
+      >
         {packages.map((pkg, index) => (
           <motion.div 
             key={index}
             className="group bg-white dark:bg-[#0f172a] text-slate-900 dark:text-white"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             transition={{ delay: index * 0.1 }}
             viewport={{ once: true }}
             style={{
-              // Removed inline background color to allow theme toggling via classes
               border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderTop: `1px solid ${pkg.color}`,
+              borderTop: `2px solid ${pkg.color}`,
               borderRadius: '20px',
               padding: '2rem', 
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between', // Push button to bottom
+              justifyContent: 'space-between',
               alignItems: 'center',
               cursor: 'default',
               position: 'relative',
-              overflow: 'hidden', // Ensure content stays inside
-              minWidth: isMobile ? '75vw' : 'auto', // Better width for peeking
-              maxWidth: isMobile ? '320px' : 'none', // Constraint max width
-              height: 'auto', // Let flex stretch handle height
+              overflow: 'hidden',
+              minWidth: isMobile ? '75vw' : 'auto',
+              maxWidth: isMobile ? '320px' : 'none',
+              height: 'auto',
               flexShrink: 0, 
               scrollSnapAlign: 'center', 
-              boxShadow: isMobile ? '0 5px 15px rgba(0,0,0,0.1)' : '0 4px 6px rgba(0,0,0,0.05)',
-              margin: isMobile ? '0' : '0', // Reset margins
+              boxShadow: '0 5px 15px rgba(0,0,0,0.05)',
+              margin: '0',
             }}
             whileHover={!isMobile ? { 
-              y: -10, 
+              scale: 1.02,
               boxShadow: `0 10px 40px -10px ${pkg.color}66`,
               borderColor: pkg.color
-            } : {}} // Disable hover motion effects on touch/mobile
+            } : {}}
           >
-            {/* Hover Gradient Overlay - CSS controlled via group-hover */}
+            {/* Hover Gradient Overlay */}
             <div 
               className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
               style={{
@@ -216,11 +239,11 @@ const Packages = () => {
               <button 
                 onClick={(e) => { e.stopPropagation(); handleBuy(pkg.title); }}
                 style={{
-                  background: pkg.color, // Solid background
-                  color: '#000', // Black text for contrast on bright colors
+                  background: pkg.color,
+                  color: '#000',
                   border: 'none',
                   padding: '0.8rem 1.5rem',
-                  borderRadius: '4px',
+                  borderRadius: '10px',
                   fontWeight: 'bold',
                   cursor: 'pointer',
                   display: 'flex',
@@ -231,24 +254,39 @@ const Packages = () => {
                   textTransform: 'uppercase',
                   letterSpacing: '1px',
                   transition: 'all 0.3s',
-                  boxShadow: `0 4px 15px ${pkg.color}66` // Glow effect
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = `0 6px 20px ${pkg.color}aa`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = `0 4px 15px ${pkg.color}66`;
+                  boxShadow: `0 4px 15px ${pkg.color}66`
                 }}
               >
                 Buy Now
               </button>
-              
             </div>
           </motion.div>
         ))}
       </div>
+
+      {/* Progress Indicator - Changing Color */}
+      {isMobile && (
+        <div style={{ 
+          width: '60%', 
+          height: '4px', 
+          background: 'rgba(0,0,0,0.05)', 
+          margin: '20px auto 0',
+          borderRadius: '10px',
+          overflow: 'hidden',
+          position: 'relative'
+        }}>
+          <div style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            height: '100%',
+            width: `${scrollProgress * 100}%`,
+            background: getProgressColor(scrollProgress),
+            transition: 'background-color 0.5s ease, width 0.1s linear',
+            borderRadius: '10px'
+          }} />
+        </div>
+      )}
 
     </section>
   );

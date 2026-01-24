@@ -6,6 +6,9 @@ import { supabase } from '../supabaseClient';
 import { createClient } from '@supabase/supabase-js'; // For non-persisting client
 import { useAuth } from '../contexts/AuthContext';
 import MarketingManagerDashboard from './MarketingManagerDashboard';
+import CustomerDashboard from './CustomerDashboard';
+import StudentAmbassadorDashboard from './StudentAmbassadorDashboard';
+import logo from '../logo_abecsa.png';
 
 // --- Helper: Password Toggle ---
 const PasswordDisplay = ({ password }) => {
@@ -106,27 +109,31 @@ const CreateUserModal = ({ onClose, onRefresh }) => {
     };
 
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#111', padding: '2.5rem', borderRadius: '20px', width: '90%', maxWidth: '500px', border: '1px solid #D4AF37' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
-                    <h3 style={{ margin: 0, color: '#D4AF37', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaUserPlus /> Create New User</h3>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}><FaTimes /></button>
+        <div className="fixed inset-0 bg-black/90 z-[3000] flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-[#111] p-8 rounded-3xl w-full max-w-lg border border-yellow-500/50 shadow-2xl relative">
+                <div className="flex justify-between mb-6 border-b border-gray-200 dark:border-white/10 pb-4">
+                    <h3 className="m-0 text-yellow-600 dark:text-[#D4AF37] flex items-center gap-2 text-xl font-bold"><FaUserPlus /> Create New User</h3>
+                    <button onClick={onClose} className="bg-transparent border-none text-slate-500 dark:text-white text-2xl cursor-pointer hover:text-red-500 transition-colors"><FaTimes /></button>
                 </div>
-                <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <input type="text" placeholder="Full Name" required value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="dark-input" />
-                    <div style={{display:'flex', flexDirection:'column', gap:'5px'}}>
-                        <input type="text" placeholder="Email OR Student ID" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="dark-input" />
-                        {!formData.email.includes('@') && formData.email.length > 0 && <span style={{color:'#888', fontSize:'0.8rem'}}>Will register as: {formData.email}@abecsa.edu</span>}
+                <form onSubmit={handleCreate} className="flex flex-col gap-4">
+                    <input type="text" placeholder="Full Name" required value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} 
+                        className="w-full p-4 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-yellow-500 transition-colors" />
+                    <div className="flex flex-col gap-2">
+                        <input type="text" placeholder="Email OR Student ID" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} 
+                            className="w-full p-4 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-yellow-500 transition-colors" />
+                        {!formData.email.includes('@') && formData.email.length > 0 && <span className="text-slate-500 text-sm">Will register as: {formData.email}@abecsa.edu</span>}
                     </div>
-                    <input type="password" placeholder="Password" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="dark-input" />
-                    <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="dark-input">
+                    <input type="password" placeholder="Password" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} 
+                        className="w-full p-4 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-yellow-500 transition-colors" />
+                    <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} 
+                        className="w-full p-4 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-yellow-500 transition-colors">
                         <option value="student">Student</option>
                         <option value="student_ambassador">Student Ambassador</option>
                         <option value="customer">Customer</option>
                         <option value="marketing_manager">Marketing Manager</option>
                         <option value="admin">Admin</option>
                     </select>
-                    <button type="submit" disabled={loading} style={{ background: '#D4AF37', border: 'none', padding: '1rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '1rem' }}>
+                    <button type="submit" disabled={loading} className="bg-yellow-500 hover:bg-yellow-600 text-white dark:text-black p-4 rounded-xl font-bold cursor-pointer mt-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                         {loading ? 'Creating...' : 'Create Account'}
                     </button>
                 </form>
@@ -182,97 +189,107 @@ const AllWebsitesModal = ({ websites, profiles, onClose, onRefresh }) => {
     };
 
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(5px)' }}>
-            <div style={{ background: '#0a0a0a', width: '90%', height: '90%', borderRadius: '25px', border: '1px solid #00ff88', display: 'flex', flexDirection: 'column', padding: '2.5rem', boxShadow: '0 0 50px rgba(0, 255, 136, 0.2)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', borderBottom: '1px solid rgba(0, 255, 136, 0.2)', paddingBottom: '1rem' }}>
-                    <h2 style={{ margin: 0, color: '#00ff88', display: 'flex', alignItems: 'center', gap: '1rem', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '1.8rem' }}><FaGlobe /> All Websites Repository</h2>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button onClick={() => setShowAddForm(!showAddForm)} style={{ background: '#00ff88', color: '#000', border: 'none', padding: '0.5rem 1rem', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+        <div className="fixed inset-0 bg-black/90 z-[2000] flex items-center justify-center backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-[90%] h-[90%] rounded-[25px] border border-gray-200 dark:border-[#00ff88] flex flex-col p-4 md:p-10 shadow-2xl relative">
+                <div className="flex justify-between mb-8 border-b border-gray-200 dark:border-[#00ff88]/30 pb-4 flex-wrap gap-4">
+                    <h2 className="m-0 text-green-600 dark:text-[#00ff88] flex items-center gap-4 uppercase tracking-widest text-2xl font-bold"><FaGlobe /> All Websites Repository</h2>
+                    <div className="flex gap-4">
+                        <button onClick={() => setShowAddForm(!showAddForm)} className="bg-green-500 hover:bg-green-600 dark:bg-[#00ff88] text-white dark:text-black border-none px-4 py-2 rounded-lg font-bold cursor-pointer flex items-center gap-2 transition-colors">
                             <FaPlus /> {showAddForm ? 'Cancel' : 'Add Website'}
                         </button>
-                        <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer', opacity: 0.7 }}><FaTimes /></button>
+                        <button onClick={onClose} className="bg-transparent border-none text-slate-500 dark:text-white text-3xl cursor-pointer hover:text-red-500 transition-colors"><FaTimes /></button>
                     </div>
                 </div>
 
                 {showAddForm && (
-                    <div style={{ marginBottom: '2rem', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333' }}>
-                        <h3 style={{ marginTop: 0, color: '#fff' }}>Add New Website</h3>
-                        <form onSubmit={handleAddWebsite} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                            <input type="text" placeholder="Website Name" required value={newSite.name} onChange={e => setNewSite({...newSite, name: e.target.value})} className="dark-input" />
-                            <input type="text" placeholder="URL (e.g. example.com)" required value={newSite.url} onChange={e => setNewSite({...newSite, url: e.target.value})} className="dark-input" />
-                            <select value={newSite.status} onChange={e => setNewSite({...newSite, status: e.target.value})} className="dark-input">
+                    <div className="mb-8 bg-gray-50 dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333]">
+                        <h3 className="mt-0 text-slate-800 dark:text-white mb-4">Add New Website</h3>
+                        <form onSubmit={handleAddWebsite} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <input type="text" placeholder="Website Name" required value={newSite.name} onChange={e => setNewSite({...newSite, name: e.target.value})} 
+                                className="w-full p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-lg text-slate-900 dark:text-white outline-none focus:border-green-500 transition-colors" />
+                            <input type="text" placeholder="URL (e.g. example.com)" required value={newSite.url} onChange={e => setNewSite({...newSite, url: e.target.value})} 
+                                className="w-full p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-lg text-slate-900 dark:text-white outline-none focus:border-green-500 transition-colors" />
+                            <select value={newSite.status} onChange={e => setNewSite({...newSite, status: e.target.value})} 
+                                className="w-full p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-lg text-slate-900 dark:text-white outline-none focus:border-green-500 transition-colors">
                                 <option value="Pending">Pending</option>
                                 <option value="Live">Live</option>
                                 <option value="Maintenance">Maintenance</option>
                             </select>
-                            <select value={newSite.plan} onChange={e => setNewSite({...newSite, plan: e.target.value})} className="dark-input">
+                            <select value={newSite.plan} onChange={e => setNewSite({...newSite, plan: e.target.value})} 
+                                className="w-full p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-lg text-slate-900 dark:text-white outline-none focus:border-green-500 transition-colors">
                                 <option value="Standard">Standard</option>
                                 <option value="Premium">Premium</option>
                                 <option value="Enterprise">Enterprise</option>
                             </select>
-                            <select value={newSite.userId} onChange={e => setNewSite({...newSite, userId: e.target.value})} className="dark-input" required>
+                            <select value={newSite.userId} onChange={e => setNewSite({...newSite, userId: e.target.value})} required
+                                className="w-full p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-lg text-slate-900 dark:text-white outline-none focus:border-green-500 transition-colors">
                                 <option value="">Assign to User...</option>
                                 {profiles.filter(p => p.role === 'customer').map(p => (
                                     <option key={p.id} value={p.id}>{p.full_name} ({p.email})</option>
                                 ))}
                             </select>
-                            <button type="submit" disabled={loading} style={{ background: '#00ff88', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                            <button type="submit" disabled={loading} className="bg-green-500 hover:bg-green-600 dark:bg-[#00ff88] text-white dark:text-black border-none rounded-lg font-bold cursor-pointer transition-colors disabled:opacity-50">
                                 {loading ? 'Saving...' : 'Save Website'}
                             </button>
                         </form>
                     </div>
                 )}
 
-                <div style={{ flex: 1, overflowY: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ddd', fontSize: '0.95rem' }}>
-                        <thead>
-                            <tr style={{ background: 'linear-gradient(90deg, #111, #222)', textAlign: 'left', borderBottom: '2px solid #00ff88' }}>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Website Name</th>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>URL</th>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Assigned To</th>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Status</th>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Plan</th>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Link</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {websites.map((site) => {
-                                const owner = profiles.find(p => p.id === site.user_id);
-                                return (
-                                    <tr key={site.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                        <td style={{ padding: '1.2rem', fontWeight: 'bold' }}>{site.name}</td>
-                                        <td style={{ padding: '1.2rem', color: '#aaa', fontFamily: 'monospace' }}>{site.url || '-'}</td>
-                                        <td style={{ padding: '1.2rem', color: '#fff' }}>{owner ? owner.full_name : <span style={{color:'#666'}}>Unassigned</span>}</td>
-                                        <td style={{ padding: '1.2rem' }}>
-                                            <select 
-                                                value={site.status} 
-                                                onChange={(e) => handleUpdateStatus(site.id, e.target.value)}
-                                                className={`status-badge ${site.status === 'Live' ? 'live' : 'pending'}`}
-                                                style={{ border: 'none', cursor: 'pointer', outline: 'none' }}
-                                            >
-                                                <option value="Pending" style={{color:'#000'}}>Pending</option>
-                                                <option value="Live" style={{color:'#000'}}>Live</option>
-                                                <option value="Maintenance" style={{color:'#000'}}>Maintenance</option>
-                                            </select>
-                                        </td>
-                                        <td style={{ padding: '1.2rem' }}>{site.plan || 'Standard'}</td>
-                                        <td style={{ padding: '1.2rem' }}>
-                                            {site.url && (
-                                                <a 
-                                                    href={site.url.startsWith('http') ? site.url : `https://${site.url}`} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    style={{ color: '#00ff88', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}
+                <div className="flex-1 overflow-y-auto rounded-xl border border-gray-200 dark:border-[#333]">
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse text-sm text-slate-700 dark:text-gray-300 min-w-[800px]">
+                            <thead className="bg-gray-100 dark:bg-[#111] text-slate-600 dark:text-gray-400 border-b-2 border-green-500 dark:border-[#00ff88]">
+                                <tr>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Website Name</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">URL</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Assigned To</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Status</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Plan</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Link</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {websites.map((site) => {
+                                    const owner = profiles.find(p => p.id === site.user_id);
+                                    return (
+                                        <tr key={site.id} className="border-b border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                            <td className="p-4 font-bold text-slate-800 dark:text-white whitespace-nowrap">{site.name}</td>
+                                            <td className="p-4 font-mono text-slate-500 dark:text-gray-400 whitespace-nowrap">{site.url || '-'}</td>
+                                            <td className="p-4 text-slate-800 dark:text-white whitespace-nowrap">{owner ? owner.full_name : <span className="text-slate-400 italic">Unassigned</span>}</td>
+                                            <td className="p-4 whitespace-nowrap">
+                                                <select 
+                                                    value={site.status} 
+                                                    onChange={(e) => handleUpdateStatus(site.id, e.target.value)}
+                                                    className={`px-3 py-1 rounded-full text-xs font-bold border-none cursor-pointer outline-none ${
+                                                        site.status === 'Live' 
+                                                        ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-[#00ff88]' 
+                                                        : 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-700 dark:text-[#ffaa00]'
+                                                    }`}
                                                 >
-                                                    <FaLink /> Open
-                                                </a>
-                                            )}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                                                    <option value="Pending" className="text-black">Pending</option>
+                                                    <option value="Live" className="text-black">Live</option>
+                                                    <option value="Maintenance" className="text-black">Maintenance</option>
+                                                </select>
+                                            </td>
+                                            <td className="p-4 whitespace-nowrap">{site.plan || 'Standard'}</td>
+                                            <td className="p-4 whitespace-nowrap">
+                                                {site.url && (
+                                                    <a 
+                                                        href={site.url.startsWith('http') ? site.url : `https://${site.url}`} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="text-green-600 dark:text-[#00ff88] no-underline flex items-center gap-2 hover:underline"
+                                                    >
+                                                        <FaLink /> Open
+                                                    </a>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -308,28 +325,32 @@ const AssignAssetModal = ({ profiles, onClose, onRefresh }) => {
     };
 
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#111', padding: '2.5rem', borderRadius: '20px', width: '90%', maxWidth: '500px', border: '1px solid #D4AF37' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
-                    <h3 style={{ margin: 0, color: '#D4AF37', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaGift /> Assign Asset to User</h3>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}><FaTimes /></button>
+        <div className="fixed inset-0 bg-black/90 z-[3000] flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-[#111] p-8 rounded-3xl w-full max-w-lg border border-yellow-500/50 shadow-2xl relative">
+                <div className="flex justify-between mb-6 border-b border-gray-200 dark:border-white/10 pb-4">
+                    <h3 className="m-0 text-yellow-600 dark:text-[#D4AF37] flex items-center gap-2 text-xl font-bold"><FaGift /> Assign Asset to User</h3>
+                    <button onClick={onClose} className="bg-transparent border-none text-slate-500 dark:text-white text-2xl cursor-pointer hover:text-red-500 transition-colors"><FaTimes /></button>
                 </div>
-                <form onSubmit={handleAssign} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <select value={formData.userId} onChange={e => setFormData({...formData, userId: e.target.value})} className="dark-input" required>
+                <form onSubmit={handleAssign} className="flex flex-col gap-4">
+                    <select value={formData.userId} onChange={e => setFormData({...formData, userId: e.target.value})} required
+                         className="w-full p-4 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-yellow-500 transition-colors">
                         <option value="">Select User...</option>
                         {profiles.filter(p => p.role === 'customer').map(p => (
                             <option key={p.id} value={p.id}>{p.full_name} ({p.email})</option>
                         ))}
                     </select>
-                    <input type="text" placeholder="Asset Name (e.g. Premium License, Web Cert)" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="dark-input" />
-                    <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="dark-input">
+                    <input type="text" placeholder="Asset Name (e.g. Premium License, Web Cert)" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} 
+                         className="w-full p-4 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-yellow-500 transition-colors" />
+                    <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} 
+                         className="w-full p-4 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-yellow-500 transition-colors">
                         <option value="License">License Key</option>
                         <option value="Certificate">Certificate Link</option>
                         <option value="Image">Image URL</option>
                     </select>
-                    <input type="text" placeholder={formData.type === 'License' ? "License Key" : "URL (https://...)"} required value={formData.value} onChange={e => setFormData({...formData, value: e.target.value})} className="dark-input" />
+                    <input type="text" placeholder={formData.type === 'License' ? "License Key" : "URL (https://...)"} required value={formData.value} onChange={e => setFormData({...formData, value: e.target.value})} 
+                         className="w-full p-4 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-yellow-500 transition-colors" />
                     
-                    <button type="submit" disabled={loading} style={{ background: '#D4AF37', border: 'none', padding: '1rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '1rem' }}>
+                    <button type="submit" disabled={loading} className="bg-yellow-500 hover:bg-yellow-600 text-white dark:text-black p-4 rounded-xl font-bold cursor-pointer mt-4 transition-colors disabled:opacity-50">
                         {loading ? 'Assigning...' : 'Assign Asset'}
                     </button>
                 </form>
@@ -370,53 +391,54 @@ const ImageUploadModal = ({ onClose }) => {
     };
 
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#111', padding: '2.5rem', borderRadius: '20px', width: '90%', maxWidth: '500px', border: '1px solid #00ff88' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
-                    <h3 style={{ margin: 0, color: '#00ff88', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaUpload /> Upload Image</h3>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}><FaTimes /></button>
+
+        <div className="fixed inset-0 bg-black/90 z-[3000] flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-[#111] p-8 rounded-3xl w-full max-w-lg border border-blue-500/50 shadow-2xl relative">
+                <div className="flex justify-between mb-6 border-b border-gray-200 dark:border-white/10 pb-4">
+                    <h3 className="m-0 text-blue-600 dark:text-[#00ff88] flex items-center gap-2 text-xl font-bold"><FaUpload /> Upload Image</h3>
+                    <button onClick={onClose} className="bg-transparent border-none text-slate-500 dark:text-white text-2xl cursor-pointer hover:text-red-500 transition-colors"><FaTimes /></button>
                 </div>
                 
                 {!uploadedUrl ? (
-                    <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <div style={{ border: '2px dashed #444', padding: '2rem', borderRadius: '10px', textAlign: 'center', color: '#888' }}>
+                    <form onSubmit={handleUpload} className="flex flex-col gap-4">
+                        <div className="border-2 border-dashed border-gray-300 dark:border-[#444] p-8 rounded-xl text-center text-slate-500 dark:text-gray-400 hover:border-blue-500 dark:hover:border-[#00ff88] transition-colors">
                             <input 
                                 type="file" 
                                 accept="image/*" 
                                 onChange={e => setFile(e.target.files[0])}
-                                style={{ display: 'none' }}
+                                className="hidden"
                                 id="file-upload"
                             />
-                            <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'block' }}>
+                            <label htmlFor="file-upload" className="cursor-pointer block">
                                 {file ? (
-                                    <span style={{ color: '#fff' }}>{file.name}</span>
+                                    <span className="text-blue-600 dark:text-white font-bold">{file.name}</span>
                                 ) : (
                                     <span>Click to Select Image</span>
                                 )}
                             </label>
                         </div>
 
-                        <button type="submit" disabled={!file || uploading} style={{ background: '#00ff88', color:'#000', border: 'none', padding: '1rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        <button type="submit" disabled={!file || uploading} className="bg-blue-600 hover:bg-blue-700 dark:bg-[#00ff88] text-white dark:text-black p-4 rounded-xl font-bold cursor-pointer transition-colors disabled:opacity-50">
                             {uploading ? 'Uploading...' : 'Upload Now'}
                         </button>
                     </form>
                 ) : (
-                    <div style={{ textAlign: 'center' }}>
-                        <p style={{ color: '#ddd' }}>Image Uploaded Successfully!</p>
-                        <div style={{ background: '#222', padding: '1rem', borderRadius: '10px', wordBreak: 'break-all', fontFamily: 'monospace', fontSize: '0.85rem', marginBottom: '1rem', border:'1px solid #333' }}>
+                    <div className="text-center">
+                        <p className="text-slate-800 dark:text-gray-200 mb-4">Image Uploaded Successfully!</p>
+                        <div className="bg-gray-100 dark:bg-[#222] p-4 rounded-xl break-all font-mono text-xs mb-4 border border-gray-200 dark:border-[#333] text-slate-600 dark:text-white">
                             {uploadedUrl}
                         </div>
-                        <img src={uploadedUrl} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', marginBottom: '1rem', borderRadius: '5px' }} />
-                        <div style={{ display: 'flex', gap: '1rem' }}>
+                        <img src={uploadedUrl} alt="Preview" className="max-w-full max-h-[150px] mb-4 rounded-lg shadow-md" />
+                        <div className="flex gap-4">
                             <button 
                                 onClick={() => { navigator.clipboard.writeText(uploadedUrl); alert('URL Copied!'); }}
-                                style={{ flex: 1, background: '#D4AF37', border: 'none', padding: '0.8rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}
+                                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white dark:text-black p-3 rounded-xl font-bold cursor-pointer flex items-center justify-center gap-2 transition-colors"
                             >
                                 <FaCopy /> Copy URL
                             </button>
                             <button 
                                 onClick={() => { setUploadedUrl(''); setFile(null); }}
-                                style={{ flex: 1, background: 'transparent', border: '1px solid #666', color: '#aaa', padding: '0.8rem', borderRadius: '8px', cursor: 'pointer' }}
+                                className="flex-1 bg-transparent border border-gray-300 dark:border-gray-500 text-slate-500 dark:text-gray-400 p-3 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                             >
                                 Upload Another
                             </button>
@@ -471,71 +493,74 @@ const ImageLibraryModal = ({ profiles, onClose }) => {
     };
 
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#0a0a0a', width: '90%', height: '90%', borderRadius: '25px', border: '1px solid #2b7de9', display: 'flex', flexDirection: 'column', padding: '2.5rem', boxShadow: '0 0 50px rgba(43, 125, 233, 0.2)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
-                    <h2 style={{ margin: 0, color: '#2b7de9', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaImages /> Image Library & Stats</h2>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer', opacity: 0.7 }}><FaTimes /></button>
+
+        <div className="fixed inset-0 bg-black/90 z-[2000] flex items-center justify-center backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-[90%] h-[90%] rounded-[25px] border border-blue-500 dark:border-[#2b7de9] flex flex-col p-4 md:p-10 shadow-2xl relative">
+                <div className="flex justify-between mb-8 border-b border-gray-200 dark:border-[#2b7de9]/30 pb-4">
+                    <h2 className="m-0 text-blue-600 dark:text-[#2b7de9] flex items-center gap-2 uppercase tracking-widest text-2xl font-bold"><FaImages /> Image Library & Stats</h2>
+                    <button onClick={onClose} className="bg-transparent border-none text-slate-500 dark:text-white text-3xl cursor-pointer hover:text-red-500 transition-colors"><FaTimes /></button>
                 </div>
 
-                <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem' }}>
-                    <div style={{ background: '#111', padding: '1.5rem', borderRadius: '15px', flex: 1, border: '1px solid #333' }}>
-                        <h3 style={{ margin: '0 0 0.5rem 0', color: '#aaa', fontSize: '0.9rem' }}>Total Uploads</h3>
-                        <span style={{ fontSize: '2rem', fontWeight: 'bold', color: '#fff' }}>{files.length}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div className="bg-gray-50 dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333]">
+                        <h3 className="m-0 mb-2 text-slate-500 dark:text-[#aaa] text-sm uppercase font-bold">Total Uploads</h3>
+                        <span className="text-3xl font-bold text-slate-800 dark:text-white">{files.length}</span>
                     </div>
-                    <div style={{ background: '#111', padding: '1.5rem', borderRadius: '15px', flex: 1, border: '1px solid #333' }}>
-                        <h3 style={{ margin: '0 0 0.5rem 0', color: '#aaa', fontSize: '0.9rem' }}>Total Assigned</h3>
-                        <span style={{ fontSize: '2rem', fontWeight: 'bold', color: '#00ff88' }}>{files.filter(f => f.assignments.length > 0).length}</span>
+                    <div className="bg-gray-50 dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333]">
+                        <h3 className="m-0 mb-2 text-slate-500 dark:text-[#aaa] text-sm uppercase font-bold">Total Assigned</h3>
+                        <span className="text-3xl font-bold text-green-600 dark:text-[#00ff88]">{files.filter(f => f.assignments.length > 0).length}</span>
                     </div>
                 </div>
 
-                <div style={{ flex: 1, overflowY: 'auto' }}>
-                    {loading ? <div style={{color:'#fff'}}>Loading library...</div> : (
-                        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ddd', fontSize: '0.9rem' }}>
-                            <thead>
-                                <tr style={{ background: '#151515', textAlign: 'left', borderBottom: '1px solid #333' }}>
-                                    <th style={{ padding: '1rem' }}>Preview</th>
-                                    <th style={{ padding: '1rem' }}>File Name / Link</th>
-                                    <th style={{ padding: '1rem' }}>Assigned To</th>
-                                    <th style={{ padding: '1rem' }}>Metadata</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {files.map(file => (
-                                    <tr key={file.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                        <td style={{ padding: '1rem' }}>
-                                            <img src={file.url} alt="thumb" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #333' }} />
-                                        </td>
-                                        <td style={{ padding: '1rem' }}>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                                <span style={{ color: '#fff' }}>{file.name}</span>
-                                                <button 
-                                                    onClick={() => { navigator.clipboard.writeText(file.url); alert('Link Copied!'); }}
-                                                    style={{ background: 'transparent', border: 'none', color: '#2b7de9', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.8rem', padding: 0 }}
-                                                >
-                                                    <FaCopy /> Copy Link
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td style={{ padding: '1rem' }}>
-                                            {file.assignments.length > 0 ? (
-                                                file.assignments.map((name, i) => (
-                                                    <span key={i} style={{ display: 'inline-block', background: 'rgba(0, 255, 136, 0.1)', color: '#00ff88', padding: '2px 8px', borderRadius: '10px', fontSize: '0.8rem', marginRight: '5px', marginBottom: '5px' }}>
-                                                        {name}
-                                                    </span>
-                                                ))
-                                            ) : (
-                                                <span style={{ color: '#666', fontStyle: 'italic' }}>Unassigned</span>
-                                            )}
-                                        </td>
-                                        <td style={{ padding: '1rem', color: '#666', fontSize: '0.8rem' }}>
-                                            Size: {(file.metadata?.size / 1024).toFixed(1)} KB<br/>
-                                            Uploaded: {new Date(file.created_at).toLocaleDateString()}
-                                        </td>
+                <div className="flex-1 overflow-y-auto rounded-xl border border-gray-200 dark:border-[#333]">
+                    {loading ? <div className="text-slate-500 dark:text-white p-8 text-center">Loading library...</div> : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse text-sm text-slate-700 dark:text-gray-300 min-w-[700px]">
+                                <thead className="bg-gray-100 dark:bg-[#151515] text-slate-600 dark:text-gray-400 border-b border-gray-200 dark:border-[#333]">
+                                    <tr>
+                                        <th className="p-4 text-left font-semibold">Preview</th>
+                                        <th className="p-4 text-left font-semibold">File Name / Link</th>
+                                        <th className="p-4 text-left font-semibold">Assigned To</th>
+                                        <th className="p-4 text-left font-semibold">Metadata</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {files.map(file => (
+                                        <tr key={file.id} className="border-b border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                            <td className="p-4">
+                                                <img src={file.url} alt="thumb" className="w-[60px] h-[60px] object-cover rounded-lg border border-gray-200 dark:border-[#333]" />
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="flex flex-col gap-2">
+                                                    <span className="text-slate-800 dark:text-white font-medium">{file.name}</span>
+                                                    <button 
+                                                        onClick={() => { navigator.clipboard.writeText(file.url); alert('Link Copied!'); }}
+                                                        className="bg-transparent border-none text-blue-600 dark:text-[#2b7de9] cursor-pointer flex items-center gap-2 text-xs p-0 hover:underline"
+                                                    >
+                                                        <FaCopy /> Copy Link
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                {file.assignments.length > 0 ? (
+                                                    file.assignments.map((name, i) => (
+                                                        <span key={i} className="inline-block bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-[#00ff88] px-2 py-1 rounded-md text-xs mr-1 mb-1 font-medium">
+                                                            {name}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-slate-400 italic">Unassigned</span>
+                                                )}
+                                            </td>
+                                            <td className="p-4 text-xs text-slate-500 dark:text-[#666]">
+                                                Size: {(file.metadata?.size / 1024).toFixed(1)} KB<br/>
+                                                Uploaded: {new Date(file.created_at).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </div>
             </div>
@@ -544,7 +569,7 @@ const ImageLibraryModal = ({ profiles, onClose }) => {
 };
 
 // --- Global Master List (Admins, Managers, Customers) ---
-const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
+const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh, setViewingManagerId, setViewingCustomerId, setViewingAmbassadorId }) => {
     const [filterRole, setFilterRole] = useState('ALL');
     const [searchQuery, setSearchQuery] = useState('');
     const [managers, setManagers] = useState([]);
@@ -593,37 +618,32 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
     });
 
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(5px)' }}>
-            <div style={{ background: '#0a0a0a', width: '95%', height: '95%', borderRadius: '25px', border: '1px solid #D4AF37', display: 'flex', flexDirection: 'column', padding: '2.5rem', boxShadow: '0 0 50px rgba(212, 175, 55, 0.2)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', borderBottom: '1px solid rgba(212, 175, 55, 0.2)', paddingBottom: '1rem' }}>
-                    <h2 style={{ margin: 0, color: '#D4AF37', display: 'flex', alignItems: 'center', gap: '1rem', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '1.8rem' }}><FaUsers /> Master User List</h2>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer', opacity: 0.7 }}><FaTimes /></button>
+
+        <div className="fixed inset-0 bg-black/90 z-[2000] flex items-center justify-center backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-[95%] h-[95%] rounded-[25px] border border-yellow-500 dark:border-[#D4AF37] flex flex-col p-4 md:p-10 shadow-2xl relative">
+                <div className="flex justify-between mb-8 border-b border-gray-200 dark:border-[#D4AF37]/20 pb-4">
+                    <h2 className="m-0 text-yellow-600 dark:text-[#D4AF37] flex items-center gap-4 uppercase tracking-widest text-2xl font-bold"><FaUsers /> Master User List</h2>
+                    <button onClick={onClose} className="bg-transparent border-none text-slate-500 dark:text-white text-3xl cursor-pointer hover:text-red-500 transition-colors"><FaTimes /></button>
                 </div>
 
-                <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div className="mb-6 flex gap-4 items-center flex-wrap">
                     <input 
                         type="text" 
                         placeholder="Search users by name or email..." 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="dark-input"
-                        style={{ flex: 1, minWidth: '200px', maxWidth: '400px' }}
+                        className="flex-1 min-w-[200px] max-w-[400px] p-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-yellow-500 transition-colors"
                     />
-                    <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div className="flex gap-2 overflow-x-auto pb-2 min-w-0 md:flex-wrap md:overflow-visible">
                     {['ALL', 'admin', 'marketing_manager', 'customer', 'student_ambassador'].map(role => (
                         <button 
                             key={role}
                             onClick={() => setFilterRole(role)}
-                            style={{
-                                background: filterRole === role ? '#D4AF37' : 'rgba(255,255,255,0.1)',
-                                color: filterRole === role ? '#000' : '#fff',
-                                border: 'none',
-                                padding: '0.5rem 1.5rem',
-                                borderRadius: '20px',
-                                cursor: 'pointer',
-                                fontWeight: 'bold',
-                                textTransform: 'capitalize'
-                            }}
+                            className={`px-3 py-1 rounded-full cursor-pointer font-bold capitalize whitespace-nowrap transition-colors text-xs md:text-sm shrink-0 ${
+                                filterRole === role 
+                                ? 'bg-yellow-500 text-black' 
+                                : 'bg-gray-100 dark:bg-white/10 text-slate-600 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20'
+                            }`}
                         >
                             {role.replace('_', ' ')}
                         </button>
@@ -631,65 +651,85 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
                     </div>
                 </div>
 
-                <div style={{ flex: 1, overflowY: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ddd', fontSize: '0.95rem' }}>
-                        <thead>
-                            <tr style={{ background: 'linear-gradient(90deg, #111, #222)', textAlign: 'left', borderBottom: '2px solid #D4AF37' }}>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Full Name</th>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Role</th>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Email</th>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Password</th>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Assigned Manager</th>
-                                <th style={{ padding: '1.2rem', color: '#888', fontSize: '0.8rem' }}>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredProfiles.map((user) => (
-                                <tr key={user.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <td style={{ padding: '1.2rem', fontWeight: 'bold' }}>{user.full_name}</td>
-                                    <td style={{ padding: '1.2rem' }}>
-                                        <span style={{
-                                            padding: '0.2rem 0.8rem', borderRadius: '10px', fontSize: '0.8rem',
-                                            background: user.role === 'admin' ? '#D4AF37' : user.role === 'marketing_manager' ? '#8a2be2' : user.role === 'student_ambassador' ? '#00d2ff' : '#00ff88',
-                                            color: user.role === 'admin' ? '#000' : '#fff'
-                                        }}>
-                                            {user.role.replace('_', ' ')}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '1.2rem', color: '#aaa' }}>{user.email}</td>
-                                    <td style={{ padding: '1.2rem' }}>
-                                        {user.visible_password ? (
-                                             <PasswordDisplay password={user.visible_password} />
-                                        ) : <span style={{color:'#666', fontStyle:'italic'}}>Hidden/Old</span>}
-                                    </td>
-                                    <td style={{ padding: '1.2rem' }}>
-                                        {user.role === 'customer' ? (
-                                            <select 
-                                                value={user.manager_id || ''} 
-                                                onChange={(e) => handleAssignManager(user.id, e.target.value)}
-                                                style={{ background: '#222', color: '#fff', border: '1px solid #444', padding: '0.4rem', borderRadius: '5px' }}
-                                            >
-                                                <option value="">Unassigned</option>
-                                                {managers.map(mgr => (
-                                                    <option key={mgr.id} value={mgr.id}>{mgr.full_name}</option>
-                                                ))}
-                                            </select>
-                                        ) : (
-                                            <span style={{ color: '#555' }}>-</span>
-                                        )}
-                                    </td>
-                                    <td style={{ padding: '1.2rem' }}>
-                                        <button 
-                                            onClick={() => handleDeleteUser(user.id, user.role)}
-                                            style={{ color: '#ff4444', background: 'rgba(255, 68, 68, 0.1)', border:'1px solid #ff4444', padding: '0.5rem 1rem', borderRadius: '8px', cursor:'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                                        >
-                                            <FaTrash /> Delete
-                                        </button>
-                                    </td>
+                <div className="flex-1 overflow-y-auto rounded-xl border border-gray-200 dark:border-[#333]">
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse text-sm text-slate-700 dark:text-gray-300 min-w-[900px]">
+                            <thead className="bg-gray-100 dark:bg-[#111] text-slate-600 dark:text-gray-400 border-b-2 border-yellow-500 dark:border-[#D4AF37]">
+                                <tr>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Full Name</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Role</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Email</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Password</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Assigned Manager</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Action</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {filteredProfiles.map((user) => (
+                                    <tr key={user.id} className="border-b border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                        <td className="p-4 font-bold text-slate-800 dark:text-white whitespace-nowrap">{user.full_name}</td>
+                                        <td className="p-4 whitespace-nowrap">
+                                            <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap inline-block ${
+                                                user.role === 'admin' ? 'bg-yellow-100 text-yellow-800 dark:bg-[#D4AF37] dark:text-black' : 
+                                                user.role === 'marketing_manager' ? 'bg-purple-100 text-purple-800 dark:bg-[#8a2be2] dark:text-white' : 
+                                                user.role === 'student_ambassador' ? 'bg-cyan-100 text-cyan-800 dark:bg-[#00d2ff] dark:text-black' : 
+                                                'bg-green-100 text-green-800 dark:bg-[#00ff88] dark:text-black'
+                                            }`}>
+                                                {user.role.replace('_', ' ')}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-slate-500 dark:text-[#aaa] whitespace-nowrap">{user.email}</td>
+                                        <td className="p-4 whitespace-nowrap">
+                                            {user.visible_password ? (
+                                                 <PasswordDisplay password={user.visible_password} />
+                                            ) : <span className="text-slate-400 italic">Hidden/Old</span>}
+                                        </td>
+                                        <td className="p-4 whitespace-nowrap">
+                                            {user.role === 'customer' ? (
+                                                <select 
+                                                    value={user.manager_id || ''} 
+                                                    onChange={(e) => handleAssignManager(user.id, e.target.value)}
+                                                    className="bg-white dark:bg-[#222] text-slate-800 dark:text-white border border-gray-300 dark:border-[#444] p-2 rounded-md outline-none focus:border-yellow-500 w-full min-w-[150px]"
+                                                >
+                                                    <option value="">Unassigned</option>
+                                                    {managers.map(mgr => (
+                                                        <option key={mgr.id} value={mgr.id}>{mgr.full_name}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <span className="text-slate-400">-</span>
+                                            )}
+                                        </td>
+                                        <td className="p-4 whitespace-nowrap">
+                                            <div className="flex gap-2">
+                                                <button 
+                                                    onClick={() => handleDeleteUser(user.id, user.role)}
+                                                    className="text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 border border-red-200 dark:border-red-500/50 px-2 py-1 rounded-lg cursor-pointer flex items-center gap-2 transition-colors font-bold text-xs whitespace-nowrap"
+                                                >
+                                                    <FaTrash />
+                                                </button>
+                                                {/* View Dashboard Button for Customers, Managers, Ambassadors */}
+                                                {(user.role === 'customer' || user.role === 'marketing_manager' || user.role === 'student_ambassador') && (
+                                                    <button 
+                                                        onClick={() => {
+                                                            onClose(); // Close modal first
+                                                            if (user.role === 'marketing_manager') setViewingManagerId(user.id);
+                                                            else if (user.role === 'customer') setViewingCustomerId(user.id);
+                                                            else if (user.role === 'student_ambassador') setViewingAmbassadorId(user.id);
+                                                        }}
+                                                        className="text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-200 dark:border-blue-500/50 px-2 py-1 rounded-lg cursor-pointer flex items-center gap-2 transition-colors font-bold text-xs whitespace-nowrap"
+                                                        title="View Dashboard"
+                                                    >
+                                                        <FaGlobe />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -706,33 +746,31 @@ const ManagersList = ({ managers, customers, websites, onViewDashboard }) => {
     const getAssignedCustomers = (managerId) => customers.filter(c => c.manager_id === managerId);
 
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             {managers.map(mgr => {
                 const sales = getManagerSales(mgr.id);
                 const assigned = getAssignedCustomers(mgr.id);
                 
                 return (
-                    <div key={mgr.id} style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <div>
-                                <h3 style={{ margin: 0, color: '#fff' }}>{mgr.full_name}</h3>
-                                <p style={{ color: '#888', fontSize: '0.9rem', margin: '5px 0' }}>{mgr.email}</p>
-                                {mgr.visible_password && <PasswordDisplay password={mgr.visible_password} />}
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
-                                 <span style={{ background: '#8a2be2', color: '#fff', padding: '0.2rem 0.6rem', borderRadius: '10px', fontSize: '0.8rem', display: 'block', marginBottom: '5px' }}>
+                    <div key={mgr.id} className="bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-200 dark:border-white/5 shadow-sm hover:border-purple-500/50 transition-colors flex flex-col justify-between h-full">
+                         <div>
+                            <h3 className="m-0 text-slate-800 dark:text-white font-bold text-sm leading-tight break-words mb-1" title={mgr.full_name}>{mgr.full_name}</h3>
+                            <p className="text-slate-500 dark:text-gray-400 text-xs mb-2 break-all" title={mgr.email}>{mgr.email}</p>
+                            
+                            <div className="flex flex-wrap gap-1 mb-2">
+                                 <span className="bg-purple-100 text-purple-700 dark:bg-[#8a2be2] dark:text-white px-1.5 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap">
                                     {sales.length} Sales
                                 </span>
-                                <span style={{ background: '#D4AF37', color: '#000', padding: '0.2rem 0.6rem', borderRadius: '10px', fontSize: '0.8rem', display: 'block' }}>
+                                <span className="bg-yellow-100 text-yellow-700 dark:bg-[#D4AF37] dark:text-black px-1.5 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap">
                                     {assigned.length} Users
                                 </span>
                             </div>
+                            
+                            {mgr.visible_password && <div className="mb-2"><PasswordDisplay password={mgr.visible_password} /></div>}
                          </div>
-                         <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.5rem', marginBottom: '1rem' }}>
-                             {/* Sales list hidden as per request */}
-                         </div>
-                         <button onClick={() => onViewDashboard(mgr.id)} style={{ width: '100%', padding: '0.8rem', background: 'rgba(138, 43, 226, 0.1)', border: '1px solid #8a2be2', color: '#8a2be2', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                             <FaGlobe /> View Dashboard
+                         <button onClick={() => onViewDashboard(mgr.id)} className="w-full py-1 bg-purple-50 hover:bg-purple-100 dark:bg-purple-500/10 border border-purple-200 dark:border-[#8a2be2] text-purple-600 dark:text-[#8a2be2] rounded-lg font-bold cursor-pointer flex items-center justify-center gap-1 transition-colors text-xs">
+                             <FaGlobe size={10} /> View
                          </button>
                     </div>
                 );
@@ -742,26 +780,30 @@ const ManagersList = ({ managers, customers, websites, onViewDashboard }) => {
 };
 
 // --- Student Ambassadors List ---
-const StudentAmbassadorsList = ({ ambassadors }) => {
+const StudentAmbassadorsList = ({ ambassadors, onViewDashboard }) => {
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             {ambassadors.map(amb => (
-                <div key={amb.id} style={{ background: 'rgba(0, 210, 255, 0.05)', padding: '1.5rem', borderRadius: '15px', border: '1px solid rgba(0, 210, 255, 0.2)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div key={amb.id} className="bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-200 dark:border-white/5 shadow-sm hover:border-cyan-500/50 transition-colors flex flex-col justify-between h-full">
                         <div>
-                            <h3 style={{ margin: 0, color: '#00d2ff' }}>{amb.full_name}</h3>
-                            <p style={{ color: '#888', fontSize: '0.9rem', margin: '5px 0' }}>{amb.email}</p>
-                            {amb.visible_password && <PasswordDisplay password={amb.visible_password} />}
+                            <h3 className="m-0 text-cyan-600 dark:text-[#00d2ff] font-bold text-sm leading-tight break-words mb-1" title={amb.full_name}>{amb.full_name}</h3>
+                            <p className="text-slate-500 dark:text-gray-400 text-xs mb-2 break-all" title={amb.email}>{amb.email}</p>
+                            
+                            <div className="mb-2">
+                                <span className="bg-cyan-100 text-cyan-700 dark:bg-[#00d2ff] dark:text-black px-1.5 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap">
+                                    Ambassador
+                                </span>
+                            </div>
+
+                            {amb.visible_password && <div className="mb-2"><PasswordDisplay password={amb.visible_password} /></div>}
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                            <span style={{ background: '#00d2ff', color: '#000', padding: '0.2rem 0.6rem', borderRadius: '10px', fontSize: '0.8rem', display: 'block', marginBottom: '5px' }}>
-                                Ambassador
-                            </span>
-                        </div>
-                        </div>
+                        <button onClick={() => onViewDashboard(amb.id)} className="w-full py-1 bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-500/10 border border-cyan-200 dark:border-[#00d2ff] text-cyan-600 dark:text-[#00d2ff] rounded-lg font-bold cursor-pointer flex items-center justify-center gap-1 transition-colors text-xs mt-auto">
+                             <FaGlobe size={10} /> View
+                        </button>
                 </div>
             ))}
-            {ambassadors.length === 0 && <div style={{color: '#666', fontStyle: 'italic'}}>No Student Ambassadors found.</div>}
+            {ambassadors.length === 0 && <div className="text-slate-500 italic p-4">No Student Ambassadors found.</div>}
         </div>
     );
 };
@@ -777,6 +819,9 @@ const AdminDashboard = () => {
     
     // New States
     const [viewingManagerId, setViewingManagerId] = useState(null);
+    const [viewingAmbassadorId, setViewingAmbassadorId] = useState(null);
+    const [viewingCustomerId, setViewingCustomerId] = useState(null);
+
     const [showCreateUser, setShowCreateUser] = useState(false);
     const [showAssignAsset, setShowAssignAsset] = useState(false);
     const [showImageUpload, setShowImageUpload] = useState(false);
@@ -904,154 +949,180 @@ const AdminDashboard = () => {
         }
     };
 
-    // If Viewing a Manager, render that dashboard
+
+
+    const managers = profiles.filter(p => p.role === 'marketing_manager');
+    const customers = profiles.filter(p => p.role === 'customer');
+    // Pass setters to Global List for impersonation
+    const handleGlobalListClose = () => setShowGlobalList(false);
+
     if (viewingManagerId) {
         return (
-            <div style={{ position: 'relative' }}>
-                <button 
-                    onClick={() => setViewingManagerId(null)}
-                    style={{ position: 'fixed', top: '20px', left: '20px', zIndex: 9999, background: '#D4AF37', border: 'none', padding: '10px 20px', borderRadius: '30px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
-                >
-                    <FaArrowLeft /> Exit Manager View
+            <div>
+                <button onClick={() => setViewingManagerId(null)} className="fixed top-4 right-4 z-50 bg-black text-white px-4 py-2 rounded-full font-bold shadow-lg border border-gray-700 hover:bg-gray-900 cursor-pointer">
+                    <FaTimes /> Exit Admin View
                 </button>
                 <MarketingManagerDashboard managerId={viewingManagerId} />
             </div>
         );
     }
 
-    const managers = profiles.filter(p => p.role === 'marketing_manager');
-    const customers = profiles.filter(p => p.role === 'customer');
+    if (viewingAmbassadorId) {
+        return (
+            <div>
+                 <button onClick={() => setViewingAmbassadorId(null)} className="fixed top-4 right-4 z-50 bg-black text-white px-4 py-2 rounded-full font-bold shadow-lg border border-gray-700 hover:bg-gray-900 cursor-pointer">
+                    <FaTimes /> Exit Admin View
+                </button>
+                <StudentAmbassadorDashboard ambassadorId={viewingAmbassadorId} />
+            </div>
+        );
+    }
+
+    if (viewingCustomerId) {
+        return (
+            <div>
+                 <button onClick={() => setViewingCustomerId(null)} className="fixed top-4 right-4 z-50 bg-black text-white px-4 py-2 rounded-full font-bold shadow-lg border border-gray-700 hover:bg-gray-900 cursor-pointer">
+                    <FaTimes /> Exit Admin View
+                </button>
+                <CustomerDashboard customerId={viewingCustomerId} />
+            </div>
+        );
+    }
+
     const activeSites = websites.filter(w => w.status === 'Live').length;
 
     return (
-        <div className="admin-container">
+        <div className="min-h-screen bg-white dark:bg-[#050505] text-slate-900 dark:text-white pt-0 px-4 md:px-[5%] pb-8 font-body transition-colors duration-300">
             
+            {/* Branding Header - Forced to TOP */}
+            <div className="flex justify-between items-start mb-0">
+                <div className="-mt-12 -ml-8">
+                    <img src={logo} alt="Abecsa Logo" className="h-52 w-auto object-contain" />
+                </div>
+                <div className="pt-6">
+                    <button 
+                        onClick={() => navigate('/')} 
+                        className="bg-gray-200 dark:bg-white/10 text-slate-800 dark:text-white px-3 py-1 rounded-lg text-[10px] font-bold hover:bg-gray-300 dark:hover:bg-white/20 transition-colors uppercase tracking-wider"
+                    >
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+
             {/* Header */}
-            <div className="admin-header">
-                <h1 style={{ fontSize: '1.8rem', color: '#D4AF37', margin: 0 }}>SUPER ADMIN VIEW</h1>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button onClick={() => setShowCreateUser(true)} style={{ background: '#D4AF37', border: 'none', color: '#000', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', fontWeight: 'bold' }}>
-                        <FaUserPlus /> Create User
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 border-b border-gray-200 dark:border-white/10 pb-4 gap-4">
+                <h1 className="text-2xl md:text-3xl font-bold m-0 text-yellow-600 dark:text-[#D4AF37]">SUPER ADMIN VIEW</h1>
+                <div className="flex flex-wrap gap-2 md:gap-4">
+                    <button onClick={() => setShowCreateUser(true)} className="bg-yellow-500 hover:bg-yellow-600 text-white dark:text-black dark:bg-[#D4AF37] border-none px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center font-bold transition-colors text-sm">
+                        <FaUserPlus /> <span className="hidden sm:inline">Create User</span>
                     </button>
-                    <button onClick={() => setShowAssignAsset(true)} style={{ background: '#8a2be2', border: 'none', color: '#fff', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', fontWeight: 'bold' }}>
-                        <FaGift /> Assign Asset
+                    <button onClick={() => setShowAssignAsset(true)} className="bg-purple-600 hover:bg-purple-700 dark:bg-[#8a2be2] text-white border-none px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center font-bold transition-colors text-sm">
+                        <FaGift /> <span className="hidden sm:inline">Assign Asset</span>
                     </button>
-                    <button onClick={() => setShowImageUpload(true)} style={{ background: '#2b7de9', border: 'none', color: '#fff', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', fontWeight: 'bold' }}>
-                        <FaUpload /> Upload Image
+                    <button onClick={() => setShowImageUpload(true)} className="bg-blue-600 hover:bg-blue-700 dark:bg-[#2b7de9] text-white border-none px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center font-bold transition-colors text-sm">
+                        <FaUpload /> <span className="hidden sm:inline">Upload Image</span>
                     </button>
-                    <button onClick={() => setShowImageLibrary(true)} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid #444', color: '#fff', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <FaImages /> Library
+                    <button onClick={() => setShowImageLibrary(true)} className="bg-white hover:bg-gray-100 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-[#444] text-slate-700 dark:text-white px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center transition-colors text-sm">
+                        <FaImages /> <span className="hidden sm:inline">Library</span>
                     </button>
-                    <button onClick={() => setShowVisitorLogs(true)} style={{ background: 'rgba(255, 0, 85, 0.1)', border: '1px solid #ff0055', color: '#ff0055', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <FaCamera /> Logs
-                    </button>
-                    <button onClick={() => { signOut(); navigate('/login'); }} style={{ background: 'transparent', border: '1px solid #ff0055', color: '#ff0055', padding: '0.5rem 1rem', borderRadius: '5px', cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <button onClick={() => { signOut(); navigate('/login'); }} className="bg-transparent border border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center transition-colors text-sm">
                         <FaSignOutAlt /> Logout
                     </button>
                 </div>
             </div>
 
             {/* Quick Stats */}
-            <div className="admin-stats-row">
-                <div style={{ flex: 1, minWidth: '200px', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333', cursor: 'pointer', transition: 'border-color 0.2s' }} onClick={() => setShowGlobalList(true)} onMouseEnter={e => e.currentTarget.style.borderColor = '#D4AF37'} onMouseLeave={e => e.currentTarget.style.borderColor = '#333'}>
-                    <h3 style={{ margin: 0, fontSize: '2rem', color: '#D4AF37' }}>{profiles.length}</h3>
-                    <p style={{ color: '#888', margin: 0 }}>Total Users (Click to View)</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+                <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] cursor-pointer hover:border-yellow-500 transition-colors shadow-sm" onClick={() => setShowGlobalList(true)}>
+                    <h3 className="m-0 text-3xl font-bold text-yellow-600 dark:text-[#D4AF37]">{profiles.length}</h3>
+                    <p className="text-slate-500 dark:text-[#888] m-0">Total Users (Click)</p>
                 </div>
-                <div style={{ flex: 1, minWidth: '200px', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333' }}>
-                    <h3 style={{ margin: 0, fontSize: '2rem', color: '#2b7de9' }}>{profiles.filter(p => p.role === 'admin').length}</h3>
-                    <p style={{ color: '#888', margin: 0 }}>Admins</p>
+                <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] shadow-sm">
+                    <h3 className="m-0 text-3xl font-bold text-blue-600 dark:text-[#2b7de9]">{profiles.filter(p => p.role === 'admin').length}</h3>
+                    <p className="text-slate-500 dark:text-[#888] m-0">Admins</p>
                 </div>
-                <div style={{ flex: 1, minWidth: '200px', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333', cursor: 'pointer', transition: 'border-color 0.2s' }} onClick={() => setShowSitesList(true)} onMouseEnter={e => e.currentTarget.style.borderColor = '#00ff88'} onMouseLeave={e => e.currentTarget.style.borderColor = '#333'}>
-                    <h3 style={{ margin: 0, fontSize: '2rem', color: '#00ff88' }}>{activeSites}</h3>
-                    <p style={{ color: '#888', margin: 0 }}>Live Websites (Click to View)</p>
+                <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] cursor-pointer hover:border-green-500 transition-colors shadow-sm" onClick={() => setShowSitesList(true)}>
+                    <h3 className="m-0 text-3xl font-bold text-green-600 dark:text-[#00ff88]">{activeSites}</h3>
+                    <p className="text-slate-500 dark:text-[#888] m-0">Live Websites (Click)</p>
                 </div>
-                 <div style={{ flex: 1, minWidth: '200px', background: '#111', padding: '1.5rem', borderRadius: '15px', border: '1px solid #333', cursor: 'pointer', transition: 'border-color 0.2s' }} onClick={() => setShowGlobalList(true)} onMouseEnter={e => e.currentTarget.style.borderColor = '#D4AF37'} onMouseLeave={e => e.currentTarget.style.borderColor = '#333'}>
-                    <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}><FaUsers /> Master List</h3>
-                    <p style={{ color: '#D4AF37', margin: 0, fontSize: '0.9rem' }}>Manage All Users</p>
+                 <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] cursor-pointer hover:border-yellow-500 transition-colors shadow-sm" onClick={() => setShowGlobalList(true)}>
+                    <h3 className="m-0 text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-3"><FaUsers /> Master List</h3>
+                    <p className="text-yellow-600 dark:text-[#D4AF37] m-0 text-sm">Manage All Users</p>
                 </div>
             </div>
 
-            <div className="admin-main-grid">
+            <div className="grid grid-cols-1 xl:grid-cols-[1fr_350px] gap-8">
                 
                 {/* Left: Content */}
-                <div>
-                     <div style={{marginBottom: '2rem'}}>
-                        <h2 style={{ color: '#8a2be2', borderLeft: '4px solid #8a2be2', paddingLeft: '1rem' }}>Managers & Sales</h2>
+                <div className="flex flex-col gap-12">
+                     <div>
+                        <h2 className="text-purple-600 dark:text-[#8a2be2] border-l-4 border-purple-600 dark:border-[#8a2be2] pl-4 mb-6 text-xl font-bold">Managers & Sales</h2>
                         <ManagersList managers={managers} customers={customers} websites={websites} onRefresh={fetchData} onViewDashboard={setViewingManagerId} />
                      </div>
-                </div>
                 
-                 {/* Student Ambassadors Section */}
-                 <div>
-                     <div style={{marginBottom: '2rem'}}>
-                        <h2 style={{ color: '#00d2ff', borderLeft: '4px solid #00d2ff', paddingLeft: '1rem' }}>Student Ambassadors</h2>
-                        <StudentAmbassadorsList ambassadors={profiles.filter(p => p.role === 'student_ambassador')} />
+                     {/* Student Ambassadors Section */}
+                     <div>
+                        <h2 className="text-cyan-600 dark:text-[#00d2ff] border-l-4 border-cyan-600 dark:border-[#00d2ff] pl-4 mb-6 text-xl font-bold">Student Ambassadors</h2>
+                        <StudentAmbassadorsList ambassadors={profiles.filter(p => p.role === 'student_ambassador')} onViewDashboard={setViewingAmbassadorId} />
                      </div>
-                 </div>
+                </div>
 
                 {/* Right: Support Chat Master */}
-                <div style={{ background: '#111', borderRadius: '15px', border: '1px solid #333', display: 'flex', flexDirection: 'column', height: '600px', overflow: 'hidden' }}>
-                    <div style={{ padding: '1rem', borderBottom: '1px solid #333', background: '#1a1a1a' }}>
-                        <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Support Inbox</h3>
+                <div className="bg-white dark:bg-[#111] rounded-2xl border border-gray-200 dark:border-[#333] flex flex-col h-[600px] overflow-hidden shadow-lg sticky top-[120px]">
+                    <div className="p-4 border-b border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#1a1a1a]">
+                        <h3 className="m-0 text-lg font-bold">Support Inbox</h3>
                     </div>
                     
-                    <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-                        <div style={{ width: '120px', borderRight: '1px solid #333', overflowY: 'auto', background: '#151515' }}>
+                    <div className="flex flex-1 overflow-hidden">
+                        <div className="w-[120px] border-r border-gray-200 dark:border-[#333] overflow-y-auto bg-gray-50 dark:bg-[#151515]">
                             {Object.values(conversations).map(conv => (
                                 <div 
                                     key={conv.id}
                                     onClick={() => setSelectedUserForChat(conv.id)}
-                                    style={{ 
-                                        padding: '1rem 0.5rem', 
-                                        cursor: 'pointer', 
-                                        borderBottom: '1px solid #222',
-                                        background: selectedUserForChat === conv.id ? '#2b7de9' : 'transparent',
-                                        color: selectedUserForChat === conv.id ? '#fff' : '#aaa',
-                                        fontSize: '0.8rem',
-                                        textAlign: 'center'
-                                    }}
+                                    className={`p-4 cursor-pointer border-b border-gray-200 dark:border-[#222] text-center transition-colors ${
+                                        selectedUserForChat === conv.id 
+                                        ? 'bg-blue-600 dark:bg-[#2b7de9] text-white' 
+                                        : 'bg-transparent text-slate-500 dark:text-[#aaa] hover:bg-gray-100 dark:hover:bg-white/5'
+                                    }`}
                                 >
-                                    <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{conv.name}</div>
-                                    <div style={{ fontSize: '0.7rem', opacity: 0.7 }}>{new Date(conv.timestamp).toLocaleDateString()}</div>
+                                    <div className="font-bold mb-1 text-sm truncate">{conv.name}</div>
+                                    <div className="text-xs opacity-70">{new Date(conv.timestamp).toLocaleDateString()}</div>
                                 </div>
                             ))}
                         </div>
 
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <div className="flex-1 flex flex-col bg-white dark:bg-[#111]">
                             {selectedUserForChat ? (
                                 <>
-                                    <div style={{ padding: '0.8rem', background: '#222', fontSize: '0.9rem', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div className="p-3 bg-gray-100 dark:bg-[#222] text-sm text-slate-700 dark:text-white flex justify-between items-center border-b border-gray-200 dark:border-[#333]">
                                         <span>Chatting with: <strong>{conversations[selectedUserForChat]?.name}</strong></span>
-                                        <button onClick={handleDeleteConversation} style={{ background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', padding: '0.2rem 0.6rem', borderRadius: '5px', fontSize: '0.7rem', cursor: 'pointer', display: 'flex', gap: '5px', alignItems: 'center' }}>
+                                        <button onClick={handleDeleteConversation} className="bg-transparent border border-red-500 text-red-500 px-2 py-1 rounded text-xs cursor-pointer flex gap-1 items-center hover:bg-red-50 dark:hover:bg-red-500/10">
                                             <FaTrash /> Clear Chat
                                         </button>
                                     </div>
-                                    <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 bg-gray-50/50 dark:bg-transparent">
                                         {messages.filter(m => (m.conversation_id === selectedUserForChat || m.sender_id === selectedUserForChat) && m.conversation_id).map((msg, i) => {
                                             const isCustomer = msg.sender_id === selectedUserForChat;
                                             return (
-                                                <div key={i} style={{ 
-                                                    alignSelf: isCustomer ? 'flex-start' : 'flex-end',
-                                                    background: isCustomer ? '#333' : '#2b7de9',
-                                                    color: '#fff',
-                                                    padding: '0.6rem 1rem',
-                                                    borderRadius: '10px',
-                                                    maxWidth: '80%',
-                                                    fontSize: '0.9rem'
-                                                }}>
+                                                <div key={i} className={`p-3 rounded-xl max-w-[85%] text-sm ${
+                                                    isCustomer 
+                                                    ? 'self-start bg-gray-200 dark:bg-[#333] text-slate-800 dark:text-white rounded-tl-none' 
+                                                    : 'self-end bg-blue-600 dark:bg-[#2b7de9] text-white rounded-tr-none'
+                                                }`}>
                                                     {msg.content}
                                                 </div>
                                             );
                                         })}
                                     </div>
-                                    <form onSubmit={handleSendReply} style={{ padding: '0.8rem', borderTop: '1px solid #333', display: 'flex', gap: '0.5rem' }}>
-                                        <input type="text" placeholder="Reply..." value={replyMessage} onChange={e => setReplyMessage(e.target.value)} style={{ flex: 1, padding: '0.6rem', borderRadius: '5px', border: '1px solid #444', background: '#222', color: '#fff', outline: 'none' }} />
-                                        <button type="submit" style={{ background: '#2b7de9', border: 'none', color: '#fff', padding: '0 1rem', borderRadius: '5px', cursor: 'pointer' }}><FaPaperPlane /></button>
+                                    <form onSubmit={handleSendReply} className="p-3 border-t border-gray-200 dark:border-[#333] flex gap-2 bg-white dark:bg-[#111]">
+                                        <input type="text" placeholder="Reply..." value={replyMessage} onChange={e => setReplyMessage(e.target.value)} 
+                                            className="flex-1 p-3 rounded-lg border border-gray-300 dark:border-[#444] bg-white dark:bg-[#222] text-slate-900 dark:text-white outline-none focus:border-blue-500" />
+                                        <button type="submit" className="bg-blue-600 dark:bg-[#2b7de9] border-none text-white px-4 rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"><FaPaperPlane /></button>
                                     </form>
                                 </>
                             ) : (
-                                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>
-                                    Select a conversation
+                                <div className="flex-1 flex items-center justify-center text-slate-400 dark:text-[#666]">
+                                    Select a conversation to start chatting
                                 </div>
                             )}
                         </div>
@@ -1065,6 +1136,9 @@ const AdminDashboard = () => {
                     websites={websites} 
                     onClose={() => setShowGlobalList(false)}
                     onRefresh={fetchData}
+                    setViewingManagerId={setViewingManagerId}
+                    setViewingCustomerId={setViewingCustomerId}
+                    setViewingAmbassadorId={setViewingAmbassadorId}
                 />
             )}
 
@@ -1095,78 +1169,6 @@ const AdminDashboard = () => {
 
 
 
-            {/* CSS Helper for inputs inside Modal */}
-            <style>{`
-                .admin-container {
-                    min-height: 100vh;
-                    background: #050505;
-                    color: #fff;
-                    padding-top: 100px;
-                    padding-left: 5%;
-                    padding-right: 5%;
-                    padding-bottom: 2rem;
-                    font-family: 'Exo 2', sans-serif;
-                }
-                .admin-header {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 3rem;
-                    border-bottom: 1px solid rgba(255,255,255,0.1);
-                    padding-bottom: 1rem;
-                    flex-wrap: wrap;
-                    gap: 1rem;
-                }
-                .admin-stats-row {
-                    display: flex;
-                    gap: 2rem;
-                    margin-bottom: 3rem;
-                    flex-wrap: wrap;
-                }
-                .admin-main-grid {
-                    display: grid;
-                    grid-template-columns: minmax(300px, 1fr) 400px;
-                    gap: 2rem;
-                }
-
-                @media (max-width: 1024px) {
-                    .admin-main-grid {
-                        grid-template-columns: 1fr;
-                    }
-                }
-                @media (max-width: 768px) {
-                    .admin-container {
-                        padding-left: 1rem;
-                        padding-right: 1rem;
-                    }
-                    .admin-header {
-                        flex-direction: column;
-                        align-items: flex-start;
-                    }
-                }
-
-                .dark-input, .dark-select-small {
-                    width: 100%;
-                    padding: 0.8rem;
-                    background: #111;
-                    border: 1px solid #333;
-                    border-radius: 8px;
-                    color: #fff;
-                    outline: none;
-                }
-                .dark-select-small {
-                    width: auto;
-                    padding: 0.3rem;
-                    font-size: 0.8rem;
-                }
-                .status-badge {
-                    padding: 0.3rem 0.8rem;
-                    border-radius: 20px;
-                    font-size: 0.8rem;
-                    font-weight: bold;
-                }
-                .status-badge.live { background: rgba(0, 255, 136, 0.1); color: #00ff88; }
-                .status-badge.pending { background: rgba(255, 170, 0, 0.1); color: #ffaa00; }
-            `}</style>
         </div>
     );
 };
