@@ -87,7 +87,7 @@ const MarketingManagerDashboard = ({ managerId }) => {
         paddingBottom: '1rem'
       }}>
         <div>
-          <h1 style={{ fontSize: '1.8rem', margin: 0, color: '#bc13fe' }}>Manager Dashboard</h1>
+          <h1 style={{ fontSize: '1.8rem', margin: 0, color: '#bc13fe' }}>Abecsa Empower Dashboard</h1>
           <span style={{ fontSize: '0.9rem', color: '#888' }}>
             Welcome back, {managerId ? (managerName || 'Loading...') : (profile ? profile.full_name : '')}
           </span>

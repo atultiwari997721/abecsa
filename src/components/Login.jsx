@@ -52,6 +52,7 @@ const Login = () => {
   const handleNavigation = (role) => {
     if (role === 'admin') navigate('/admin');
     else if (role === 'marketing_manager') navigate('/manager-dashboard');
+    else if (role === 'student_ambassador') navigate('/student-ambassador-dashboard');
     else navigate('/dashboard');
   };
 

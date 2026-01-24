@@ -121,6 +121,7 @@ const CreateUserModal = ({ onClose, onRefresh }) => {
                     <input type="password" placeholder="Password" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="dark-input" />
                     <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="dark-input">
                         <option value="student">Student</option>
+                        <option value="student_ambassador">Student Ambassador</option>
                         <option value="customer">Customer</option>
                         <option value="marketing_manager">Marketing Manager</option>
                         <option value="admin">Admin</option>
@@ -609,7 +610,7 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
                         style={{ flex: 1, minWidth: '200px', maxWidth: '400px' }}
                     />
                     <div style={{ display: 'flex', gap: '1rem' }}>
-                    {['ALL', 'admin', 'marketing_manager', 'customer'].map(role => (
+                    {['ALL', 'admin', 'marketing_manager', 'customer', 'student_ambassador'].map(role => (
                         <button 
                             key={role}
                             onClick={() => setFilterRole(role)}
@@ -649,7 +650,7 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh }) => {
                                     <td style={{ padding: '1.2rem' }}>
                                         <span style={{
                                             padding: '0.2rem 0.8rem', borderRadius: '10px', fontSize: '0.8rem',
-                                            background: user.role === 'admin' ? '#D4AF37' : user.role === 'marketing_manager' ? '#8a2be2' : '#00ff88',
+                                            background: user.role === 'admin' ? '#D4AF37' : user.role === 'marketing_manager' ? '#8a2be2' : user.role === 'student_ambassador' ? '#00d2ff' : '#00ff88',
                                             color: user.role === 'admin' ? '#000' : '#fff'
                                         }}>
                                             {user.role.replace('_', ' ')}
@@ -740,132 +741,33 @@ const ManagersList = ({ managers, customers, websites, onViewDashboard }) => {
     );
 };
 
-
-// --- Visitor Logs Modal ---
-const VisitorLogsModal = ({ onClose }) => {
-    const [logs, setLogs] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchLogs = async () => {
-            console.log("Fetching visitor logs...");
-            const { data, error } = await supabase
-                .from('visitor_logs')
-                .select(`
-                    *,
-                    profiles (
-                        full_name,
-                        email
-                    )
-                `)
-                .order('created_at', { ascending: false })
-                .limit(50);
-            
-            if (error) {
-                console.error("Error fetching visitor logs:", error);
-                // Fallback: Fetch without profile join just in case relationship is still broken
-                const { data: rawData, error: rawError } = await supabase
-                    .from('visitor_logs')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(50);
-                
-                if (!rawError && rawData) {
-                    setLogs(rawData);
-                } else {
-                    const msg = rawError?.message || error?.message || "Unknown error";
-                    console.error("Log fetch failed:", msg);
-                    alert(`Failed to load logs: ${msg}. \n\nPossible cause: Did you run 'schema_visitor_capture.sql' in Supabase?`);
-                }
-            } else if (data) {
-                setLogs(data);
-            }
-            setLoading(false);
-        };
-        fetchLogs();
-    }, []);
-
-    const handleDeleteLog = async (logId, imageUrl) => {
-        if (!window.confirm("Are you sure you want to delete this log?")) return;
-
-        // 1. Delete from Database
-        const { error: dbError } = await supabase
-            .from('visitor_logs')
-            .delete()
-            .eq('id', logId);
-
-        if (dbError) {
-            alert("Failed to delete log: " + dbError.message);
-            return;
-        }
-
-        // 2. Delete from Storage (Optional: Clean up file)
-        if (imageUrl) {
-            const fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-            if (fileName) {
-                await supabase.storage
-                    .from('visitor-captures')
-                    .remove([fileName]);
-            }
-        }
-
-        // 3. Update UI
-        setLogs(prev => prev.filter(l => l.id !== logId));
-    };
-
+// --- Student Ambassadors List ---
+const StudentAmbassadorsList = ({ ambassadors }) => {
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#0a0a0a', width: '90%', height: '90%', borderRadius: '25px', border: '1px solid #ff0055', display: 'flex', flexDirection: 'column', padding: '2.5rem', boxShadow: '0 0 50px rgba(255, 0, 85, 0.2)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
-                    <h2 style={{ margin: 0, color: '#ff0055', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaCamera /> Visitor Camera Logs</h2>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer', opacity: 0.7 }}><FaTimes /></button>
-                </div>
-
-                <div style={{ flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                    {loading ? <div style={{color:'#fff'}}>Loading logs...</div> : logs.map(log => (
-                        <div key={log.id} style={{ background: '#151515', borderRadius: '12px', overflow: 'hidden', border: '1px solid #333', position: 'relative' }}>
-                            <div style={{ height: '150px', overflow: 'hidden' }}>
-                                <img src={log.image_url} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
-                            <div style={{ padding: '1rem' }}>
-                                <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '5px' }}>
-                                    {new Date(log.created_at).toLocaleString()}
-                                </div>
-                                <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                                    {log.profiles ? log.profiles.full_name : 'Anonymous Visitor'}
-                                </div>
-                                <div style={{ fontSize: '0.75rem', color: '#444', marginTop: '5px' }}>
-                                   {log.metadata?.platform}
-                                </div>
-                                <button 
-                                    onClick={() => handleDeleteLog(log.id, log.image_url)}
-                                    style={{ 
-                                        marginTop: '10px', 
-                                        background: '#ff0055', 
-                                        border: 'none', 
-                                        color: '#fff', 
-                                        padding: '5px 10px', 
-                                        borderRadius: '5px', 
-                                        cursor: 'pointer', 
-                                        fontSize: '0.8rem', 
-                                        width: '100%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '5px'
-                                    }}
-                                >
-                                    <FaTrash size={12}/> Delete Log
-                                </button>
-                            </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            {ambassadors.map(amb => (
+                <div key={amb.id} style={{ background: 'rgba(0, 210, 255, 0.05)', padding: '1.5rem', borderRadius: '15px', border: '1px solid rgba(0, 210, 255, 0.2)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <h3 style={{ margin: 0, color: '#00d2ff' }}>{amb.full_name}</h3>
+                            <p style={{ color: '#888', fontSize: '0.9rem', margin: '5px 0' }}>{amb.email}</p>
+                            {amb.visible_password && <PasswordDisplay password={amb.visible_password} />}
                         </div>
-                    ))}
-                    {!loading && logs.length === 0 && <div style={{color:'#666'}}>No logs found.</div>}
+                        <div style={{ textAlign: 'right' }}>
+                            <span style={{ background: '#00d2ff', color: '#000', padding: '0.2rem 0.6rem', borderRadius: '10px', fontSize: '0.8rem', display: 'block', marginBottom: '5px' }}>
+                                Ambassador
+                            </span>
+                        </div>
+                        </div>
                 </div>
-            </div>
+            ))}
+            {ambassadors.length === 0 && <div style={{color: '#666', fontStyle: 'italic'}}>No Student Ambassadors found.</div>}
         </div>
     );
 };
+
+
+
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -885,7 +787,7 @@ const AdminDashboard = () => {
     const [showAssignAsset, setShowAssignAsset] = useState(false);
     const [showImageUpload, setShowImageUpload] = useState(false);
     const [showImageLibrary, setShowImageLibrary] = useState(false);
-    const [showVisitorLogs, setShowVisitorLogs] = useState(false);
+
 
     const [profiles, setProfiles] = useState([]);
     const [websites, setWebsites] = useState([]);
@@ -1084,6 +986,14 @@ const AdminDashboard = () => {
                         <ManagersList managers={managers} customers={customers} websites={websites} onRefresh={fetchData} onViewDashboard={setViewingManagerId} />
                      </div>
                 </div>
+                
+                 {/* Student Ambassadors Section */}
+                 <div>
+                     <div style={{marginBottom: '2rem'}}>
+                        <h2 style={{ color: '#00d2ff', borderLeft: '4px solid #00d2ff', paddingLeft: '1rem' }}>Student Ambassadors</h2>
+                        <StudentAmbassadorsList ambassadors={profiles.filter(p => p.role === 'student_ambassador')} />
+                     </div>
+                 </div>
 
                 {/* Right: Support Chat Master */}
                 <div style={{ background: '#111', borderRadius: '15px', border: '1px solid #333', display: 'flex', flexDirection: 'column', height: '600px', overflow: 'hidden' }}>
@@ -1189,9 +1099,7 @@ const AdminDashboard = () => {
                 <ImageLibraryModal profiles={profiles} onClose={() => setShowImageLibrary(false)} />
             )}
 
-            {showVisitorLogs && (
-                <VisitorLogsModal onClose={() => setShowVisitorLogs(false)} />
-            )}
+
 
             {/* CSS Helper for inputs inside Modal */}
             <style>{`

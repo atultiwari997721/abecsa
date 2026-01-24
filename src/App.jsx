@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CursorEffect from './components/CursorEffect';
-import VisitorCapture from './components/VisitorCapture';
+
 import Loader from './components/Loader';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
@@ -24,6 +24,7 @@ const CustomerDashboard = lazy(() => import('./pages/CustomerDashboard'));
 const MarketingManagerDashboard = lazy(() => import('./pages/MarketingManagerDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Tools = lazy(() => import('./pages/Tools'));
+const StudentAmbassadorDashboard = lazy(() => import('./pages/StudentAmbassadorDashboard'));
 const Test = lazy(() => import('./pages/Test')); // Keeping Test as it was, checking if needs change
 const LernWithAbecsa = lazy(() => import('./pages/LernWithAbecsa'));
 const Background3D = lazy(() => import('./components/Background3D'));
@@ -41,7 +42,6 @@ const MainContent = () => {
         {!isDashboard && <Background3D />}
       </Suspense>
       <CursorEffect />
-      <VisitorCapture />
       <Navbar />
       <Suspense fallback={<Loader />}>
         <Routes>
@@ -50,6 +50,7 @@ const MainContent = () => {
           <Route path="/dashboard" element={<CustomerDashboard />} />
           <Route path="/manager-dashboard" element={<MarketingManagerDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/student-ambassador-dashboard" element={<StudentAmbassadorDashboard />} />
           <Route path="/tools" element={<Tools />} />
           <Route path="/test"  element={<Test/>} />
          
