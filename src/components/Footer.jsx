@@ -9,7 +9,7 @@ const Footer = () => {
     const buttonClass = "px-1 py-1.5 bg-blue-50 dark:bg-blue-900/50 hover:bg-blue-100 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-200 rounded-full text-[11px] font-semibold transition-colors border border-blue-100 dark:border-blue-500/20 w-[140px] text-center truncate";
 
     const leftButtons = [
-        { label: "Lern With Abecsa", path: "/lern_with_abecsa" },
+        { label: "Learn With Abecsa", path: "/lern_with_abecsa" },
         { label: "Our Program", path: "/our_program" },
         { label: "Internship", path: "/internship" },
         { label: "Work With Us", path: "/work_with_us" },
@@ -28,12 +28,12 @@ const Footer = () => {
         {/* -- Green Box Area: Logo & Tagline -- */}
         <div className="text-center flex flex-col items-center gap-1">
             <div className="text-2xl font-bold tracking-widest flex justify-center gap-0.5" >
-               <span className="text-blue-600 dark:text-blue-500">A</span>
-               <span className="text-red-600 dark:text-red-500">B</span>
-               <span className="text-yellow-500 dark:text-yellow-400">E</span>
-               <span className="text-blue-600 dark:text-blue-500">C</span>
-               <span className="text-green-600 dark:text-green-500">S</span>
-               <span className="text-red-600 dark:text-red-500">A</span>
+                <span className="text-blue-600 dark:text-blue-500">A</span>
+                <span className="text-red-600 dark:text-red-500">B</span>
+                <span className="text-yellow-500 dark:text-yellow-400">E</span>
+                <span className="text-blue-600 dark:text-blue-500">C</span>
+                <span className="text-green-600 dark:text-green-500">S</span>
+                <span className="text-red-600 dark:text-red-500">A</span>
             </div>
             <p className="text-slate-500 dark:text-gray-400 text-[10px] whitespace-nowrap">
                 Building the digital infrastructure for the next generation.
@@ -73,7 +73,7 @@ const Footer = () => {
         {/* -- Red Box Area: Copyright -- */}
         <div className="w-full text-center">
             <p className="text-slate-500 dark:text-gray-400 text-[10px]">
-                &copy; {new Date().getFullYear()} ABECSA. All rights reserved.
+                &copy; 2024 ABECSA. All rights reserved.
             </p>
         </div>
       </div>
