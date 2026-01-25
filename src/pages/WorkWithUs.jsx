@@ -204,48 +204,48 @@ const WorkWithUs = () => {
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="bg-white dark:bg-[#0a0f1d] w-full max-w-lg rounded-[40px] p-8 md:p-10 border border-gray-100 dark:border-white/10 shadow-2xl relative z-10 overflow-hidden"
+                            className="bg-white dark:bg-[#0a0f1d] w-full max-w-lg max-h-[95vh] overflow-y-auto rounded-[30px] md:rounded-[40px] p-4 md:p-10 border border-gray-100 dark:border-white/10 shadow-2xl relative z-10"
                         >
                             <button 
                                 onClick={() => setShowModal(false)}
-                                className="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition-colors"
+                                className="absolute top-4 right-4 md:top-6 md:right-6 text-slate-400 hover:text-red-500 transition-colors"
                             >
-                                <FaTimes className="text-2xl" />
+                                <FaTimes className="text-xl md:text-2xl" />
                             </button>
 
-                            <div className="mb-8">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                                        <FaUserTie />
+                            <div className="mb-4 md:mb-8">
+                                <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
+                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                                        <FaUserTie className="text-sm md:text-base" />
                                     </div>
-                                    <h2 className="text-2xl font-bold font-heading text-slate-900 dark:text-white">Apply Now</h2>
+                                    <h2 className="text-xl md:text-2xl font-bold font-heading text-slate-900 dark:text-white">Apply Now</h2>
                                 </div>
-                                <p className="text-slate-500 dark:text-gray-400 text-sm">Position: <span className="text-blue-500 font-bold">{selectedRole?.title}</span></p>
+                                <p className="text-slate-500 dark:text-gray-400 text-[10px] md:text-sm uppercase tracking-wide">Position: <span className="text-blue-500 font-black">{selectedRole?.title}</span></p>
                             </div>
 
-                            <form onSubmit={handleApplyToWhatsapp} className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <form onSubmit={handleApplyToWhatsapp} className="space-y-2 md:space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                                     <input 
                                         type="text" placeholder="Full Name" required 
                                         value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-4 rounded-2xl outline-none focus:border-blue-500 transition-all text-sm"
+                                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-3 md:p-4 rounded-xl md:rounded-2xl outline-none focus:border-blue-500 transition-all text-[13px] md:text-sm"
                                     />
                                     <input 
                                         type="email" placeholder="Email Address" required 
                                         value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
-                                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-4 rounded-2xl outline-none focus:border-blue-500 transition-all text-sm"
+                                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-3 md:p-4 rounded-xl md:rounded-2xl outline-none focus:border-blue-500 transition-all text-[13px] md:text-sm"
                                     />
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                                     <input 
                                         type="tel" placeholder="Phone Number" required 
                                         value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
-                                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-4 rounded-2xl outline-none focus:border-blue-500 transition-all text-sm"
+                                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-3 md:p-4 rounded-xl md:rounded-2xl outline-none focus:border-blue-500 transition-all text-[13px] md:text-sm"
                                     />
                                     <select 
                                         required 
                                         value={formData.exp} onChange={e => setFormData({...formData, exp: e.target.value})}
-                                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-4 rounded-2xl outline-none focus:border-blue-500 transition-all text-sm"
+                                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-3 md:p-4 rounded-xl md:rounded-2xl outline-none focus:border-blue-500 transition-all text-[13px] md:text-sm"
                                     >
                                         <option value="">Experience Level</option>
                                         <option value="Fresher">Fresher</option>
@@ -257,7 +257,7 @@ const WorkWithUs = () => {
                                 <input 
                                     type="url" placeholder="Portfolio / LinkedIn Link" required 
                                     value={formData.portfolio} onChange={e => setFormData({...formData, portfolio: e.target.value})}
-                                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-4 rounded-2xl outline-none focus:border-blue-500 transition-all text-sm"
+                                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 p-3 md:p-4 rounded-xl md:rounded-2xl outline-none focus:border-blue-500 transition-all text-[13px] md:text-sm"
                                 />
 
                                 {/* CV "Upload" Visual Zone */}
@@ -267,9 +267,9 @@ const WorkWithUs = () => {
                                         className="absolute inset-0 opacity-0 cursor-pointer z-20"
                                         onChange={(e) => setFormData({...formData, cvName: e.target.files[0]?.name})}
                                     />
-                                    <div className="border-2 border-dashed border-gray-100 dark:border-white/10 p-6 rounded-2xl flex flex-col items-center justify-center gap-2 group-hover:border-blue-500/50 transition-all bg-gray-50/50 dark:bg-white/5">
-                                        <FaCloudUploadAlt className="text-3xl text-slate-300 dark:text-gray-500 group-hover:text-blue-500 transition-all" />
-                                        <span className="text-xs font-bold text-slate-400 dark:text-gray-500 group-hover:text-blue-500">
+                                    <div className="border-2 border-dashed border-gray-100 dark:border-white/10 p-3 md:p-6 rounded-xl md:rounded-2xl flex flex-col items-center justify-center gap-1 md:gap-2 group-hover:border-blue-500/50 transition-all bg-gray-50/50 dark:bg-white/5">
+                                        <FaCloudUploadAlt className="text-2xl md:text-3xl text-slate-300 dark:text-gray-500 group-hover:text-blue-500 transition-all" />
+                                        <span className="text-[11px] md:text-xs font-bold text-slate-400 dark:text-gray-500 group-hover:text-blue-500">
                                             {formData.cvName || 'Upload CV (PDF/DOCX)'}
                                         </span>
                                     </div>
@@ -277,12 +277,12 @@ const WorkWithUs = () => {
 
                                 <button 
                                     type="submit"
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-500/20 mt-4 flex items-center justify-center gap-2"
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 md:p-4 rounded-xl md:rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 text-xs md:text-sm"
                                 >
-                                    Submit Application via WhatsApp
+                                    Submit via WhatsApp
                                 </button>
-                                <p className="text-center text-[10px] text-slate-500 dark:text-gray-500 uppercase tracking-widest">
-                                    Final step: Redirects to WhatsApp
+                                <p className="text-center text-[10px] text-slate-500 dark:text-gray-500 uppercase tracking-widest mt-1">
+                                    Redirects to WhatsApp
                                 </p>
                             </form>
                         </motion.div>
