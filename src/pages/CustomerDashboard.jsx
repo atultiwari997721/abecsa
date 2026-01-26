@@ -22,76 +22,57 @@ const CustomerDashboard = ({ customerId }) => {
 
 
 
-  // Fetch Data (Websites, Messages & Profile Name)
+  // Parallel Fetch Data (Websites, Messages, Assets, Exams)
   useEffect(() => {
-    if (!user) return;
+    if (!user || !targetUserId) return;
 
-    // 0. Fetch Profile Name
-    const fetchProfileName = async () => {
-        const { data } = await supabase.from('profiles').select('full_name').eq('id', targetUserId).single();
-        if (data && data.full_name) setCustomerName(data.full_name);
-    };
-    fetchProfileName();
+    const fetchAllData = async () => {
+        try {
+            const [profileRes, websitesRes, messagesRes, assetsRes, examsRes] = await Promise.all([
+                supabase.from('profiles').select('full_name').eq('id', targetUserId).single(),
+                supabase.from('websites').select('*').eq('user_id', targetUserId),
+                supabase.from('messages').select('*').eq('conversation_id', targetUserId).order('created_at', { ascending: true }),
+                supabase.from('user_assets').select('*').eq('user_id', targetUserId),
+                profile?.role === 'student' || profile?.role === 'admin' 
+                    ? supabase.from('exams').select('*').order('start_time', { ascending: true })
+                    : Promise.resolve({ data: [] })
+            ]);
 
-    // 1. Fetch Websites
-    const fetchWebsites = async () => {
-      const { data, error } = await supabase
-        .from('websites')
-        .select('*')
-        .eq('user_id', targetUserId);
-      
-      if (!error) setWebsites(data || []);
-    };
+            if (profileRes.data) setCustomerName(profileRes.data.full_name);
+            if (websitesRes.data) setWebsites(websitesRes.data);
+            if (assetsRes.data) setAssets(assetsRes.data);
+            
+            if (messagesRes.data && messagesRes.data.length > 0) {
+                setChatHistory(messagesRes.data);
+            } else {
+                setChatHistory([{ 
+                    id: 'welcome', 
+                    sender_id: 'support', 
+                    content: 'Welcome to ABECSA Support! How can we help you today?',
+                    created_at: new Date().toISOString()
+                }]);
+            }
 
-    // 2. Fetch Messages
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', targetUserId)
-        .order('created_at', { ascending: true });
+            if (examsRes.data) setExams(examsRes.data);
 
-      if (!error && data) {
-         setChatHistory(data);
-      } else if (!data || data.length === 0) {
-         setChatHistory([{ 
-             id: 'welcome', 
-             sender_id: 'support', 
-             content: 'Welcome to ABECSA Support! How can we help you today?',
-             created_at: new Date().toISOString()
-         }]);
-      }
-    };
-
-    const fetchAssets = async () => {
-      const { data, error } = await supabase
-        .from('user_assets')
-        .select('*')
-        .eq('user_id', targetUserId);
-      
-      if (!error) setAssets(data || []);
-    };
-
-    const fetchExams = async () => {
-        if (profile?.role === 'student' || profile?.role === 'admin') {
-            const { data, error } = await supabase.from('exams').select('*').order('start_time', { ascending: true });
-            if (!error) setExams(data || []);
+        } catch (err) {
+            console.error("Dashboard optimization error:", err);
         }
     };
 
-    fetchWebsites();
-    fetchAssets();
-    fetchMessages();
-    fetchExams();
+    fetchAllData();
 
-    // 3. Realtime Subscription (Only if not admin viewing, or handling complex logic later)
-    // For now, disabling realtime for admin view to prevent confusion/bugs, or could keep it.
+    // 3. Realtime Subscription
     const channel = supabase
-      .channel('public:messages')
+      .channel(`chat:${targetUserId}`)
       .on('postgres_changes', 
         { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${targetUserId}` }, 
         (payload) => {
-          setChatHistory(prev => [...prev, payload.new]);
+          setChatHistory(prev => {
+              // Prevent duplicates
+              if (prev.find(m => m.id === payload.new.id)) return prev;
+              return [...prev, payload.new];
+          });
         }
       )
       .subscribe();
@@ -99,7 +80,7 @@ const CustomerDashboard = ({ customerId }) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, targetUserId]);
+  }, [user, targetUserId, profile?.role]);
 
   // Auto-scroll
   useEffect(() => {

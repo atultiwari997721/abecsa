@@ -167,7 +167,17 @@ const ExamAdminDashboard = () => {
                                         >
                                             <FaTrash />
                                         </button>
-                                        <div className="font-bold text-lg mb-2">{exam.name}</div>
+                                        <div className="flex justify-between items-start mb-2 pr-6">
+                                            <div className="font-bold text-lg">{exam.name}</div>
+                                            <div className="flex flex-col items-end gap-1">
+                                                <div className="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-500/20 flex items-center gap-1">
+                                                    <FaUsers size={10}/> {attempts.filter(a => a.exam_id === exam.id).length} Appeared
+                                                </div>
+                                                <div className="bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-[10px] font-bold border border-green-500/20 flex items-center gap-1">
+                                                    <FaCheck size={10}/> {attempts.filter(a => a.exam_id === exam.id && a.status === 'completed').length} Submitted
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div className="space-y-2 text-sm text-gray-400">
                                             <div className="flex items-center gap-2"><FaClock className="text-blue-400/50"/> {new Date(exam.start_time).toLocaleString()}</div>
                                             <div className="flex items-center gap-2"><FaClock className="text-cyan-400/50"/> {exam.duration_minutes} Minutes</div>

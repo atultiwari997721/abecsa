@@ -1,19 +1,16 @@
 -- ==========================================
--- ABECSA EXAM CENTER SETUP
+-- ABECSA SAFE REPAIR SCRIPT (v4)
 -- ==========================================
 
--- 1. Updates to Profiles
+-- 1. PROFILES UPGRADE
+-- Adding role constraint safely
 ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
 ALTER TABLE profiles ADD CONSTRAINT profiles_role_check CHECK (role IN ('admin', 'marketing_manager', 'customer', 'student_ambassador', 'student'));
 
-DO $$ 
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='is_locked') THEN
-    ALTER TABLE profiles ADD COLUMN is_locked BOOLEAN DEFAULT false;
-  END IF;
-END $$;
+-- Adding is_locked column safely using standard SQL
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_locked BOOLEAN DEFAULT false;
 
--- 2. Exams Table
+-- 2. EXAM TABLES
 CREATE TABLE IF NOT EXISTS exams (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   name text NOT NULL,
@@ -24,9 +21,6 @@ CREATE TABLE IF NOT EXISTS exams (
   created_by uuid REFERENCES auth.users(id)
 );
 
-ALTER TABLE exams ENABLE ROW LEVEL SECURITY;
-
--- 3. Exam Attempts Table
 CREATE TABLE IF NOT EXISTS exam_attempts (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES auth.users(id) NOT NULL,
@@ -38,26 +32,41 @@ CREATE TABLE IF NOT EXISTS exam_attempts (
   UNIQUE(user_id, exam_id)
 );
 
-ALTER TABLE exam_attempts ENABLE ROW LEVEL SECURITY;
-
--- 4. RLS POLICIES
-
--- Exams: Read by students assigned (or all for simplicity now, refined if needed), Manage by admins
+-- 3. EXAM POLICIES
 DROP POLICY IF EXISTS "Exams are viewable by everyone" ON exams;
 CREATE POLICY "Exams are viewable by everyone" ON exams FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Admins can manage exams" ON exams;
-CREATE POLICY "Admins can manage exams" ON exams FOR ALL USING (is_admin());
+CREATE POLICY "Admins can manage exams" ON exams FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
 
--- Exam Attempts: Students can see/insert their own, Admins can do everything
+-- 4. ATTEMPT POLICIES
 DROP POLICY IF EXISTS "Users can view own attempts" ON exam_attempts;
 CREATE POLICY "Users can view own attempts" ON exam_attempts FOR SELECT USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can insert own attempts" ON exam_attempts;
 CREATE POLICY "Users can insert own attempts" ON exam_attempts FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Users can update own attempts" ON exam_attempts;
-CREATE POLICY "Users can update own attempts" ON exam_attempts FOR UPDATE USING (auth.uid() = user_id);
-
 DROP POLICY IF EXISTS "Admins can manage all attempts" ON exam_attempts;
-CREATE POLICY "Admins can manage all attempts" ON exam_attempts FOR ALL USING (is_admin());
+CREATE POLICY "Admins can manage all attempts" ON exam_attempts FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
+
+-- 5. STORAGE SETUP (Image Upload Fix)
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('public-files', 'public-files', true) 
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Public Read Access" ON storage.objects;
+CREATE POLICY "Public Read Access" ON storage.objects FOR SELECT USING ( bucket_id = 'public-files' );
+
+DROP POLICY IF EXISTS "Authenticated Upload Access" ON storage.objects;
+CREATE POLICY "Authenticated Upload Access" ON storage.objects FOR INSERT WITH CHECK ( 
+    bucket_id = 'public-files' AND auth.role() = 'authenticated' 
+);
+
+DROP POLICY IF EXISTS "Authenticated Management Access" ON storage.objects;
+CREATE POLICY "Authenticated Management Access" ON storage.objects FOR ALL USING (
+    bucket_id = 'public-files' AND auth.role() = 'authenticated'
+);

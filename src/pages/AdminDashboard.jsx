@@ -335,9 +335,13 @@ const AssignAssetModal = ({ profiles, onClose, onRefresh }) => {
                     <select value={formData.userId} onChange={e => setFormData({...formData, userId: e.target.value})} required
                          className="w-full p-4 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-yellow-500 transition-colors">
                         <option value="">Select User...</option>
-                        {profiles.filter(p => p.role === 'customer').map(p => (
-                            <option key={p.id} value={p.id}>{p.full_name} ({p.email})</option>
-                        ))}
+                        {profiles
+                            .filter(p => ['customer', 'student', 'student_ambassador'].includes(p.role))
+                            .sort((a,b) => (a.full_name || '').localeCompare(b.full_name || ''))
+                            .map(p => (
+                                <option key={p.id} value={p.id}>{p.full_name || 'No Name'} ({p.email || 'No Email'}) - {p.role.replace('_',' ')}</option>
+                            ))
+                        }
                     </select>
                     <input type="text" placeholder="Asset Name (e.g. Premium License, Web Cert)" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} 
                          className="w-full p-4 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-yellow-500 transition-colors" />
@@ -360,34 +364,56 @@ const AssignAssetModal = ({ profiles, onClose, onRefresh }) => {
 };
 
 // --- Image Upload Modal ---
-const ImageUploadModal = ({ onClose }) => {
+const ImageUploadModal = ({ profiles, onClose }) => {
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [uploadedUrl, setUploadedUrl] = useState('');
+
+    const [targetUserId, setTargetUserId] = useState('');
+    const [assetName, setAssetName] = useState('');
 
     const handleUpload = async (e) => {
         e.preventDefault();
         if (!file) return;
 
         setUploading(true);
-        // Create unique file path: timestamp_filename
-        const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '-')}`;
-        
-        const { data, error } = await supabase.storage
-            .from('public-files')
-            .upload(fileName, file);
+        try {
+            // Create unique file path: timestamp_filename
+            const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '-')}`;
+            
+            const { data, error: uploadError } = await supabase.storage
+                .from('public-files')
+                .upload(fileName, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
 
-        if (error) {
-            alert("Upload failed: " + error.message);
-        } else {
+            if (uploadError) throw uploadError;
+
             // Construct Public URL
             const { data: { publicUrl } } = supabase.storage
                 .from('public-files')
                 .getPublicUrl(fileName);
             
             setUploadedUrl(publicUrl);
+
+            // AUTO-ASSIGN if user is selected
+            if (targetUserId) {
+                const { error: assignError } = await supabase.from('user_assets').insert([{
+                    user_id: targetUserId,
+                    name: assetName || file.name,
+                    type: 'Image',
+                    value: publicUrl
+                }]);
+                if (assignError) alert("Upload OK, but Assignment failed: " + assignError.message);
+                else alert("Image Uploaded and Assigned Successfully!");
+            }
+        } catch (err) {
+            console.error("Upload Error:", err);
+            alert("Upload failed. Make sure the 'public-files' bucket exists and is public in Supabase Storage. " + err.message);
+        } finally {
+            setUploading(false);
         }
-        setUploading(false);
     };
 
     return (
@@ -401,6 +427,31 @@ const ImageUploadModal = ({ onClose }) => {
                 
                 {!uploadedUrl ? (
                     <form onSubmit={handleUpload} className="flex flex-col gap-4">
+                        <div className="space-y-2">
+                             <label className="text-xs font-bold text-slate-500 uppercase ml-1">Step 1: Assign to (Optional)</label>
+                             <select value={targetUserId} onChange={e => setTargetUserId(e.target.value)} 
+                                 className="w-full p-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-blue-500 transition-colors">
+                                 <option value="">Just Upload (No Assignment)</option>
+                                 {profiles
+                                    .filter(p => ['customer', 'student', 'student_ambassador'].includes(p.role))
+                                    .sort((a,b) => (a.full_name || '').localeCompare(b.full_name || ''))
+                                    .map(p => (
+                                        <option key={p.id} value={p.id}>{p.full_name} ({p.role})</option>
+                                    ))
+                                }
+                             </select>
+                        </div>
+
+                        {targetUserId && (
+                             <div className="space-y-2">
+                                <label className="text-xs font-bold text-slate-500 uppercase ml-1">Asset Display Name</label>
+                                <input type="text" placeholder="e.g., ID Card, Certificate Photo" value={assetName} onChange={e => setAssetName(e.target.value)}
+                                    className="w-full p-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-slate-900 dark:text-white outline-none focus:border-blue-500 transition-colors" />
+                             </div>
+                        )}
+
+                        <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Step 2: Select Photo</label>
                         <div className="border-2 border-dashed border-gray-300 dark:border-[#444] p-8 rounded-xl text-center text-slate-500 dark:text-gray-400 hover:border-blue-500 dark:hover:border-[#00ff88] transition-colors">
                             <input 
                                 type="file" 
@@ -417,9 +468,10 @@ const ImageUploadModal = ({ onClose }) => {
                                 )}
                             </label>
                         </div>
+                        </div>
 
-                        <button type="submit" disabled={!file || uploading} className="bg-blue-600 hover:bg-blue-700 dark:bg-[#00ff88] text-white dark:text-black p-4 rounded-xl font-bold cursor-pointer transition-colors disabled:opacity-50">
-                            {uploading ? 'Uploading...' : 'Upload Now'}
+                        <button type="submit" disabled={!file || uploading} className="bg-blue-600 hover:bg-blue-700 dark:bg-[#00ff88] text-white dark:text-black p-4 rounded-xl font-bold cursor-pointer transition-colors disabled:opacity-50 mt-2 shadow-lg shadow-blue-500/20">
+                            {uploading ? 'Processing...' : targetUserId ? 'Upload & Assign' : 'Upload to Library'}
                         </button>
                     </form>
                 ) : (
@@ -1179,7 +1231,7 @@ const AdminDashboard = () => {
             )}
 
             {showImageUpload && (
-                <ImageUploadModal onClose={() => setShowImageUpload(false)} />
+                <ImageUploadModal profiles={profiles} onClose={() => setShowImageUpload(false)} />
             )}
 
             {showImageLibrary && (

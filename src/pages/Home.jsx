@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import Hero3D from '../components/Hero3D';
-import ServicesSection from '../components/ServicesSection';
-import PortfolioSection from '../components/PortfolioSection';
 import TrustBar from '../components/TrustBar';
-import SocialProof from '../components/SocialProof';
-import Packages from '../components/Packages';
-import PartnersMarquee from '../components/PartnersMarquee';
+
+// Lazy load heavy sections below the fold
+const ServicesSection = lazy(() => import('../components/ServicesSection'));
+const PortfolioSection = lazy(() => import('../components/PortfolioSection'));
+const SocialProof = lazy(() => import('../components/SocialProof'));
+const Packages = lazy(() => import('../components/Packages'));
+const PartnersMarquee = lazy(() => import('../components/PartnersMarquee'));
 
 const Home = () => {
     // Scroll to top on mount
@@ -14,14 +16,19 @@ const Home = () => {
     }, []);
 
   return (
-    <main className="min-h-screen bg-white dark:bg-[#0B1120] text-slate-900 dark:text-white selection:bg-blue-200 dark:selection:bg-electricBlue selection:text-slate-900 dark:selection:text-white transition-colors duration-300">
+    <main className="min-h-screen bg-white dark:bg-[#0B1120] text-slate-900 dark:text-white transition-colors duration-300">
+      {/* Hero is priority (loaded immediately) */}
       <Hero3D />
       
-      <ServicesSection />
-      <PortfolioSection />
-      <SocialProof />
-      <Packages />
-      <PartnersMarquee />
+      {/* Heavy sections are suspended */}
+      <Suspense fallback={<div className="h-40 flex items-center justify-center text-slate-400">Loading...</div>}>
+          <ServicesSection />
+          <PortfolioSection />
+          <SocialProof />
+          <Packages />
+          <PartnersMarquee />
+      </Suspense>
+
       <TrustBar />
     </main>
   );
