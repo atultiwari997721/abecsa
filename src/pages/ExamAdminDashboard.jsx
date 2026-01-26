@@ -71,7 +71,7 @@ const ExamAdminDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#0B1120] text-white p-4 md:p-8">
+        <div className="min-h-screen bg-[#0B1120] dark:bg-[#0B1120] text-white p-4 md:p-8 pt-20 transition-colors duration-300">
             <div className="max-w-7xl mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div>
@@ -193,22 +193,36 @@ const ExamAdminDashboard = () => {
                     <div className="space-y-8">
                         <div className="bg-gray-900/50 border border-gray-800 rounded-3xl p-6 backdrop-blur-xl">
                             <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><FaUsers className="text-cyan-400"/> Student Roster</h2>
-                            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                                 {students.map(student => (
-                                    <div key={student.id} className="p-4 bg-gray-800/30 border border-gray-700/50 rounded-2xl flex items-center justify-between">
-                                        <div>
-                                            <div className="font-medium text-sm">{student.full_name}</div>
-                                            <div className="text-xs text-gray-500">{student.email}</div>
+                                    <div key={student.id} className={`p-4 border rounded-2xl flex items-center justify-between transition-all ${
+                                        student.is_locked 
+                                        ? 'bg-red-500/5 border-red-500/20' 
+                                        : 'bg-gray-800/30 border-gray-700/50'
+                                    }`}>
+                                        <div className="min-w-0">
+                                            <div className="font-medium text-sm truncate">{student.full_name}</div>
+                                            <div className="text-[10px] text-gray-500 truncate">{student.email}</div>
                                         </div>
-                                        {student.is_locked ? (
-                                            <span className="p-2 bg-red-500/10 text-red-500 rounded-lg" title="Locked - Violation Detected">
-                                                <FaLock />
-                                            </span>
-                                        ) : (
-                                            <span className="p-2 bg-green-500/10 text-green-500 rounded-lg">
-                                                <FaCheck />
-                                            </span>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            {student.is_locked ? (
+                                                <>
+                                                    <span className="p-2 text-red-500" title="Locked - Violation Detected">
+                                                        <FaLock size={14} />
+                                                    </span>
+                                                    <button 
+                                                        onClick={() => handleUnlockUser(student.id)}
+                                                        className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-[10px] font-bold transition-colors"
+                                                    >
+                                                        Allow
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <span className="p-2 text-green-500">
+                                                    <FaCheck size={14} />
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>

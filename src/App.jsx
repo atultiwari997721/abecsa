@@ -21,8 +21,8 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
       return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 2. Lock Check
-  if (profile?.is_locked) {
+  // 2. Lock Check (Students only)
+  if (profile?.is_locked && profile?.role === 'student') {
       if (location.pathname.startsWith('/exam/')) {
           return children; // Let ExamPortal handle the locked UI for consistency
       }

@@ -43,6 +43,36 @@ const Navbar = () => {
     };
 
     const isDashboard = location.pathname.includes('/dashboard') || location.pathname.includes('/admin');
+    const isExamPortal = location.pathname.includes('/exam/');
+    const isAdminExamCenter = location.pathname.includes('/exam-admin');
+
+    if (isExamPortal) return null;
+
+    if (isAdminExamCenter) {
+        return (
+            <nav className="fixed top-0 left-0 w-full z-50 bg-white/90 dark:bg-[#0B1120]/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
+                    <div 
+                        className="text-xl font-bold tracking-widest cursor-pointer flex gap-0.5" 
+                        onClick={() => navigate('/admin')}
+                    >
+                       <span className="text-blue-600 dark:text-blue-500">A</span>
+                       <span className="text-red-600 dark:text-red-600">B</span>
+                       <span className="text-yellow-500 dark:text-yellow-400">E</span>
+                       <span className="text-blue-600 dark:text-blue-500">C</span>
+                       <span className="text-green-600 dark:text-green-500">S</span>
+                       <span className="text-red-600 dark:text-red-500">A</span>
+                    </div>
+                    <button 
+                        onClick={toggleTheme}
+                        className="p-2 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors border border-gray-200 dark:border-gray-700"
+                    >
+                        {theme === 'light' ? <FaMoon size={20} /> : <FaSun size={20} />}
+                    </button>
+                </div>
+            </nav>
+        );
+    }
 
     if (isDashboard) return null; 
 

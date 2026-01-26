@@ -68,111 +68,159 @@ const ExamPortal = () => {
         setLoading(false);
     };
 
-    const handleStart = async () => {
-        try {
-            // Request Fullscreen
-            if (portalRef.current.requestFullscreen) {
-                await portalRef.current.requestFullscreen();
-            } else if (portalRef.current.webkitRequestFullscreen) {
-                await portalRef.current.webkitRequestFullscreen();
-            }
+    const isStartedRef = useRef(false);
 
-            // Create Attempt in DB
-            const { error: attemptError } = await supabase.from('exam_attempts').insert([{
-                user_id: user.id,
-                exam_id: id,
-                status: 'started'
-            }]);
+    useEffect(() => {
+        isStartedRef.current = started;
+        
+        // Dynamic Listener Management
+        if (started) {
+            const handleViolation = () => {
+                if (!isStartedRef.current) return;
+                triggerViolation();
+            };
 
-            if (attemptError && !attemptError.message.includes('unique constraint')) {
-                throw attemptError;
-            }
+            const handleFSChange = () => {
+                if (!isStartedRef.current) return;
+                const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+                if (!isFullscreen) {
+                    triggerViolation("Security Violation: Exited Fullscreen Mode");
+                }
+            };
 
-            setStarted(true);
-
-            // Anti-Cheat Listeners (All variants)
-            ['visibilitychange', 'webkitvisibilitychange', 'msvisibilitychange'].forEach(ev => 
-                document.addEventListener(ev, handleSecurityViolation)
+            // Visibility/Tab/App Switch (pagehide is critical for mobile)
+            ['visibilitychange', 'webkitvisibilitychange', 'msvisibilitychange', 'pagehide'].forEach(ev => 
+                document.addEventListener(ev, handleViolation)
             );
+            
+            // Fullscreen Exit
             ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(ev => 
-                document.addEventListener(ev, handleFullscreenChange)
+                document.addEventListener(ev, handleFSChange)
             );
 
-            window.addEventListener('blur', handleSecurityViolation);
+            // Window Blur (Focus lost / Notification shade)
+            window.addEventListener('blur', handleViolation);
             
-            // Disable right click
+            // Context Menu
             document.oncontextmenu = (e) => { e.preventDefault(); return false; };
-            
+
+            return () => {
+                ['visibilitychange', 'webkitvisibilitychange', 'msvisibilitychange', 'pagehide'].forEach(ev => 
+                    document.removeEventListener(ev, handleViolation)
+                );
+                ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(ev => 
+                    document.removeEventListener(ev, handleFSChange)
+                );
+                window.removeEventListener('blur', handleViolation);
+                document.oncontextmenu = null;
+            };
+        }
+    }, [started]);
+
+    const triggerViolation = async (customReason = null) => {
+        if (!isStartedRef.current) return;
+        
+        // Immediate UI Block
+        isStartedRef.current = false;
+        setStarted(false);
+
+        // Determine Reason
+        const isHidden = document.hidden || document.webkitHidden || document.msHidden || document.visibilityState === 'hidden';
+        let reason = customReason || "Security Violation: Unauthorized Action";
+        if (isHidden) reason = "Security Violation: App Hidden or Switched";
+        else if (window.event?.type === 'pagehide') reason = "Security Violation: Navigated Away/App Switched";
+        else if (window.event?.type === 'blur') reason = "Security Violation: Focus Lost (Potential App Switch)";
+
+        // IF ADMIN: Just reset and warn, don't lock or logout
+        if (profile?.role !== 'student') {
+            alert("ADMIN BYPASS: Violation detected but account remains active. Please use Student role to test full lockout.");
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+            return;
+        }
+
+        setError(reason);
+
+        try {
+            // Backend updates (STUDENTS ONLY)
+            await Promise.all([
+                supabase.from('exam_attempts').update({
+                    status: 'flagged',
+                    violation_reason: reason
+                }).eq('user_id', user.id).eq('exam_id', id),
+                
+                supabase.from('profiles').update({ is_locked: true }).eq('id', user.id)
+            ]);
+
+            // Exit fullscreen if still in it
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+
+            // Force Logout
+            setTimeout(async () => {
+                await signOut();
+                window.location.href = '/locked';
+            }, 1500);
+
         } catch (err) {
-            console.error(err);
-            alert("Fullscreen is REQUIRED to take the exam. Please allow and try again.");
+            console.error("Violation record error:", err);
+            await signOut();
+            window.location.href = '/locked';
         }
     };
 
-    const handleSecurityViolation = async () => {
-        if (!started) return;
-        
-        // Comprehensive Check for violation
-        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
-        const isHidden = document.hidden || document.webkitHidden || document.msHidden;
-        
-        if (isFullscreen && !isHidden) return; // False alarm or just start
+    const handleStart = async () => {
+        try {
+            if (profile?.is_locked) {
+                setError("Your account is LOCKED. Contact Admin.");
+                return;
+            }
 
-        let reason = "Security Violation Detected";
-        if (isHidden) reason = "Tab Switch Detected";
-        else if (!isFullscreen) reason = "Exited Fullscreen";
+            // Request Fullscreen first to satisfy browser interaction rules
+            const docEl = portalRef.current;
+            if (docEl.requestFullscreen) await docEl.requestFullscreen();
+            else if (docEl.webkitRequestFullscreen) await docEl.webkitRequestFullscreen();
 
-        // 1. Flag attempt
-        await supabase.from('exam_attempts').update({
-            status: 'flagged',
-            violation_reason: reason
-        }).eq('user_id', user.id).eq('exam_id', id);
+            const { error: attemptError } = await supabase.from('exam_attempts').upsert({
+                user_id: user.id,
+                exam_id: id,
+                status: 'started',
+                started_at: new Date().toISOString(),
+                violation_reason: null,
+                completed_at: null
+            }, { onConflict: 'user_id,exam_id' });
 
-        // 2. Lock Profile
-        await supabase.from('profiles').update({ is_locked: true }).eq('id', user.id);
+            if (attemptError) throw attemptError;
 
-        // 3. IMMEDIATE LOGOUT
-        alert(`SECURITY VIOLATION: ${reason}. Your exam has been terminated and account LOCKED. Logging out...`);
-        
-        cleanupSecurity();
-        await signOut();
-        window.location.href = '/login';
-    };
-
-    const handleFullscreenChange = () => {
-        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
-        if (!isFullscreen && started) {
-            handleSecurityViolation();
+            setStarted(true);
+            
+        } catch (err) {
+            console.error(err);
+            alert("Fullscreen is REQUIRED. Please allow and click Start again.");
         }
     };
 
     const handleComplete = async () => {
+        isStartedRef.current = false;
+        setStarted(false);
+
         await supabase.from('exam_attempts').update({
             status: 'completed',
             completed_at: new Date().toISOString()
         }).eq('user_id', user.id).eq('exam_id', id);
         
-        cleanupSecurity();
-        alert("Exam Completed Successfully!");
-        navigate('/');
-    };
-
-    const cleanupSecurity = () => {
-        // Cleanup all vendor variations
-        ['visibilitychange', 'webkitvisibilitychange', 'msvisibilitychange'].forEach(ev => 
-            document.removeEventListener(ev, handleSecurityViolation)
-        );
-        ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(ev => 
-            document.removeEventListener(ev, handleFullscreenChange)
-        );
-        
-        window.removeEventListener('blur', handleSecurityViolation);
-        document.oncontextmenu = null;
-        
+        // Exit Fullscreen
         if (document.fullscreenElement || document.webkitFullscreenElement) {
             if (document.exitFullscreen) document.exitFullscreen();
             else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
         }
+
+        alert("Exam Completed Successfully!");
+        navigate('/');
     };
 
     const formatTime = (seconds) => {
@@ -199,47 +247,47 @@ const ExamPortal = () => {
     }
 
     return (
-        <div ref={portalRef} className="min-h-screen bg-[#0B1120] flex flex-col relative overflow-hidden">
-            {/* Dark Matrix Background Overlay */}
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>
+        <div ref={portalRef} className="min-h-screen bg-white flex flex-col relative overflow-hidden transition-colors duration-300">
+            {/* Subtle Texture Overlay */}
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
             
             {!started ? (
                 <div className="flex-1 flex items-center justify-center p-4 z-10">
-                    <div className="bg-gray-900 border border-blue-500/30 p-8 rounded-[40px] max-w-2xl w-full shadow-2xl backdrop-blur-xl">
+                    <div className="bg-white border border-gray-200 p-8 rounded-[40px] max-w-2xl w-full shadow-2xl">
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="p-4 bg-blue-500/10 rounded-2xl">
-                                <FaLock className="text-blue-500 text-3xl" />
+                            <div className="p-4 bg-blue-50 rounded-2xl">
+                                <FaLock className="text-blue-600 text-3xl" />
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold text-white">{exam.name}</h1>
-                                <p className="text-gray-400">Secure Examination Environment</p>
+                                <h1 className="text-3xl font-bold text-slate-800">{exam.name}</h1>
+                                <p className="text-slate-500">Secure Examination Environment</p>
                             </div>
                         </div>
 
                         <div className="space-y-4 mb-8">
-                            <div className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-2xl border border-gray-700">
-                                <FaClock className="text-cyan-400" />
+                            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-200">
+                                <FaClock className="text-blue-600" />
                                 <div>
-                                    <div className="text-xs text-gray-500 uppercase font-bold tracking-wider">Duration</div>
-                                    <div className="text-white">{exam.duration_minutes} Minutes</div>
+                                    <div className="text-xs text-gray-400 uppercase font-bold tracking-wider">Duration</div>
+                                    <div className="text-slate-800 font-bold">{exam.duration_minutes} Minutes</div>
                                 </div>
                             </div>
-                            <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-2xl">
-                                <h3 className="text-red-400 font-bold text-sm mb-2 flex items-center gap-2">
+                            <div className="p-4 bg-red-50 border border-red-100 rounded-2xl">
+                                <h3 className="text-red-600 font-bold text-sm mb-2 flex items-center gap-2">
                                     <FaExclamationTriangle /> IMPORTANT ANTI-CHEAT RULES:
                                 </h3>
-                                <ul className="text-xs text-gray-400 space-y-1 list-disc ml-4">
+                                <ul className="text-xs text-red-700/80 space-y-1 list-disc ml-4 font-medium">
                                     <li>Fullscreen mode is MANDATORY.</li>
                                     <li>Do NOT switch tabs or minimize the browser.</li>
                                     <li>Right-click and Copy-Paste are disabled.</li>
-                                    <li>Any violation will result in IMMEDIATE termination and LOCK of your account.</li>
+                                    <li>Any violation will result in IMMEDIATE termination and account LOCK.</li>
                                 </ul>
                             </div>
                         </div>
 
                         <button 
                             onClick={handleStart}
-                            className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all shadow-xl shadow-blue-600/20"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all shadow-xl shadow-blue-600/20"
                         >
                             <FaExpand /> Start Exam & Enter Locked Mode
                         </button>
@@ -247,20 +295,20 @@ const ExamPortal = () => {
                 </div>
             ) : (
                 <div className="flex-1 flex flex-col z-10">
-                    {/* Secure Header */}
-                    <div className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 p-4 flex justify-between items-center">
+                    {/* Secure Header - Light Version */}
+                    <div className="bg-white/90 backdrop-blur-md border-b border-gray-100 p-4 flex justify-between items-center shadow-sm">
                         <div className="flex items-center gap-3">
                             <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
-                            <span className="text-sm font-bold uppercase tracking-widest text-gray-300">SECURE SESSION LIVE</span>
+                            <span className="text-sm font-bold uppercase tracking-widest text-slate-500">SECURE SESSION LIVE</span>
                         </div>
                         <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-xl text-xl font-mono font-bold text-cyan-400 border border-gray-700">
+                            <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-xl text-xl font-mono font-bold text-blue-600 border border-gray-200">
                                 <FaClock className="text-sm" />
                                 {formatTime(timeLeft)}
                             </div>
                             <button 
                                 onClick={handleComplete}
-                                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-bold text-sm transition-colors"
+                                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-bold text-sm transition-colors shadow-md"
                             >
                                 Finish Exam
                             </button>
