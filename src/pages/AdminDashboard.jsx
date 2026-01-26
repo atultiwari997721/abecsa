@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift, FaUpload, FaCopy, FaImages, FaCamera } from 'react-icons/fa';
+import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift, FaUpload, FaCopy, FaImages, FaCamera, FaClipboardList, FaCheck } from 'react-icons/fa';
 import '../styles/global.css';
 import { supabase } from '../supabaseClient';
 import { createClient } from '@supabase/supabase-js'; // For non-persisting client
@@ -661,6 +661,7 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh, setViewi
                                     <th className="p-4 text-left font-semibold whitespace-nowrap">Email</th>
                                     <th className="p-4 text-left font-semibold whitespace-nowrap">Password</th>
                                     <th className="p-4 text-left font-semibold whitespace-nowrap">Assigned Manager</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Security</th>
                                     <th className="p-4 text-left font-semibold whitespace-nowrap">Action</th>
                                 </tr>
                             </thead>
@@ -698,6 +699,21 @@ const GlobalCustomersModal = ({ profiles, websites, onClose, onRefresh, setViewi
                                                 </select>
                                             ) : (
                                                 <span className="text-slate-400">-</span>
+                                            )}
+                                        </td>
+                                        <td className="p-4 whitespace-nowrap">
+                                            {user.is_locked ? (
+                                                <button 
+                                                    onClick={async () => {
+                                                        const { error } = await supabase.from('profiles').update({ is_locked: false }).eq('id', user.id);
+                                                        if (error) alert(error.message); else onRefresh();
+                                                    }}
+                                                    className="bg-red-500/10 text-red-500 border border-red-500/50 px-2 py-1 rounded text-xs font-bold cursor-pointer hover:bg-red-500/20"
+                                                >
+                                                    <FaLock className="inline mr-1" /> Locked (Unlock)
+                                                </button>
+                                            ) : (
+                                                <span className="text-green-500 text-xs font-bold"><FaCheck className="inline mr-1" /> Secure</span>
                                             )}
                                         </td>
                                         <td className="p-4 whitespace-nowrap">
@@ -1025,6 +1041,9 @@ const AdminDashboard = () => {
                     <button onClick={() => setShowImageLibrary(true)} className="bg-white hover:bg-gray-100 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-[#444] text-slate-700 dark:text-white px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center transition-colors text-sm">
                         <FaImages /> <span className="hidden sm:inline">Library</span>
                     </button>
+                    <button onClick={() => navigate('/exam-admin')} className="bg-red-600 hover:bg-red-700 text-white border-none px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center font-bold transition-colors text-sm">
+                        <FaClipboardList /> <span className="hidden sm:inline">Exam Center</span>
+                    </button>
                     <button onClick={() => { signOut(); navigate('/login'); }} className="bg-transparent border border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center transition-colors text-sm">
                         <FaSignOutAlt /> Logout
                     </button>
@@ -1041,11 +1060,11 @@ const AdminDashboard = () => {
                     <h3 className="m-0 text-3xl font-bold text-blue-600 dark:text-[#2b7de9]">{profiles.filter(p => p.role === 'admin').length}</h3>
                     <p className="text-slate-500 dark:text-[#888] m-0">Admins</p>
                 </div>
-                <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] cursor-pointer hover:border-green-500 transition-colors shadow-sm" onClick={() => setShowSitesList(true)}>
-                    <h3 className="m-0 text-3xl font-bold text-green-600 dark:text-[#00ff88]">{activeSites}</h3>
-                    <p className="text-slate-500 dark:text-[#888] m-0">Live Websites (Click)</p>
+                <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] cursor-pointer hover:border-red-500 transition-colors shadow-sm" onClick={() => navigate('/exam-admin')}>
+                    <h3 className="m-0 text-3xl font-bold text-red-600 flex items-center gap-2"><FaClipboardList /> Exam Center</h3>
+                    <p className="text-slate-500 dark:text-[#888] m-0 text-sm">Live Monitoring & Setup</p>
                 </div>
-                 <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] cursor-pointer hover:border-yellow-500 transition-colors shadow-sm" onClick={() => setShowGlobalList(true)}>
+                <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] cursor-pointer hover:border-yellow-500 transition-colors shadow-sm" onClick={() => setShowGlobalList(true)}>
                     <h3 className="m-0 text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-3"><FaUsers /> Master List</h3>
                     <p className="text-yellow-600 dark:text-[#D4AF37] m-0 text-sm">Manage All Users</p>
                 </div>

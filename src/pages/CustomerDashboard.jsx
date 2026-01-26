@@ -12,6 +12,7 @@ const CustomerDashboard = ({ customerId }) => {
   const [chatHistory, setChatHistory] = useState([]);
   const [websites, setWebsites] = useState([]);
   const [assets, setAssets] = useState([]);
+  const [exams, setExams] = useState([]);
   const [customerName, setCustomerName] = useState('');
   
   // Use passed customerId (admin view) or logged-in user id
@@ -71,9 +72,17 @@ const CustomerDashboard = ({ customerId }) => {
       if (!error) setAssets(data || []);
     };
 
+    const fetchExams = async () => {
+        if (profile?.role === 'student' || profile?.role === 'admin') {
+            const { data, error } = await supabase.from('exams').select('*').order('start_time', { ascending: true });
+            if (!error) setExams(data || []);
+        }
+    };
+
     fetchWebsites();
     fetchAssets();
     fetchMessages();
+    fetchExams();
 
     // 3. Realtime Subscription (Only if not admin viewing, or handling complex logic later)
     // For now, disabling realtime for admin view to prevent confusion/bugs, or could keep it.
@@ -199,6 +208,49 @@ const CustomerDashboard = ({ customerId }) => {
             )}
           </div>
         </div>
+
+        {/* Exam Section for Students */}
+        {(profile?.role === 'student' || profile?.role === 'admin') && (
+            <div className="xl:col-span-12 bg-white dark:bg-white/5 rounded-3xl p-6 border border-gray-200 dark:border-white/10 shadow-sm">
+                <h2 className="text-xl font-bold mb-6 text-slate-800 dark:text-white border-l-4 border-red-600 pl-4">My Exams / Tests</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {exams.length === 0 ? (
+                        <div className="col-span-full p-8 text-center bg-gray-50 dark:bg-white/5 rounded-2xl text-slate-500 dark:text-gray-400">
+                            No examinations scheduled at this time.
+                        </div>
+                    ) : (
+                        exams.map(exam => {
+                           const isLocked = profile?.is_locked;
+                           const startTime = new Date(exam.start_time);
+                           const isUpcoming = startTime > new Date();
+                           
+                           return (
+                            <div key={exam.id} className="bg-white dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl p-6 flex flex-col justify-between transition-all hover:shadow-lg border-l-4 border-l-blue-500">
+                                <div>
+                                    <h3 className="text-lg font-bold mb-2">{exam.name}</h3>
+                                    <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                                        <p className="flex items-center gap-2">Starts: {startTime.toLocaleString()}</p>
+                                        <p className="flex items-center gap-2">Duration: {exam.duration_minutes} Minutes</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => navigate(`/exam/${exam.id}`)}
+                                    disabled={isLocked || isUpcoming}
+                                    className={`mt-4 w-full py-3 rounded-xl font-bold transition-all ${
+                                        isUpcoming ? 'bg-gray-100 text-gray-400 cursor-not-allowed' :
+                                        isLocked ? 'bg-red-500/10 text-red-500 border border-red-500/20 cursor-not-allowed' :
+                                        'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20'
+                                    }`}
+                                >
+                                    {isUpcoming ? 'Coming Soon' : isLocked ? 'Account Locked' : 'Enter Exam Portal'}
+                                </button>
+                            </div>
+                           );
+                        })
+                    )}
+                </div>
+            </div>
+        )}
 
         {/* Middle Column: My Assets (Licenses & Certificates) */}
         <div className="xl:col-span-6 2xl:col-span-4 bg-white dark:bg-white/5 rounded-3xl p-6 border border-gray-200 dark:border-white/10 shadow-sm">

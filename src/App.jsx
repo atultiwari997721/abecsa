@@ -7,6 +7,7 @@ import CursorEffect from './components/CursorEffect';
 import Loader from './components/Loader';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { useAuth, AuthProvider } from './contexts/AuthContext'; // Import AuthProvider
+import { FaExclamationTriangle } from 'react-icons/fa';
 
 // ProtectedRoute: Handles authentication and role-based access
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -20,13 +21,22 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
       return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 2. Role Check (if roles specified)
+  // 2. Lock Check
+  if (profile?.is_locked) {
+      if (location.pathname.startsWith('/exam/')) {
+          return children; // Let ExamPortal handle the locked UI for consistency
+      }
+      return <Navigate to="/locked" replace />;
+  }
+
+  // 3. Role Check (if roles specified)
   if (allowedRoles.length > 0 && profile) {
       if (!allowedRoles.includes(profile.role)) {
           // If role doesn't match, send to their appropriate dashboard to avoid 404/Access Denied loop
           if (profile.role === 'admin') return <Navigate to="/admin" replace />;
           if (profile.role === 'marketing_manager') return <Navigate to="/manager-dashboard" replace />;
           if (profile.role === 'student_ambassador') return <Navigate to="/student-ambassador-dashboard" replace />;
+          if (profile.role === 'student') return <Navigate to="/dashboard" replace />;
           return <Navigate to="/dashboard" replace />;
       }
   }
@@ -42,6 +52,8 @@ const MarketingManagerDashboard = lazy(() => import('./pages/MarketingManagerDas
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Tools = lazy(() => import('./pages/Tools'));
 const StudentAmbassadorDashboard = lazy(() => import('./pages/StudentAmbassadorDashboard'));
+const ExamAdminDashboard = lazy(() => import('./pages/ExamAdminDashboard'));
+const ExamPortal = lazy(() => import('./pages/ExamPortal'));
 const Test = lazy(() => import('./pages/Test')); 
 const LernWithAbecsa = lazy(() => import('./pages/LernWithAbecsa'));
 const Internship = lazy(() => import('./pages/Internship'));
@@ -58,7 +70,9 @@ const MainContent = () => {
                       location.pathname.startsWith('/admin') || 
                       location.pathname.startsWith('/tools') || 
                       location.pathname.startsWith('/manager-dashboard') || 
-                      location.pathname.startsWith('/student-ambassador-dashboard');
+                      location.pathname.startsWith('/student-ambassador-dashboard') ||
+                      location.pathname.startsWith('/exam-admin') ||
+                      location.pathname.startsWith('/exam/');
 
   return (
     <div className={`app-container ${theme} bg-white dark:bg-[#0B1120] text-slate-900 dark:text-white transition-colors duration-300 min-h-screen`}>
@@ -98,17 +112,40 @@ const MainContent = () => {
           } />
 
            <Route path="/tools" element={<Tools />} />
-           <Route path="/test"  element={<Test/>} />
+          <Route path="/internship" element={<Internship />} />
+          <Route path="/our_program" element={<OurProgram />} />
+          <Route path="/work_with_us" element={<WorkWithUs />} />
+          <Route path="/test"  element={<Test/>} />
          
            <Route path="/lern_with_abecsa" element={
             <ProtectedRoute>
               <LernWithAbecsa />
             </ProtectedRoute>
           } />
-          
-          <Route path="/internship" element={<Internship />} />
-          <Route path="/our_program" element={<OurProgram />} />
-          <Route path="/work_with_us" element={<WorkWithUs />} />
+
+          {/* Exam Routes */}
+          <Route path="/exam-admin" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <ExamAdminDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/exam/:id" element={
+            <ProtectedRoute>
+              <ExamPortal />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/locked" element={
+            <div className="min-h-screen bg-[#0B1120] flex items-center justify-center p-4">
+               <div className="bg-gray-900 border border-red-500/50 p-8 rounded-3xl max-w-md text-center">
+                  <FaExclamationTriangle className="text-red-500 text-5xl mx-auto mb-4" />
+                  <h2 className="text-2xl font-bold text-white mb-2">Account Locked</h2>
+                  <p className="text-gray-400 mb-6">Your account has been locked due to a security violation during an exam. Please contact ABECSA Admin to regain access.</p>
+                  <button onClick={() => window.location.href='/'} className="w-full bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl transition-colors">Return Home</button>
+               </div>
+            </div>
+          } />
           
           {/* Catch-all redirect to Home or Login */}
           <Route path="*" element={<Navigate to="/" replace />} />
