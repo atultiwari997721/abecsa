@@ -62,7 +62,7 @@ const Navbar = () => {
                 onClick={() => navigate('/')}
             >
                <span className="text-blue-600 dark:text-blue-500">A</span>
-               <span className="text-red-600 dark:text-white">B</span>
+               <span className="text-red-600 dark:text-red-600">B</span>
                <span className="text-yellow-500 dark:text-yellow-400">E</span>
                <span className="text-blue-600 dark:text-blue-500">C</span>
                <span className="text-green-600 dark:text-green-500">S</span>
