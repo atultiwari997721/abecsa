@@ -97,9 +97,6 @@ const ExamPortal = () => {
             ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(ev => 
                 document.addEventListener(ev, handleFSChange)
             );
-
-            // Window Blur (Focus lost / Notification shade)
-            window.addEventListener('blur', handleViolation);
             
             // Context Menu
             document.oncontextmenu = (e) => { e.preventDefault(); return false; };
@@ -111,7 +108,6 @@ const ExamPortal = () => {
                 ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(ev => 
                     document.removeEventListener(ev, handleFSChange)
                 );
-                window.removeEventListener('blur', handleViolation);
                 document.oncontextmenu = null;
             };
         }
@@ -129,7 +125,6 @@ const ExamPortal = () => {
         let reason = customReason || "Security Violation: Unauthorized Action";
         if (isHidden) reason = "Security Violation: App Hidden or Switched";
         else if (window.event?.type === 'pagehide') reason = "Security Violation: Navigated Away/App Switched";
-        else if (window.event?.type === 'blur') reason = "Security Violation: Focus Lost (Potential App Switch)";
 
         // IF ADMIN: Just reset and warn, don't lock or logout
         if (profile?.role !== 'student') {
