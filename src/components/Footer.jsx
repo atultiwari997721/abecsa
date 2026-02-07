@@ -22,6 +22,7 @@ const Footer = () => {
         { label: "Manager Login", path: "/login" },
         { label: "Client Login", path: "/login" },
         { label: "ABECSA Welfare", path: "/welfare" },
+        { label: "Certificates By Abecsa", path: "/certificate" },
     ];
 
   return (

@@ -61,6 +61,7 @@ const OurProgram = lazy(() => import('./pages/OurProgram'));
 const WorkWithUs = lazy(() => import('./pages/WorkWithUs'));
 const Welfare = lazy(() => import('./pages/Welfare'));
 const Courses = lazy(() => import('./pages/Courses'));
+const Certificates = lazy(() => import('./pages/Certificates'));
 const Background3D = lazy(() => import('./components/Background3D'));
 
 const MainContent = () => {
@@ -76,6 +77,7 @@ const MainContent = () => {
                       location.pathname.startsWith('/exam-admin') ||
                       location.pathname.startsWith('/exam-admin') ||
                       location.pathname.startsWith('/exam/') ||
+                      location.pathname.startsWith('/certificate') ||
                       location.pathname.startsWith('/courses');
 
   return (
@@ -122,6 +124,7 @@ const MainContent = () => {
           <Route path="/welfare" element={<Welfare />} />
           <Route path="/welfare" element={<Welfare />} />
           <Route path="/courses" element={<Courses />} />
+          <Route path="/certificate" element={<Certificates />} />
           <Route path="/test"  element={<Test/>} />
          
            <Route path="/lern_with_abecsa" element={
