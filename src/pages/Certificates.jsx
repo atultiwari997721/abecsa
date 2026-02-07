@@ -208,9 +208,11 @@ const Certificates = () => {
                         <div className="p-5 flex-1 flex flex-col">
                             <div className="flex justify-between items-start mb-3">
                                 <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${
-                                    course.branch === 'CS/IT' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
-                                    course.branch === 'Management' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
-                                    course.branch === 'Design' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300' :
+                                    (course.branch === 'CS/IT' || course.branch === 'Web Development') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
+                                    (course.branch === 'Management' || course.branch === 'Cloud & DevOps') ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
+                                    (course.branch === 'Design' || course.branch === 'App Dev' || course.branch === 'Game Dev') ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300' :
+                                    (course.branch === 'AI/ML & Data Science') ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' :
+                                    (course.branch === 'Cyber Security') ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
                                     'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
                                 }`}>
                                     {course.branch}

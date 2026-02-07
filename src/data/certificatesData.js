@@ -1,6 +1,160 @@
 
 const certificatesData = [
   // ==========================================
+  // 0. Trending Tech & Development (New Additions)
+  // ==========================================
+  {
+    id: 2001,
+    title: "AI & Machine Learning Specialist",
+    branch: "AI/ML & Data Science",
+    description: "Master AI algorithms & Neural Networks.",
+    fullDescription: "Comprehensive AI course covering Python, TensorFlow, Deep Learning, NLP, and computer vision. Build real-world AI models.",
+    duration: "6 Months",
+    originalPrice: "₹25,000",
+    price: "₹49"
+  },
+  {
+    id: 2002,
+    title: "Data Science Professional",
+    branch: "AI/ML & Data Science",
+    description: "Analyze data with Python & SQL.",
+    fullDescription: "Become a Data Scientist. Learn Pandas, NumPy, Matplotlib, Scikit-learn, and Data Visualization techniques.",
+    duration: "5 Months",
+    originalPrice: "₹20,000",
+    price: "₹99"
+  },
+  {
+    id: 2003,
+    title: "Cyber Security Expert",
+    branch: "Cyber Security",
+    description: "Ethical Hacking & Network Security.",
+    fullDescription: "Secure networks and applications. Learn penetration testing, cryptography, firewall management, and vulnerability assessment.",
+    duration: "4 Months",
+    originalPrice: "₹18,000",
+    price: "₹99"
+  },
+  {
+    id: 2004,
+    title: "Full Stack Web Developer",
+    branch: "Web Development",
+    description: "Frontend + Backend Mastery.",
+    fullDescription: "Build complete web apps. Covers HTML, CSS, JavaScript, React, Node.js, Express, and MongoDB (MERN Stack).",
+    duration: "6 Months",
+    originalPrice: "₹30,000",
+    price: "₹99"
+  },
+  {
+    id: 2005,
+    title: "MERN Stack Specialist",
+    branch: "Web Development",
+    description: "MongoDB, Express, React, Node.",
+    fullDescription: "Deep dive into the MERN stack. Build scalable single-page applications and RESTful APIs.",
+    duration: "4 Months",
+    originalPrice: "₹22,000",
+    price: "₹99"
+  },
+  {
+    id: 2006,
+    title: "Backend Development (Node.js)",
+    branch: "Web Development",
+    description: "Server-side logic & APIs.",
+    fullDescription: "Master backend engineering with Node.js, Express, Microservices architecture, and Database management.",
+    duration: "3 Months",
+    originalPrice: "₹15,000",
+    price: "₹99"
+  },
+  {
+    id: 2007,
+    title: "Frontend Development (React)",
+    branch: "Web Development",
+    description: "Modern UI/UX with React & Tailwind.",
+    fullDescription: "Create stunning user interfaces. Learn React.js, Redux, Tailwind CSS, and responsive design principles.",
+    duration: "3 Months",
+    originalPrice: "₹15,000",
+    price: "₹99"
+  },
+  {
+    id: 2008,
+    title: "Cloud Computing (AWS)",
+    branch: "Cloud & DevOps",
+    description: "Deploy & Scale on AWS Cloud.",
+    fullDescription: "AWS Certified Solution Architect preparation. EC2, S3, RDS, Lambda, VPC, and cloud security.",
+    duration: "3 Months",
+    originalPrice: "₹20,000",
+    price: "₹99"
+  },
+  {
+    id: 2009,
+    title: "DevOps Engineering",
+    branch: "Cloud & DevOps",
+    description: "CI/CD, Docker & Kubernetes.",
+    fullDescription: "Streamline software delivery. Learn Jenkins, Docker, Kubernetes, Ansible, and Terraform.",
+    duration: "4 Months",
+    originalPrice: "₹25,000",
+    price: "₹99"
+  },
+  {
+    id: 2010,
+    title: "Python Programming Masterclass",
+    branch: "Programming",
+    description: "From Basics to Advanced Python.",
+    fullDescription: "Learn Python for everything - Web Dev, Automation, Data Analysis, and Scripting.",
+    duration: "2 Months",
+    originalPrice: "₹8,000",
+    price: "₹99"
+  },
+  {
+    id: 2011,
+    title: "Java Full Stack Developer",
+    branch: "Web Development",
+    description: "Enterprise App Development.",
+    fullDescription: "Java, Spring Boot, Hibernate, and frontend technologies for building robust enterprise applications.",
+    duration: "5 Months",
+    originalPrice: "₹25,000",
+    price: "₹99"
+  },
+  {
+    id: 2012,
+    title: "Blockchain Technology",
+    branch: "Blockchain",
+    description: "Crypto & Smart Contracts.",
+    fullDescription: "Understand Blockchain fundamentals, Ethereum, Solidity, and build decentralized applications (DApps).",
+    duration: "3 Months",
+    originalPrice: "₹20,000",
+    price: "₹99"
+  },
+  {
+    id: 2013,
+    title: "Android App Development",
+    branch: "App Dev",
+    description: "Build Apps with Kotlin/Java.",
+    fullDescription: "Create mobile apps for the Play Store. Learn Android Studio, UI design, and API integration.",
+    duration: "3 Months",
+    originalPrice: "₹18,000",
+    price: "₹99"
+  },
+  {
+    id: 2014,
+    title: "Game Development (Unity)",
+    branch: "Game Dev",
+    description: "Create 2D/3D Games.",
+    fullDescription: "Learn Game Design with Unity Engine and C#. Physics, animation, and game logic.",
+    duration: "4 Months",
+    originalPrice: "₹20,000",
+    price: "₹99"
+  },
+  {
+    id: 2015,
+    title: "UI/UX Design Specialization",
+    branch: "Design",
+    description: "Design User-Centric Interfaces.",
+    fullDescription: "Master Figma and Adobe XD. Learn wireframing, prototyping, and user research methodologies.",
+    duration: "3 Months",
+    originalPrice: "₹15,000",
+    price: "₹199"
+  },
+
+  // ==========================================
   // 1. Accounting & Finance (Tally, GST, Banking)
   // ==========================================
   {
@@ -11,7 +165,7 @@ const certificatesData = [
     fullDescription: "Master Tally Prime software. Learn voucher entry, inventory management, payroll, and GST return filing.",
     duration: "4 Weeks",
     originalPrice: "₹4,000",
-    price: "₹399"
+    price: "₹299"
   },
   {
     id: 2,
@@ -21,7 +175,7 @@ const certificatesData = [
     fullDescription: "Excel for accountants. Learn pivot tables, VLOOKUP, macros, and financial functions like PMT, IRR, NPV.",
     duration: "3 Weeks",
     originalPrice: "₹3,500",
-    price: "₹299"
+    price: "₹199"
   },
   {
     id: 3,
@@ -115,7 +269,7 @@ const certificatesData = [
     fullDescription: "Build modern websites. Learn semantic HTML, flexbox, grid, and media queries for mobile-responsive layouts.",
     duration: "3 Weeks",
     originalPrice: "₹4,999",
-    price: "₹299"
+    price: "₹49"
   },
   {
     id: 12,
@@ -125,7 +279,7 @@ const certificatesData = [
     fullDescription: "Master coding logic. Learn loops, arrays, objects, functions, and solving basic algorithmic problems in JS.",
     duration: "4 Weeks",
     originalPrice: "₹5,999",
-    price: "₹399"
+    price: "₹49"
   },
   {
     id: 13,
@@ -135,7 +289,7 @@ const certificatesData = [
     fullDescription: "Deep dive into Python. Master data structures and efficient data manipulation techniques.",
     duration: "3 Weeks",
     originalPrice: "₹5,000",
-    price: "₹349"
+    price: "₹49"
   },
   {
     id: 14,
@@ -145,7 +299,7 @@ const certificatesData = [
     fullDescription: "Build a strong base. Learn memory management, pointers, structures, and file handling in C.",
     duration: "4 Weeks",
     originalPrice: "₹4,000",
-    price: "₹299"
+    price: "₹99"
   },
   {
     id: 15,
@@ -155,7 +309,7 @@ const certificatesData = [
     fullDescription: "Master OOPs. Learn classes, objects, inheritance, polymorphism, and encapsulation in C++.",
     duration: "4 Weeks",
     originalPrice: "₹4,500",
-    price: "₹349"
+    price: "₹49"
   },
   {
     id: 16,
@@ -165,7 +319,7 @@ const certificatesData = [
     fullDescription: "Learn platform-independent coding. Covers JVM architecture, exception handling, collections, and multi-threading.",
     duration: "1 Month",
     originalPrice: "₹6,000",
-    price: "₹499"
+    price: "₹99"
   },
   {
     id: 17,
@@ -175,7 +329,7 @@ const certificatesData = [
     fullDescription: "Manage data effectively. Learn E-R diagrams, normalization, and complex SQL queries involving joins and subqueries.",
     duration: "3 Weeks",
     originalPrice: "₹4,000",
-    price: "₹399"
+    price: "₹99"
   },
   {
     id: 18,
@@ -185,7 +339,7 @@ const certificatesData = [
     fullDescription: "Build dynamic sites. Learn to connect HTML forms to databases, sessions, cookies, and CRUD operations.",
     duration: "1 Month",
     originalPrice: "₹5,500",
-    price: "₹449"
+    price: "₹49"
   },
   {
     id: 19,
@@ -195,7 +349,7 @@ const certificatesData = [
     fullDescription: "Create professional sites. Learn theme customization, plugin management, and Elementor page builder.",
     duration: "2 Weeks",
     originalPrice: "₹3,500",
-    price: "₹299"
+    price: "₹99"
   },
   {
     id: 20,
@@ -205,7 +359,7 @@ const certificatesData = [
     fullDescription: "Navigate Linux like a pro. Learn file permissions, grep, piping, bash scripting, and system monitoring.",
     duration: "2 Weeks",
     originalPrice: "₹3,000",
-    price: "₹199"
+    price: "₹99"
   },
   {
     id: 21,
@@ -215,7 +369,7 @@ const certificatesData = [
     fullDescription: "Essential for devs. Learn committing, branching, merging, pull requests, and resolving conflicts.",
     duration: "1 Week",
     originalPrice: "₹2,500",
-    price: "₹149"
+    price: "₹49"
   },
   {
     id: 22,
@@ -225,7 +379,7 @@ const certificatesData = [
     fullDescription: "Think like a hacker. Learn reconnaissance, scanning, and basic vulnerability assessment techniques.",
     duration: "3 Weeks",
     originalPrice: "₹6,000",
-    price: "₹499"
+    price: "₹199"
   },
   {
     id: 23,
@@ -245,7 +399,7 @@ const certificatesData = [
     fullDescription: "Move to the cloud. Understand EC2, S3, IAM, and cloud deployment models on AWS.",
     duration: "2 Weeks",
     originalPrice: "₹4,000",
-    price: "₹299"
+    price: "₹199"
   },
   {
     id: 25,
@@ -255,7 +409,7 @@ const certificatesData = [
     fullDescription: "Start mobile dev. Learn XML layouts, activities, and basic Java/Kotlin for Android Studio.",
     duration: "3 Weeks",
     originalPrice: "₹5,000",
-    price: "₹399"
+    price: "₹299"
   },
   {
     id: 26,
@@ -265,7 +419,7 @@ const certificatesData = [
     fullDescription: "Future tech today. Understand neural networks, machine learning types, and real-world AI applications.",
     duration: "2 Weeks",
     originalPrice: "₹4,000",
-    price: "₹249"
+    price: "49"
   },
   {
     id: 27,
@@ -275,7 +429,7 @@ const certificatesData = [
     fullDescription: "Visualize data. Learn to import data, create relationships, DAX formulas, and interactive dashboards.",
     duration: "3 Weeks",
     originalPrice: "₹5,000",
-    price: "₹399"
+    price: "₹99"
   },
   {
     id: 28,
@@ -285,7 +439,7 @@ const certificatesData = [
     fullDescription: "Find bugs. Learn STLC, writing test cases, bug reporting, and types of testing (Blackbox/Whitebox).",
     duration: "2 Weeks",
     originalPrice: "₹3,500",
-    price: "₹249"
+    price: "₹149"
   },
   {
     id: 29,
@@ -295,7 +449,7 @@ const certificatesData = [
     fullDescription: "Automate tasks. Learn to build simple bots to automate repetitive desktop and web tasks.",
     duration: "2 Weeks",
     originalPrice: "₹4,500",
-    price: "₹299"
+    price: "₹199"
   },
   {
     id: 30,
@@ -305,7 +459,7 @@ const certificatesData = [
     fullDescription: "Build robots. Learn Arduino architecture, sensor interfacing, and motor control programming.",
     duration: "3 Weeks",
     originalPrice: "₹4,000",
-    price: "₹349"
+    price: "₹149"
   },
 
   // ==========================================
@@ -319,7 +473,7 @@ const certificatesData = [
     fullDescription: "Computer literacy. Learn OS navigation, file management, internet usage, and hardware basics.",
     duration: "3 Weeks",
     originalPrice: "₹3,000",
-    price: "₹199"
+    price: "₹99"
   },
   {
     id: 32,
@@ -423,7 +577,7 @@ const certificatesData = [
     fullDescription: "Go digital. Understand SEO, SEM, SMM, Email Marketing, and how they work together.",
     duration: "2 Weeks",
     originalPrice: "₹4,000",
-    price: "₹299"
+    price: "₹99"
   },
   {
     id: 42,
@@ -433,7 +587,7 @@ const certificatesData = [
     fullDescription: "Rank #1. Learn keyword research, on-page optimization, backlinking, and technical SEO.",
     duration: "3 Weeks",
     originalPrice: "₹5,000",
-    price: "₹399"
+    price: "₹199"
   },
   {
     id: 43,
@@ -443,7 +597,7 @@ const certificatesData = [
     fullDescription: "Build a brand. Learn content calendar creation, organic growth strategies, and community management.",
     duration: "3 Weeks",
     originalPrice: "₹4,500",
-    price: "₹349"
+    price: "₹149"
   },
   {
     id: 44,
@@ -453,7 +607,7 @@ const certificatesData = [
     fullDescription: "Run profitable ads. Learn campaign setup, bidding strategies, keyword match types, and ad extensions.",
     duration: "3 Weeks",
     originalPrice: "₹5,500",
-    price: "₹449"
+    price: "₹149"
   },
   {
     id: 45,
@@ -463,7 +617,7 @@ const certificatesData = [
     fullDescription: "Write that sells. Learn SEO writing, blog formatting, headline formulas, and plagiarism checking.",
     duration: "2 Weeks",
     originalPrice: "₹3,000",
-    price: "₹249"
+    price: "₹149"
   },
   {
     id: 46,
@@ -557,7 +711,7 @@ const certificatesData = [
     fullDescription: "Edit like a pro. Learn timeline, transitions, color correction, audio syncing, and export settings.",
     duration: "1 Month",
     originalPrice: "₹6,000",
-    price: "₹499"
+    price: "₹199"
   },
   {
     id: 55,
@@ -587,7 +741,7 @@ const certificatesData = [
     fullDescription: "Design apps. Learn wireframing, prototyping, and user journey mapping using Figma.",
     duration: "3 Weeks",
     originalPrice: "₹5,500",
-    price: "₹399"
+    price: "₹199"
   },
   {
     id: 58,
