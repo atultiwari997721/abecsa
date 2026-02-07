@@ -1050,6 +1050,452 @@ const certificatesData = [
     duration: "1 Week",
     originalPrice: "₹2,500",
     price: "₹199"
+  },
+
+  // ==========================================
+  // 9. Google Professional Certificates
+  // ==========================================
+  {
+    id: 103,
+    title: "Google IT Support Professional",
+    branch: "Google",
+    description: "Entry-level IT support.",
+    fullDescription: "Start in IT. Learn troubleshooting, customer service, networking, operating systems, and system administration.",
+    duration: "3 Months",
+    originalPrice: "₹15,000",
+    price: "₹999"
+  },
+  {
+    id: 104,
+    title: "Google Data Analytics",
+    branch: "Google",
+    description: "Data analysis with R & SQL.",
+    fullDescription: "Analyze data. Learn to clean, visualize, and analyze data using spreadsheets, SQL, R programming, and Tableau.",
+    duration: "4 Months",
+    originalPrice: "₹18,000",
+    price: "₹1,299"
+  },
+  {
+    id: 105,
+    title: "Google UX Design Professional",
+    branch: "Google",
+    description: "User Experience design.",
+    fullDescription: "Design apps. Learn wireframing, prototyping, and user research using Figma and Adobe XD.",
+    duration: "4 Months",
+    originalPrice: "₹18,000",
+    price: "₹1,299"
+  },
+  {
+    id: 106,
+    title: "Google Project Management",
+    branch: "Google",
+    description: "Agile & Scrum basics.",
+    fullDescription: "Lead projects. Learn project initiation, planning, execution, and Agile management using Asana.",
+    duration: "3 Months",
+    originalPrice: "₹15,000",
+    price: "₹999"
+  },
+  {
+    id: 107,
+    title: "Google Digital Marketing & E-commerce",
+    branch: "Google",
+    description: "Online sales mastery.",
+    fullDescription: "Sell online. Learn SEO, SEM, email marketing, and e-commerce platforms like Shopify.",
+    duration: "3 Months",
+    originalPrice: "₹15,000",
+    price: "₹999"
+  },
+  {
+    id: 108,
+    title: "Google IT Automation with Python",
+    branch: "Google",
+    description: "Advanced IT skills.",
+    fullDescription: "Scripting for IT. Learn Python, Git/GitHub, and managing IT resources at scale.",
+    duration: "4 Months",
+    originalPrice: "₹20,000",
+    price: "₹1,499"
+  },
+
+  // ==========================================
+  // 10. Microsoft Certifications
+  // ==========================================
+  {
+    id: 109,
+    title: "Microsoft Azure Fundamentals (AZ-900)",
+    branch: "Microsoft",
+    description: "Cloud concepts basics.",
+    fullDescription: "Start with Azure. Understand cloud concepts, Azure services, security, privacy, and support.",
+    duration: "2 Weeks",
+    originalPrice: "₹8,000",
+    price: "₹699"
+  },
+  {
+    id: 110,
+    title: "Microsoft 365 Fundamentals (MS-900)",
+    branch: "Microsoft",
+    description: "Cloud productivity.",
+    fullDescription: "Office 365. Learn cloud concepts and adoption of Microsoft 365 apps and services.",
+    duration: "2 Weeks",
+    originalPrice: "₹7,000",
+    price: "₹599"
+  },
+  {
+    id: 111,
+    title: "Microsoft Power Platform (PL-900)",
+    branch: "Microsoft",
+    description: "Low-code app building.",
+    fullDescription: "Build business apps. Learn Power BI, Power Apps, Power Automate, and Power Virtual Agents.",
+    duration: "3 Weeks",
+    originalPrice: "₹9,000",
+    price: "₹799"
+  },
+  {
+    id: 112,
+    title: "Microsoft AI Fundamentals (AI-900)",
+    branch: "Microsoft",
+    description: "AI on Azure.",
+    fullDescription: "AI concepts. Learn machine learning, computer vision, and natural language processing on Azure.",
+    duration: "3 Weeks",
+    originalPrice: "₹9,000",
+    price: "₹799"
+  },
+  {
+    id: 113,
+    title: "Microsoft Office Specialist: Excel",
+    branch: "Microsoft",
+    description: "Excel Associate Exam.",
+    fullDescription: "Validate Excel skills. Create and manage worksheets and workbooks, cells, ranges, and tables.",
+    duration: "3 Weeks",
+    originalPrice: "₹6,000",
+    price: "₹499"
+  },
+  {
+    id: 114,
+    title: "Microsoft Security Fundamentals (SC-900)",
+    branch: "Microsoft",
+    description: "Cloud security compliance.",
+    fullDescription: "Secure the cloud. Learn security, compliance, and identity concepts for Microsoft solutions.",
+    duration: "2 Weeks",
+    originalPrice: "₹8,000",
+    price: "₹699"
+  },
+
+  // ==========================================
+  // 11. TCS / Infosys / Wipro / IBM / Meta
+  // ==========================================
+  {
+    id: 115,
+    title: "TCS iON Career Edge",
+    branch: "TCS",
+    description: "Professional skills.",
+    fullDescription: "Job readiness. Learn soft skills, communication, interpersonal skills, and resume writing.",
+    duration: "2 Weeks",
+    originalPrice: "₹5,000",
+    price: "₹399"
+  },
+  {
+    id: 116,
+    title: "TCS NQT Preparation",
+    branch: "TCS",
+    description: "National Qualifier Test.",
+    fullDescription: "Crack NQT. Cognitive skills, programming logic, and coding practice for TCS placement.",
+    duration: "4 Weeks",
+    originalPrice: "₹6,000",
+    price: "₹499"
+  },
+  {
+    id: 117,
+    title: "Infosys Springboard: Python",
+    branch: "Infosys",
+    description: "Python certification prep.",
+    fullDescription: "Learn Python. Basics to advanced concepts curated by Infosys for industry readiness.",
+    duration: "3 Weeks",
+    originalPrice: "₹5,000",
+    price: "₹399"
+  },
+  {
+    id: 118,
+    title: "Infosys Global Business Foundation",
+    branch: "Infosys",
+    description: "Corporate readiness.",
+    fullDescription: "Understand business. Learn corporate etiquette, business communication, and global culture.",
+    duration: "2 Weeks",
+    originalPrice: "₹4,000",
+    price: "₹299"
+  },
+  {
+    id: 119,
+    title: "Wipro TalentNext Java",
+    branch: "Wipro",
+    description: "Java J2EE certification.",
+    fullDescription: "Java for enterprise. Learn Core Java, Servlets, JSP, and Spring framework basics.",
+    duration: "1 Month",
+    originalPrice: "₹7,000",
+    price: "₹599"
+  },
+  {
+    id: 120,
+    title: "IBM Data Science Professional",
+    branch: "IBM",
+    description: "Data Science with Python.",
+    fullDescription: "Analyze data. Learn Python, SQL, Data Visualization, Machine Learning, and create a portfolio.",
+    duration: "4 Months",
+    originalPrice: "₹20,000",
+    price: "₹1,499"
+  },
+  {
+    id: 121,
+    title: "IBM AI Engineering",
+    branch: "IBM",
+    description: "Machine Learning & Deep Learning.",
+    fullDescription: "Build AI models. Learn neural networks, Keras, PyTorch, and TensorFlow.",
+    duration: "4 Months",
+    originalPrice: "₹22,000",
+    price: "₹1,599"
+  },
+  {
+    id: 122,
+    title: "Meta Social Media Marketing",
+    branch: "Meta",
+    description: "Facebook/Insta ads.",
+    fullDescription: "Market on social. Learn to create ad campaigns, define audiences, and analyze results on Meta platforms.",
+    duration: "3 Months",
+    originalPrice: "₹15,000",
+    price: "₹999"
+  },
+  {
+    id: 123,
+    title: "Meta Front-End Developer",
+    branch: "Meta",
+    description: "React web development.",
+    fullDescription: "Build UIs. Learn HTML, CSS, JavaScript, React, and Version Control.",
+    duration: "4 Months",
+    originalPrice: "₹18,000",
+    price: "₹1,299"
+  },
+  {
+    id: 124,
+    title: "Meta Back-End Developer",
+    branch: "Meta",
+    description: "Python & Django.",
+    fullDescription: "Server-side dev. Learn Python syntax, Django framework, APIs, and databases.",
+    duration: "4 Months",
+    originalPrice: "₹18,000",
+    price: "₹1,299"
+  },
+  {
+    id: 125,
+    title: "Meta Database Engineer",
+    branch: "Meta",
+    description: "Database management.",
+    fullDescription: "Manage data. Learn SQL, database design, and optimization for scalable apps.",
+    duration: "3 Months",
+    originalPrice: "₹16,000",
+    price: "₹1,199"
+  },
+  {
+    id: 126,
+    title: "AWS Cloud Practitioner",
+    branch: "AWS",
+    description: "Cloud entry-level.",
+    fullDescription: "Start AWS. Learn cloud concepts, security, core services, and pricing.",
+    duration: "2 Weeks",
+    originalPrice: "₹8,000",
+    price: "₹699"
+  },
+  {
+    id: 127,
+    title: "AWS Solutions Architect Associate",
+    branch: "AWS",
+    description: "Designing cloud architectures.",
+    fullDescription: "Architect valid solutions. Learn to design resilient, high-performing, secure, and cost-optimized architectures.",
+    duration: "2 Months",
+    originalPrice: "₹25,000",
+    price: "₹1,999"
+  },
+  {
+    id: 128,
+    title: "Cisco CCNA (200-301)",
+    branch: "Cisco",
+    description: "Networking associate.",
+    fullDescription: "Network master. Learn routing, switching, IP services, security fundamentals, and automation.",
+    duration: "3 Months",
+    originalPrice: "₹20,000",
+    price: "₹1,499"
+  },
+  {
+    id: 129,
+    title: "Salesforce Administrator",
+    branch: "Salesforce",
+    description: "CRM customization.",
+    fullDescription: "Manage Salesforce. Learn user management, security, data management, and process automation.",
+    duration: "2 Months",
+    originalPrice: "₹18,000",
+    price: "₹1,299"
+  },
+
+  // ==========================================
+  // 12. Government & Swayam Certificates
+  // ==========================================
+  {
+    id: 130,
+    title: "NIELIT CCC Plus",
+    branch: "Government",
+    description: "Advanced digital literacy.",
+    fullDescription: "Govt recognized. Advanced computer concepts, word processing, spreadsheets, and cyber safety.",
+    duration: "3 Months",
+    originalPrice: "₹5,000",
+    price: "₹499"
+  },
+  {
+    id: 131,
+    title: "NIELIT 'O' Level (IT)",
+    branch: "Government",
+    description: "Foundation level diploma.",
+    fullDescription: "Govt job eligibility. Equivalent to foundation level. Learn IT tools, web design, python, and IoT.",
+    duration: "1 Year",
+    originalPrice: "₹15,000",
+    price: "₹2,500"
+  },
+  {
+    id: 132,
+    title: "NIELIT 'A' Level (IT)",
+    branch: "Government",
+    description: "Advanced diploma.",
+    fullDescription: "PGDCA equivalent. Advanced IT course covering system analysis, C++, Java, and Data Communication.",
+    duration: "1.5 Years",
+    originalPrice: "₹25,000",
+    price: "₹3,500"
+  },
+  {
+    id: 133,
+    title: "Swayam: Cyber Security",
+    branch: "Government",
+    description: "UGC recognized course.",
+    fullDescription: "Secure digital India. Learn information security, cryptography, and risk management.",
+    duration: "12 Weeks",
+    originalPrice: "₹4,000",
+    price: "₹499"
+  },
+  {
+    id: 134,
+    title: "Swayam: Soft Skills",
+    branch: "Government",
+    description: "Personality development.",
+    fullDescription: "Enhance employability. Learn communication, time management, and leadership skills.",
+    duration: "8 Weeks",
+    originalPrice: "₹3,000",
+    price: "₹399"
+  },
+  {
+    id: 135,
+    title: "PMKVY Data Entry Operator",
+    branch: "Government",
+    description: "Skill India certified.",
+    fullDescription: "National Skill Qualification Framework (NSQF). Learn data entry standards and office etiquette.",
+    duration: "3 Months",
+    originalPrice: "₹5,000",
+    price: "₹499"
+  },
+  {
+    id: 136,
+    title: "PMKVY Field Technician",
+    branch: "Government",
+    description: "Computing & Peripherals.",
+    fullDescription: "Hardware repair. Learn to install, troubleshoot, and maintain computing devices and peripherals.",
+    duration: "3 Months",
+    originalPrice: "₹6,000",
+    price: "₹599"
+  },
+  {
+    id: 137,
+    title: "Digital India Internship",
+    branch: "Government",
+    description: "Govt internship prep.",
+    fullDescription: "Work with Govt. Prepare for internships under Digital India initiative in various ministries.",
+    duration: "2 Months",
+    originalPrice: "₹3,500",
+    price: "₹299"
+  },
+  {
+    id: 138,
+    title: "NPTEL Python for Data Science",
+    branch: "Government",
+    description: "IIT certification prep.",
+    fullDescription: "Learn from IITs. Python programming and data science libraries like Pandas and Matplotlib.",
+    duration: "8 Weeks",
+    originalPrice: "₹4,000",
+    price: "₹499"
+  },
+  {
+    id: 139,
+    title: "NPTEL Cloud Computing",
+    branch: "Government",
+    description: "IIT Kharagpur course.",
+    fullDescription: "Cloud concepts. Learn virtualization, cloud architecture, and distributed systems.",
+    duration: "8 Weeks",
+    originalPrice: "₹4,000",
+    price: "₹499"
+  },
+  {
+    id: 140,
+    title: "CSC Academy Cyber Security",
+    branch: "Government",
+    description: "Common Service Center.",
+    fullDescription: "Rural digital hygiene. Learn basic cybersecurity practices for safe digital transactions.",
+    duration: "1 Month",
+    originalPrice: "₹2,500",
+    price: "₹199"
+  },
+  {
+    id: 141,
+    title: "UGC Net Preparation",
+    branch: "Government",
+    description: "Lectureship eligibility.",
+    fullDescription: "Become a professor. Paper 1 preparation covering teaching aptitude, research, and communication.",
+    duration: "3 Months",
+    originalPrice: "₹8,000",
+    price: "₹699"
+  },
+  {
+    id: 142,
+    title: "Banking (IBPS) Prep",
+    branch: "Government",
+    description: "PO & Clerk exams.",
+    fullDescription: "Bank jobs. Quantitative aptitude, reasoning, and English for IBPS/SBI exams.",
+    duration: "4 Months",
+    originalPrice: "₹10,000",
+    price: "₹999"
+  },
+  {
+    id: 143,
+    title: "Railway (RRB) Prep",
+    branch: "Government",
+    description: "NTPC & Group D.",
+    fullDescription: "Railway jobs. General awareness, mathematics, and general intelligence for RRB exams.",
+    duration: "4 Months",
+    originalPrice: "₹8,000",
+    price: "₹799"
+  },
+  {
+    id: 144,
+    title: "SSC CGL Foundation",
+    branch: "Government",
+    description: "Staff Selection Commission.",
+    fullDescription: "Central govt jobs. Prep for CGL covering math, reasoning, English, and GK.",
+    duration: "6 Months",
+    originalPrice: "₹12,000",
+    price: "₹1,299"
+  },
+  {
+    id: 145,
+    title: "Defence (NDA/CDS) Basics",
+    branch: "Government",
+    description: "Join Armed Forces.",
+    fullDescription: "Serve the nation. Written exam preparation for NDA and CDS entrance.",
+    duration: "4 Months",
+    originalPrice: "₹10,000",
+    price: "₹999"
   }
 ];
 
