@@ -12,13 +12,16 @@ const Footer = () => {
         { label: "Learn With Abecsa", path: "/lern_with_abecsa" },
         { label: "Our Program", path: "/our_program" },
         { label: "Internship", path: "/internship" },
+        { label: "All Courses", path: "/courses" },
         { label: "Work With Us", path: "/work_with_us" },
+       
     ];
 
     const rightButtons = [
         { label: "Business Login", path: "/login" },
         { label: "Manager Login", path: "/login" },
         { label: "Client Login", path: "/login" },
+        { label: "ABECSA Welfare", path: "/welfare" },
     ];
 
   return (

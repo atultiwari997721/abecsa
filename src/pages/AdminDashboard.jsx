@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift, FaUpload, FaCopy, FaImages, FaCamera, FaClipboardList, FaCheck } from 'react-icons/fa';
+import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift, FaUpload, FaCopy, FaImages, FaCamera, FaClipboardList, FaCheck, FaBookOpen, FaPhoneAlt } from 'react-icons/fa';
 import '../styles/global.css';
 import { supabase } from '../supabaseClient';
 import { createClient } from '@supabase/supabase-js'; // For non-persisting client
@@ -879,6 +879,121 @@ const StudentAmbassadorsList = ({ ambassadors, onViewDashboard }) => {
 
 
 
+// --- Course Applications Modal ---
+const CourseApplicationsModal = ({ applications, onClose, onRefresh }) => {
+    const [loading, setLoading] = useState(false);
+
+    const handleUpdateStatus = async (appId, newStatus) => {
+        setLoading(true);
+        const { error } = await supabase.from('course_applications').update({ status: newStatus }).eq('id', appId);
+        if (error) alert("Error updating status: " + error.message);
+        else onRefresh();
+        setLoading(false);
+    };
+
+    const handleDelete = async (appId) => {
+        if (!window.confirm("Are you sure you want to delete this application?")) return;
+        setLoading(true);
+        const { error } = await supabase.from('course_applications').delete().eq('id', appId);
+        if (error) alert("Error deleting application: " + error.message);
+        else onRefresh();
+        setLoading(false);
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/90 z-[3000] flex items-center justify-center backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-[95%] h-[95%] rounded-[25px] border border-blue-500 dark:border-[#2b7de9] flex flex-col p-4 md:p-10 shadow-2xl relative">
+                <div className="flex justify-between mb-8 border-b border-gray-200 dark:border-[#2b7de9]/30 pb-4">
+                    <h2 className="m-0 text-blue-600 dark:text-[#2b7de9] flex items-center gap-4 uppercase tracking-widest text-2xl font-bold"><FaBookOpen /> Course Applications</h2>
+                    <button onClick={onClose} className="bg-transparent border-none text-slate-500 dark:text-white text-3xl cursor-pointer hover:text-red-500 transition-colors"><FaTimes /></button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto rounded-xl border border-gray-200 dark:border-[#333]">
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse text-sm text-slate-700 dark:text-gray-300 min-w-[1000px]">
+                            <thead className="bg-gray-100 dark:bg-[#111] text-slate-600 dark:text-gray-400 border-b-2 border-blue-500 dark:border-[#2b7de9]">
+                                <tr>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Date</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Applicant</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Course</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Contact</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Message</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Status</th>
+                                    <th className="p-4 text-left font-semibold whitespace-nowrap">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {applications.map((app) => (
+                                    <tr key={app.id} className="border-b border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                        <td className="p-4 whitespace-nowrap text-xs text-slate-500 dark:text-gray-400">
+                                            {new Date(app.created_at).toLocaleDateString()}
+                                        </td>
+                                        <td className="p-4 font-bold text-slate-800 dark:text-white whitespace-nowrap">
+                                            {app.name}
+                                        </td>
+                                        <td className="p-4 whitespace-nowrap">
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-blue-600 dark:text-[#2b7de9]">{app.course_name}</span>
+                                                <span className="text-xs text-slate-500 uppercase">{app.branch}</span>
+                                            </div>
+                                        </td>
+                                        <td className="p-4 whitespace-nowrap">
+                                            <div className="flex flex-col text-xs">
+                                                <span className="flex items-center gap-1"><FaEnvelope className="opacity-50"/> {app.email}</span>
+                                                <span className="flex items-center gap-1"><FaPhoneAlt className="opacity-50"/> {app.phone}</span>
+                                            </div>
+                                        </td>
+                                        <td className="p-4 min-w-[200px] max-w-[300px]">
+                                            <p className="line-clamp-2 text-xs text-slate-600 dark:text-gray-400 m-0" title={app.message}>{app.message || '-'}</p>
+                                        </td>
+                                        <td className="p-4 whitespace-nowrap">
+                                            <select 
+                                                value={app.status || 'Pending'} 
+                                                onChange={(e) => handleUpdateStatus(app.id, e.target.value)}
+                                                className={`px-3 py-1 rounded-full text-xs font-bold border-none cursor-pointer outline-none ${
+                                                    app.status === 'Accepted' ? 'bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400' :
+                                                    app.status === 'Rejected' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
+                                                    app.status === 'Contacted' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400' :
+                                                    'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400'
+                                                }`}
+                                                disabled={loading}
+                                            >
+                                                <option value="Pending" className="text-black">Pending</option>
+                                                <option value="Contacted" className="text-black">Contacted</option>
+                                                <option value="Accepted" className="text-black">Accepted</option>
+                                                <option value="Rejected" className="text-black">Rejected</option>
+                                            </select>
+                                        </td>
+                                        <td className="p-4 whitespace-nowrap">
+                                            <button 
+                                                onClick={() => handleDelete(app.id)}
+                                                className="text-red-500 hover:text-red-700 dark:hover:text-red-400 bg-transparent border border-red-200 dark:border-red-500/30 px-2 py-1 rounded-md cursor-pointer transition-colors"
+                                                title="Delete Application"
+                                                disabled={loading}
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {applications.length === 0 && (
+                                    <tr>
+                                        <td colSpan="7" className="p-8 text-center text-slate-500 dark:text-gray-400 italic">
+                                            No course applications found.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { user, profile, signOut } = useAuth();
@@ -894,10 +1009,12 @@ const AdminDashboard = () => {
     const [showAssignAsset, setShowAssignAsset] = useState(false);
     const [showImageUpload, setShowImageUpload] = useState(false);
     const [showImageLibrary, setShowImageLibrary] = useState(false);
+    const [showCourseApps, setShowCourseApps] = useState(false);
 
 
     const [profiles, setProfiles] = useState([]);
     const [websites, setWebsites] = useState([]);
+    const [courseApps, setCourseApps] = useState([]);
     const [messages, setMessages] = useState([]);
     const [conversations, setConversations] = useState({});
     
@@ -916,6 +1033,10 @@ const AdminDashboard = () => {
         // Fetch Websites
         const { data: sites } = await supabase.from('websites').select('*');
         if (sites) setWebsites(sites);
+
+        // Fetch Course Applications
+        const { data: apps } = await supabase.from('course_applications').select('*').order('created_at', { ascending: false });
+        if (apps) setCourseApps(apps);
 
         // Fetch Messages
         const { data: msgs } = await supabase.from('messages').select('*').order('created_at', { ascending: true });
@@ -965,6 +1086,9 @@ const AdminDashboard = () => {
                 fetchData();
             })
             .on('postgres_changes', { event: '*', schema: 'public', table: 'websites' }, () => {
+                fetchData();
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'course_applications' }, () => {
                 fetchData();
             })
             .subscribe();
@@ -1120,6 +1244,10 @@ const AdminDashboard = () => {
                     <h3 className="m-0 text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-3"><FaUsers /> Master List</h3>
                     <p className="text-yellow-600 dark:text-[#D4AF37] m-0 text-sm">Manage All Users</p>
                 </div>
+                <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] cursor-pointer hover:border-blue-500 transition-colors shadow-sm" onClick={() => setShowCourseApps(true)}>
+                    <h3 className="m-0 text-3xl font-bold text-blue-600 dark:text-blue-400">{courseApps.length}</h3>
+                    <p className="text-slate-500 dark:text-[#888] m-0">Course Applications</p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-[1fr_350px] gap-8">
@@ -1236,6 +1364,10 @@ const AdminDashboard = () => {
 
             {showImageLibrary && (
                 <ImageLibraryModal profiles={profiles} onClose={() => setShowImageLibrary(false)} />
+            )}
+
+            {showCourseApps && (
+                <CourseApplicationsModal applications={courseApps} onClose={() => setShowCourseApps(false)} onRefresh={fetchData} />
             )}
 
 

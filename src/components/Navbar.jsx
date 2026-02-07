@@ -31,9 +31,11 @@ const Navbar = () => {
     }, []);
 
     const navLinks = [
-        { name: 'Services', href: '#services' },
-        { name: 'Solutions', href: '#solutions' },
-        { name: 'Case Studies', href: '#portfolio' }, 
+        { name: 'Services', href: '/#services' },
+        { name: 'Solutions', href: '/#solutions' },
+        { name: 'Case Studies', href: '/#portfolio' }, 
+        { name: 'Courses', href: '/courses' },
+        { name: 'Welfare', href: '/welfare' },
     ];
 
     const handleLogout = async () => {
