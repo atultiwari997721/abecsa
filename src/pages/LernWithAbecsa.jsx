@@ -28,7 +28,7 @@ const LernWithAbecsa = () => {
   }, [selectedLang, activeProblem]);
 
   const handlePlanSelection = (plan) => {
-    const phoneNumber = "+918717807190"; // Your WhatsApp number
+    const phoneNumber = "+919407899216"; // Your WhatsApp number
     const message = `Hello Abecsa Team! I would like to book the Mock Interview plan: ${plan.sessions} Session(s) for ₹${plan.price}.`;
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");

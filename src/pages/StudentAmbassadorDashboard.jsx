@@ -75,10 +75,10 @@ const StudentAmbassadorDashboard = ({ ambassadorId }) => {
                     </div>
                 </div>
 
-                {/* Internship Card - Placeholder Action */}
+                {/* Internship Card */}
                 <div 
                     className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-purple-500 dark:hover:border-[#bc13fe] shadow-sm hover:shadow-md text-center group"
-                     onClick={() => alert("Apply for Internship feature coming soon!")}
+                     onClick={() => navigate('/internship')}
                 >
                     <div className="bg-purple-100 dark:bg-[#bc13fe]/10 p-6 rounded-full">
                         <FaUserTie size={40} className="text-purple-500 dark:text-[#bc13fe]" />
@@ -89,10 +89,10 @@ const StudentAmbassadorDashboard = ({ ambassadorId }) => {
                     </div>
                 </div>
 
-                {/* Job Card - Placeholder Action */}
+                {/* Job Card */}
                 <div 
                      className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-blue-400 dark:hover:border-[#00d2ff] shadow-sm hover:shadow-md text-center group"
-                      onClick={() => alert("Apply for Job feature coming soon!")}
+                      onClick={() => navigate('/work_with_us')}
                 >
                     <div className="bg-blue-100 dark:bg-[#00d2ff]/10 p-6 rounded-full">
                         <FaBriefcase size={40} className="text-blue-500 dark:text-[#00d2ff]" />
@@ -103,10 +103,10 @@ const StudentAmbassadorDashboard = ({ ambassadorId }) => {
                     </div>
                 </div>
 
-                {/* Certificate Card - Placeholder Action */}
+                {/* Certificate Card */}
                 <div 
                      className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400 dark:hover:border-[#ffd700] shadow-sm hover:shadow-md text-center group"
-                      onClick={() => alert("Get Certificate feature coming soon!")}
+                      onClick={() => navigate('/certificate')}
                 >
                     <div className="bg-yellow-100 dark:bg-[#ffd700]/10 p-6 rounded-full">
                         <FaCertificate size={40} className="text-yellow-500 dark:text-[#ffd700]" />

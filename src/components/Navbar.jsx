@@ -9,7 +9,8 @@ const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isContactOpen, setIsContactOpen] = useState(false);
-    const { toggleTheme, theme } = useTheme(); 
+    const [welfareMessage, setWelfareMessage] = useState(''); // State for welfare theme alert message
+    const { toggleTheme, theme, setTheme } = useTheme(); 
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
@@ -30,6 +31,13 @@ const Navbar = () => {
         return () => window.removeEventListener('open-contact', handleOpenContact);
     }, []);
 
+    // Force Light Mode on Welfare Page
+    useEffect(() => {
+        if (location.pathname.startsWith('/welfare')) {
+            setTheme('light');
+        }
+    }, [location.pathname, setTheme]);
+
     const navLinks = [
         { name: 'Services', href: '/#services' },
         { name: 'Solutions', href: '/#solutions' },
@@ -43,6 +51,24 @@ const Navbar = () => {
         await signOut();
         navigate('/login');
         setIsMenuOpen(false);
+    };
+
+    const handleThemeToggle = () => {
+        if (location.pathname.startsWith('/welfare')) {
+            const messages = [
+                "Welfare Is to Bright The Future not in Dark",
+                "Let the light of opportunity guide your way.",
+                "Our mission brings light to every path, leaving no room for darkness.",
+                "The bright future of students begins here, in the light."
+            ];
+            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+            setWelfareMessage(randomMsg);
+            
+            // Auto close after 3 seconds
+            setTimeout(() => setWelfareMessage(''), 3000);
+        } else {
+            toggleTheme();
+        }
     };
 
     const isDashboard = location.pathname.includes('/dashboard') || location.pathname.includes('/admin');
@@ -67,7 +93,7 @@ const Navbar = () => {
                        <span className="text-red-600 dark:text-red-500">A</span>
                     </div>
                     <button 
-                        onClick={toggleTheme}
+                        onClick={handleThemeToggle}
                         className="p-2 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors border border-gray-200 dark:border-gray-700"
                     >
                         {theme === 'light' ? <FaMoon size={20} /> : <FaSun size={20} />}
@@ -81,6 +107,16 @@ const Navbar = () => {
 
     return (
         <>
+        {/* Welfare Alert - Centered Flash Message */}
+        {welfareMessage && (
+            <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-red-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-4 animate-bounce">
+                <span className="font-bold text-sm whitespace-nowrap">{welfareMessage}</span>
+                <button onClick={() => setWelfareMessage('')} className="hover:bg-white/20 rounded-full p-1 transition-colors">
+                    <FaTimes />
+                </button>
+            </div>
+        )}
+
         <nav
             className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
             isScrolled || isMenuOpen
@@ -116,7 +152,7 @@ const Navbar = () => {
 
                 {/* Theme Toggle */}
                 <button 
-                    onClick={toggleTheme}
+                    onClick={handleThemeToggle}
                     className="p-1.5 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                     {theme === 'light' ? <FaMoon size={16} /> : <FaSun size={16} />}
@@ -160,7 +196,7 @@ const Navbar = () => {
             <div className="md:hidden flex items-center gap-3">
                  {/* Theme Toggle Mobile */}
                  <button 
-                    onClick={toggleTheme}
+                    onClick={handleThemeToggle}
                     className="p-1.5 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                     {theme === 'light' ? <FaMoon size={16} /> : <FaSun size={16} />}
