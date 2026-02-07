@@ -880,7 +880,7 @@ const StudentAmbassadorsList = ({ ambassadors, onViewDashboard }) => {
 
 
 // --- Course Applications Modal ---
-const CourseApplicationsModal = ({ applications, onClose, onRefresh }) => {
+const CourseApplicationsModal = ({ title = "Course Applications", applications, onClose, onRefresh }) => {
     const [loading, setLoading] = useState(false);
 
     const handleUpdateStatus = async (appId, newStatus) => {
@@ -904,7 +904,7 @@ const CourseApplicationsModal = ({ applications, onClose, onRefresh }) => {
         <div className="fixed inset-0 bg-black/90 z-[3000] flex items-center justify-center backdrop-blur-sm p-4">
             <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-[95%] h-[95%] rounded-[25px] border border-blue-500 dark:border-[#2b7de9] flex flex-col p-4 md:p-10 shadow-2xl relative">
                 <div className="flex justify-between mb-8 border-b border-gray-200 dark:border-[#2b7de9]/30 pb-4">
-                    <h2 className="m-0 text-blue-600 dark:text-[#2b7de9] flex items-center gap-4 uppercase tracking-widest text-2xl font-bold"><FaBookOpen /> Course Applications</h2>
+                    <h2 className="m-0 text-blue-600 dark:text-[#2b7de9] flex items-center gap-4 uppercase tracking-widest text-2xl font-bold"><FaBookOpen /> {title}</h2>
                     <button onClick={onClose} className="bg-transparent border-none text-slate-500 dark:text-white text-3xl cursor-pointer hover:text-red-500 transition-colors"><FaTimes /></button>
                 </div>
 
@@ -1010,11 +1010,13 @@ const AdminDashboard = () => {
     const [showImageUpload, setShowImageUpload] = useState(false);
     const [showImageLibrary, setShowImageLibrary] = useState(false);
     const [showCourseApps, setShowCourseApps] = useState(false);
+    const [showCertificateApps, setShowCertificateApps] = useState(false);
 
 
     const [profiles, setProfiles] = useState([]);
     const [websites, setWebsites] = useState([]);
     const [courseApps, setCourseApps] = useState([]);
+    const [certificateApps, setCertificateApps] = useState([]);
     const [messages, setMessages] = useState([]);
     const [conversations, setConversations] = useState({});
     
@@ -1034,9 +1036,16 @@ const AdminDashboard = () => {
         const { data: sites } = await supabase.from('websites').select('*');
         if (sites) setWebsites(sites);
 
-        // Fetch Course Applications
+        // Fetch Applications (Courses & Certificates)
         const { data: apps } = await supabase.from('course_applications').select('*').order('created_at', { ascending: false });
-        if (apps) setCourseApps(apps);
+        if (apps) {
+            // Filter by name convention to avoid needing a DB schema change
+            // Standard Courses don't have "(Certificate)" in the name
+            setCourseApps(apps.filter(a => !a.course_name.includes('(Certificate)') && (!a.type || a.type !== 'Certificate')));
+            
+            // Certificate Requests tagged with suffix OR strict type if DB updated
+            setCertificateApps(apps.filter(a => a.course_name.includes('(Certificate)') || a.type === 'Certificate'));
+        }
 
         // Fetch Messages
         const { data: msgs } = await supabase.from('messages').select('*').order('created_at', { ascending: true });
@@ -1248,6 +1257,10 @@ const AdminDashboard = () => {
                     <h3 className="m-0 text-3xl font-bold text-blue-600 dark:text-blue-400">{courseApps.length}</h3>
                     <p className="text-slate-500 dark:text-[#888] m-0">Course Applications</p>
                 </div>
+                 <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] cursor-pointer hover:border-green-500 transition-colors shadow-sm" onClick={() => setShowCertificateApps(true)}>
+                    <h3 className="m-0 text-3xl font-bold text-green-600 dark:text-green-400">{certificateApps.length}</h3>
+                    <p className="text-slate-500 dark:text-[#888] m-0">Certificate Requests</p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-[1fr_350px] gap-8">
@@ -1367,7 +1380,11 @@ const AdminDashboard = () => {
             )}
 
             {showCourseApps && (
-                <CourseApplicationsModal applications={courseApps} onClose={() => setShowCourseApps(false)} onRefresh={fetchData} />
+                <CourseApplicationsModal title="Course Applications" applications={courseApps} onClose={() => setShowCourseApps(false)} onRefresh={fetchData} />
+            )}
+
+            {showCertificateApps && (
+                <CourseApplicationsModal title="Certificate Requests" applications={certificateApps} onClose={() => setShowCertificateApps(false)} onRefresh={fetchData} />
             )}
 
 

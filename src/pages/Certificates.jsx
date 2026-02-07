@@ -20,10 +20,9 @@ const EnrollmentForm = ({ course, onClose }) => {
             email: formData.email,
             phone: formData.phone,
             message: formData.message,
-            course_name: course.title, // Keeping 'course_name' schema compatibility
+            course_name: `${course.title} (Certificate)`, // Tagging via checking name instead of DB column
             branch: course.branch,
-            status: 'Pending',
-            type: 'Certificate' // Tagging as Certificate for admin to know
+            status: 'Pending'
         };
 
         try {
@@ -89,7 +88,7 @@ const EnrollmentForm = ({ course, onClose }) => {
                     </div>
 
                     <button disabled={loading} type="submit" className="mt-4 bg-green-600 hover:bg-green-700 text-white p-4 rounded-xl font-bold transition-all shadow-lg shadow-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
-                        {loading ? "Submitting..." : "Proceed to Exam/Payment"}
+                        {loading ? "Submitting..." : "Proceed to Get Certificate"}
                     </button>
                 </form>
             </motion.div>
@@ -120,10 +119,6 @@ const CourseDetailsModal = ({ course, onClose, onEnroll }) => {
                         <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{course.fullDescription}</p>
                      </div>
                      <div className="flex gap-4">
-                        <div className="flex-1 bg-green-50 dark:bg-green-900/10 p-3 rounded-lg border border-green-100 dark:border-green-800/30 text-center">
-                            <span className="block text-xs font-bold text-green-600 uppercase">Duration</span>
-                            <span className="text-sm font-bold dark:text-green-400">{course.duration}</span>
-                        </div>
                         <div className="flex-1 bg-yellow-50 dark:bg-yellow-900/10 p-3 rounded-lg border border-yellow-100 dark:border-yellow-800/30 text-center">
                             <span className="block text-xs font-bold text-yellow-600 uppercase">Exam Fee</span>
                             <div className="flex flex-col">
@@ -220,7 +215,6 @@ const Certificates = () => {
                                 }`}>
                                     {course.branch}
                                 </span>
-                                <span className="text-gray-400 text-xs font-mono">{course.duration}</span>
                             </div>
                             <h3 className="text-lg font-bold mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors line-clamp-2">{course.title}</h3>
                             <p className="text-gray-500 dark:text-gray-400 text-xs line-clamp-3 mb-4 flex-1">{course.description}</p>
