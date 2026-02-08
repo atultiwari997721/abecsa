@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaShoppingCart, FaGraduationCap, FaFileInvoice, FaStore, FaBuilding, FaMicrochip, FaBook, FaChartLine } from 'react-icons/fa';
+import { FaShoppingCart, FaGraduationCap, FaFileInvoice, FaStore, FaBuilding, FaMicrochip, FaBook, FaChartLine, FaCar } from 'react-icons/fa';
 
 const partners = [
   { name: "Sawariya Shop", icon: <FaShoppingCart className="text-pink-500" /> },
@@ -14,7 +14,8 @@ const partners = [
   { name: "Abecsa ERP", icon: <FaBuilding className="text-orange-500" /> },
   { name: "TechFlow", icon: <FaMicrochip className="text-cyan-500" /> },
   { name: "EduCare", icon: <FaBook className="text-red-500" /> },
-  { name: "FinTrack", icon: <FaChartLine className="text-emerald-500" /> }
+  { name: "FinTrack", icon: <FaChartLine className="text-emerald-500" /> },
+  
 ];
 
 const PartnersMarquee = () => {
