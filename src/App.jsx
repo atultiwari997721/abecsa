@@ -62,7 +62,7 @@ const WorkWithUs = lazy(() => import('./pages/WorkWithUs'));
 const Welfare = lazy(() => import('./pages/Welfare'));
 const Courses = lazy(() => import('./pages/Courses'));
 const Certificates = lazy(() => import('./pages/Certificates'));
-const AapBanegeCarorPati = lazy(() => import('./pages/AapBanegeCarorPati'));
+const AbecsaAbc = lazy(() => import('./pages/AbecsaAbc'));
 const Background3D = lazy(() => import('./components/Background3D'));
 
 const MainContent = () => {
@@ -125,7 +125,7 @@ const MainContent = () => {
           <Route path="/welfare" element={<Welfare />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/certificate" element={<Certificates />} />
-          <Route path="/abc" element={<AapBanegeCarorPati />} />
+          <Route path="/abc" element={<AbecsaAbc />} />
           <Route path="/test"  element={<Test/>} />
          
            <Route path="/lern_with_abecsa" element={

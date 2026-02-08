@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const AapBanegeCarorPati = () => {
+const AbecsaAbc = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-700 via-blue-800 to-gray-900 text-white p-4 overflow-hidden relative">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -12,8 +12,11 @@ const AapBanegeCarorPati = () => {
         transition={{ duration: 0.8, type: "spring", bounce: 0.5 }}
         className="z-10 text-center"
       >
+        <h2 className="text-2xl md:text-3xl font-bold text-yellow-300 mb-4 tracking-widest uppercase drop-shadow-md">
+          ABC = AAP BANEGE CrorPati
+        </h2>
         <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 drop-shadow-lg mb-6">
-          AAP BANEGE CarorPati
+          Abecsa Abc for Students
         </h1>
         
         <motion.p 
@@ -49,4 +52,4 @@ const AapBanegeCarorPati = () => {
   );
 };
 
-export default AapBanegeCarorPati;
+export default AbecsaAbc;
