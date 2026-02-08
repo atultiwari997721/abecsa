@@ -8,7 +8,54 @@
     <meta name="description" content="Abecsa builds digital infrastructure for students, businesses, and organizations. Specializing in custom web development, social media growth, and software management." />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <style>
+        .initial-loader {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background-color: #ffffff;
+          transition: opacity 0.3s ease-out;
+          z-index: 9999;
+        }
+        @media (prefers-color-scheme: dark) {
+          .initial-loader {
+            background-color: #0B1120;
+          }
+        }
+        .abecsa-text {
+          font-family: sans-serif;
+          font-weight: 900;
+          font-size: 3rem;
+          letter-spacing: 0.1rem;
+          display: flex;
+          gap: 0.2rem;
+          animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @media (min-width: 768px) {
+          .abecsa-text {
+            font-size: 6rem;
+            letter-spacing: 0.2rem;
+            gap: 0.5rem;
+          }
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.98); } }
+      </style>
+
+      <div class="initial-loader">
+        <div class="abecsa-text">
+          <span style="color: #4285F4;">A</span>
+          <span style="color: #EA4335;">B</span>
+          <span style="color: #FBBC05;">E</span>
+          <span style="color: #4285F4;">C</span>
+          <span style="color: #34A853;">S</span>
+          <span style="color: #EA4335;">A</span>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

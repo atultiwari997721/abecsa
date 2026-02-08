@@ -44,8 +44,9 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   return children;
 };
 
+import Home from './pages/Home';
 // Lazy load components
-const Home = lazy(() => import('./pages/Home'));
+// const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./components/Login'));
 const CustomerDashboard = lazy(() => import('./pages/CustomerDashboard'));
 const MarketingManagerDashboard = lazy(() => import('./pages/MarketingManagerDashboard'));

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaArrowRight, FaMouse } from 'react-icons/fa';
-
+import { FaArrowRight, FaMouse, FaPlay } from 'react-icons/fa';
 
 const Hero3D = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -14,82 +13,114 @@ const Hero3D = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const floatingVariant = {
+    animate: {
+      y: [0, -20, 0],
+      transition: {
+        duration: 4,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }
+    }
+  };
+
   return (
-    <div className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-white dark:bg-[#0B1120] transition-colors duration-300"> 
+    <div className="relative w-full min-h-[50vh] md:h-screen overflow-hidden flex items-center justify-center bg-white dark:bg-[#0B1120] transition-colors duration-300"> 
       
-      {/* Light Mode Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-50 opacity-100 dark:opacity-0 transition-opacity duration-300 pointer-events-none" />
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-blob" />
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000" />
+        <div className="absolute bottom-[-20%] left-[20%] w-[500px] h-[500px] bg-pink-400/20 dark:bg-pink-600/10 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000" />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+      </div>
 
-      {/* Dark Mode Gradient Overlay - Mobile */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0B1120]/90 via-transparent to-[#0B1120] opacity-0 dark:opacity-100 transition-opacity duration-300 z-0 pointer-events-none md:hidden" />
-      
-      {/* Dark Mode Gradient Overlay - Desktop */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0B1120] via-[#0B1120]/40 to-transparent opacity-0 dark:opacity-100 transition-opacity duration-300 z-0 pointer-events-none hidden md:block" />
-
-      {/* Content Overlay */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col justify-center h-full pt-16 md:pt-20">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between h-full pt-16 md:pt-0">
+        
+        {/* Text Content - Centered */}
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="max-w-4xl text-center md:text-left"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="w-full text-center z-20 flex flex-col items-center justify-center h-full"
         >
           {/* Headline */}
-           <div className="text-5xl md:text-7xl font-bold tracking-widest mb-4 flex justify-center md:justify-start gap-1" >
-               <span className="text-blue-600 dark:text-blue-500">A</span>
-               <span className="text-red-600 dark:text-red-500">B</span>
-               <span className="text-yellow-500 dark:text-yellow-400">E</span>
-               <span className="text-blue-600 dark:text-blue-500">C</span>
-               <span className="text-green-600 dark:text-green-500">S</span>
-               <span className="text-red-600 dark:text-red-500">A</span>
-            </div>
-          <h1 className="text-3xl md:text-6xl lg:text-7xl font-bold font-heading leading-snug mb-4 md:mb-6 text-slate-900 dark:text-white drop-shadow-sm dark:drop-shadow-lg transition-colors">
-            
-            Empowering <span className="block md:inline">Innovation:</span> 
-            <span className="text-blue-600 dark:text-electricBlue block mt-2 md:mt-0 text-2xl md:text-6xl lg:text-7xl transition-colors">Full-Scale Software</span> 
-            <span className="block mt-2 md:mt-0">Solutions.</span>
-          </h1>
+           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-heading leading-tight mb-6 text-slate-900 dark:text-white">
+             Building the Future with{' '}
+             <span className="font-sans font-black tracking-wider flex items-center justify-center gap-0.5 md:gap-1 mt-2 md:mt-0">
+               <span className="text-[#4285F4]">A</span>
+               <span className="text-[#EA4335]">B</span>
+               <span className="text-[#FBBC05]">E</span>
+               <span className="text-[#4285F4]">C</span>
+               <span className="text-[#34A853]">S</span>
+               <span className="text-[#EA4335]">A</span>
+             </span>
+           </h1>
 
           {/* Sub-headline */}
-          <p className="text-sm md:text-xl text-slate-600 dark:text-gray-300 mb-8 max-w-2xl font-body leading-relaxed drop-shadow-sm dark:drop-shadow-md mx-auto md:mx-0 transition-colors">
-            From independent students to large-scale organizations. Custom web dev, social growth, and software management.
+          <p className="hidden md:block text-base md:text-lg text-slate-600 dark:text-gray-300 mb-8 max-w-xl mx-auto leading-relaxed">
+            From independent students to large-scale organizations. We deliver custom web development, social growth strategies, and comprehensive software management solutions tailored to your success.
           </p>
 
           {/* Buttons */}
-          <div className="flex flex-col md:flex-row gap-3 md:gap-6 w-full md:w-auto px-4 md:px-0">
+          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => window.dispatchEvent(new Event('open-contact'))}
-              className="px-6 py-3 bg-blue-600 dark:bg-electricBlue text-white rounded-lg font-bold text-sm md:text-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 dark:shadow-none w-full md:w-auto"
+              className="px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 group"
             >
-              Get a Free Quote <FaArrowRight />
+              Get a Free Quote 
+              <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
             </motion.button>
 
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => {
                 const element = document.getElementById('portfolio');
                 if (element) element.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-6 py-3 bg-white dark:bg-[#1E293B] border border-gray-200 dark:border-gray-700 text-slate-700 dark:text-white rounded-lg font-bold text-sm md:text-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 flex items-center justify-center w-full md:w-auto shadow-sm dark:shadow-md"
+              className="px-8 py-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-white rounded-xl font-semibold text-sm border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2"
             >
-              View Our Services
+              <FaPlay className="text-xs" /> View Our Work
             </motion.button>
           </div>
+          
+          <div className="mt-10 flex items-center justify-center gap-6 text-slate-400 dark:text-gray-500 text-sm font-medium">
+             <div className="flex -space-x-4">
+                {[
+                  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=64&h=64",
+                  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=64&h=64",
+                  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=64&h=64",
+                  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=64&h=64"
+                ].map((src, i) => (
+                    <img 
+                      key={i} 
+                      src={src} 
+                      alt={`Client ${i+1}`}
+                      className="w-10 h-10 rounded-full border-2 border-white dark:border-[#0B1120] object-cover"
+                    />
+                ))}
+                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-white dark:border-[#0B1120] flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-300">
+                  +500
+                </div>
+             </div>
+             <p className="text-slate-600 dark:text-slate-400">Trusted by 500+ Clients</p>
+          </div>
         </motion.div>
+
       </div>
 
        {/* Scroll Indicator */}
        {!isMobile && (
         <motion.div 
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-slate-400 dark:text-gray-400 flex flex-col items-center gap-2 opacity-70 transition-colors"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-slate-400 dark:text-gray-500 flex flex-col items-center gap-2"
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
-         
-          <FaMouse size={22} />
+          <span className="text-xs uppercase tracking-widest font-medium opacity-60">Scroll</span>
+          <FaMouse size={20} className="opacity-60" />
         </motion.div>
       )}
     </div>
