@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift, FaUpload, FaCopy, FaImages, FaCamera, FaClipboardList, FaCheck, FaBookOpen, FaPhoneAlt } from 'react-icons/fa';
+import { FaSignOutAlt, FaUsers, FaGlobe, FaEnvelope, FaTrash, FaPlus, FaLink, FaExchangeAlt, FaTimes, FaUserPlus, FaArrowLeft, FaEye, FaEyeSlash, FaLock, FaGift, FaUpload, FaCopy, FaImages, FaCamera, FaClipboardList, FaCheck, FaBookOpen, FaPhoneAlt, FaMobileAlt, FaDownload, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import '../styles/global.css';
 import { supabase } from '../supabaseClient';
 import { createClient } from '@supabase/supabase-js'; // For non-persisting client
@@ -994,6 +994,258 @@ const CourseApplicationsModal = ({ title = "Course Applications", applications, 
 
 
 
+// ========================================================
+// --- Apps Manager Modal ---
+// ========================================================
+const AppsManagerModal = ({ onClose }) => {
+    const [apps, setApps] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
+    const [showForm, setShowForm] = useState(false);
+    const [form, setForm] = useState({
+        name: '',
+        description: '',
+        version: '1.0',
+        category: 'General',
+        icon_url: '',
+    });
+    const [apkFile, setApkFile] = useState(null);
+
+    const CATEGORIES = ['General', 'Education', 'Tools', 'Utility', 'Communication'];
+
+    useEffect(() => { fetchApps(); }, []);
+
+    const fetchApps = async () => {
+        setLoading(true);
+        const { data } = await supabase.from('apps').select('*').order('created_at', { ascending: false });
+        if (data) setApps(data);
+        setLoading(false);
+    };
+
+    const handleUpload = async (e) => {
+        e.preventDefault();
+        if (!apkFile) { alert('Please select an APK file.'); return; }
+        setUploading(true);
+        try {
+            // 1. Upload APK to storage
+            const safeFileName = `${Date.now()}_${apkFile.name.replace(/\s+/g, '-')}`;
+            const { data: storageData, error: storageError } = await supabase.storage
+                .from('apps-files')
+                .upload(safeFileName, apkFile, { cacheControl: '3600', upsert: false });
+            if (storageError) throw storageError;
+
+            // 2. Get public URL
+            const { data: { publicUrl } } = supabase.storage.from('apps-files').getPublicUrl(safeFileName);
+
+            // 3. Save record in DB
+            const payload = {
+                name: form.name,
+                description: form.description,
+                version: form.version,
+                category: form.category,
+                icon_url: form.icon_url || null,
+                apk_url: publicUrl,
+                apk_filename: apkFile.name,
+                is_active: true,
+                download_count: 0,
+            };
+            const { error: dbError } = await supabase.from('apps').insert([payload]);
+            if (dbError) throw dbError;
+
+            alert(`✅ App "${form.name}" uploaded successfully!`);
+            setForm({ name: '', description: '', version: '1.0', category: 'General', icon_url: '' });
+            setApkFile(null);
+            setShowForm(false);
+            fetchApps();
+        } catch (err) {
+            alert('Upload failed: ' + err.message);
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleToggleActive = async (app) => {
+        const { error } = await supabase.from('apps').update({ is_active: !app.is_active }).eq('id', app.id);
+        if (error) alert('Error: ' + error.message);
+        else fetchApps();
+    };
+
+    const handleDelete = async (app) => {
+        if (!window.confirm(`Delete "${app.name}"? This will remove the file from storage too.`)) return;
+        try {
+            // Extract filename from URL
+            const urlParts = app.apk_url.split('/');
+            const filename = urlParts[urlParts.length - 1].split('?')[0];
+            await supabase.storage.from('apps-files').remove([filename]);
+            const { error } = await supabase.from('apps').delete().eq('id', app.id);
+            if (error) throw error;
+            fetchApps();
+        } catch (err) {
+            alert('Delete failed: ' + err.message);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/90 z-[2000] flex items-center justify-center backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-[95%] h-[92%] rounded-[25px] border border-blue-500 dark:border-[#3b82f6] flex flex-col p-4 md:p-8 shadow-2xl relative">
+
+                {/* Header */}
+                <div className="flex justify-between mb-6 border-b border-gray-200 dark:border-[#3b82f6]/30 pb-4 flex-wrap gap-3">
+                    <h2 className="m-0 text-blue-600 dark:text-[#3b82f6] flex items-center gap-3 text-2xl font-bold uppercase tracking-widest">
+                        <FaMobileAlt /> Apps Manager
+                    </h2>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => setShowForm(!showForm)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white border-none px-4 py-2 rounded-lg font-bold cursor-pointer flex items-center gap-2 transition-colors text-sm"
+                        >
+                            <FaPlus /> {showForm ? 'Cancel' : 'Upload New App'}
+                        </button>
+                        <button onClick={onClose} className="bg-transparent border-none text-slate-500 dark:text-white text-3xl cursor-pointer hover:text-red-500 transition-colors"><FaTimes /></button>
+                    </div>
+                </div>
+
+                {/* Upload Form */}
+                {showForm && (
+                    <div className="mb-6 bg-gray-50 dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] shrink-0">
+                        <h3 className="mt-0 mb-4 text-slate-800 dark:text-white font-bold flex items-center gap-2"><FaUpload /> Upload APK</h3>
+                        <form onSubmit={handleUpload} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" placeholder="App Name *" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
+                                className="p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-xl text-slate-900 dark:text-white outline-none focus:border-blue-500 transition-colors" />
+                            <input type="text" placeholder="Version (e.g. 1.0)" value={form.version} onChange={e => setForm({ ...form, version: e.target.value })}
+                                className="p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-xl text-slate-900 dark:text-white outline-none focus:border-blue-500 transition-colors" />
+                            <textarea placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
+                                rows={2}
+                                className="p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-xl text-slate-900 dark:text-white outline-none focus:border-blue-500 transition-colors resize-none" />
+                            <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
+                                className="p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-xl text-slate-900 dark:text-white outline-none focus:border-blue-500 transition-colors">
+                                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
+                            <input type="url" placeholder="Icon URL (optional, https://...)" value={form.icon_url} onChange={e => setForm({ ...form, icon_url: e.target.value })}
+                                className="p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-xl text-slate-900 dark:text-white outline-none focus:border-blue-500 transition-colors md:col-span-2" />
+
+                            {/* APK File Picker */}
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 ml-1">APK File *</label>
+                                <div className="border-2 border-dashed border-gray-300 dark:border-[#444] hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition-colors">
+                                    <input type="file" accept=".apk" onChange={e => setApkFile(e.target.files[0])} className="hidden" id="apk-upload" />
+                                    <label htmlFor="apk-upload" className="cursor-pointer">
+                                        {apkFile ? (
+                                            <span className="text-blue-600 dark:text-blue-400 font-bold">{apkFile.name} ({(apkFile.size / 1024 / 1024).toFixed(2)} MB)</span>
+                                        ) : (
+                                            <span className="text-slate-500 dark:text-slate-400">Click to choose .apk file</span>
+                                        )}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className="md:col-span-2">
+                                <button type="submit" disabled={uploading || !apkFile}
+                                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                                    <FaUpload /> {uploading ? 'Uploading…' : 'Upload & Publish App'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+
+                {/* Apps Table */}
+                <div className="flex-1 overflow-y-auto rounded-xl border border-gray-200 dark:border-[#333]">
+                    {loading ? (
+                        <div className="p-8 text-center text-slate-500 dark:text-gray-400">Loading apps…</div>
+                    ) : apps.length === 0 ? (
+                        <div className="p-12 text-center text-slate-400 dark:text-slate-500">
+                            <FaMobileAlt className="mx-auto text-4xl mb-3 opacity-40" />
+                            <p>No apps uploaded yet. Click "Upload New App" to add one.</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse text-sm text-slate-700 dark:text-gray-300 min-w-[700px]">
+                                <thead className="bg-gray-100 dark:bg-[#111] text-slate-600 dark:text-gray-400 border-b-2 border-blue-500 dark:border-[#3b82f6]">
+                                    <tr>
+                                        <th className="p-4 text-left font-semibold">App</th>
+                                        <th className="p-4 text-left font-semibold">Version</th>
+                                        <th className="p-4 text-left font-semibold">Category</th>
+                                        <th className="p-4 text-left font-semibold">Downloads</th>
+                                        <th className="p-4 text-left font-semibold">Status</th>
+                                        <th className="p-4 text-left font-semibold">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {apps.map(app => (
+                                        <tr key={app.id} className="border-b border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0 overflow-hidden shadow">
+                                                        {app.icon_url ? (
+                                                            <img src={app.icon_url} alt={app.name} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <FaMobileAlt className="text-white text-sm" />
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-bold text-slate-800 dark:text-white">{app.name}</div>
+                                                        <div className="text-xs text-slate-500 truncate max-w-[200px]">{app.description || '—'}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-4 font-mono text-xs">v{app.version}</td>
+                                            <td className="p-4">
+                                                <span className="bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full text-xs font-bold">
+                                                    {app.category}
+                                                </span>
+                                            </td>
+                                            <td className="p-4">
+                                                <span className="flex items-center gap-1 text-slate-600 dark:text-gray-300">
+                                                    <FaDownload size={11} className="opacity-50" />
+                                                    {(app.download_count || 0).toLocaleString()}
+                                                </span>
+                                            </td>
+                                            <td className="p-4">
+                                                <button
+                                                    onClick={() => handleToggleActive(app)}
+                                                    className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border transition-colors ${
+                                                        app.is_active
+                                                            ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-300 dark:border-green-500/30 hover:bg-green-200'
+                                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:bg-gray-200'
+                                                    }`}
+                                                >
+                                                    {app.is_active ? <FaToggleOn size={14} /> : <FaToggleOff size={14} />}
+                                                    {app.is_active ? 'Active' : 'Hidden'}
+                                                </button>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="flex gap-2">
+                                                    <a
+                                                        href={app.apk_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30 px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-blue-100 transition-colors"
+                                                        title="Download / Preview"
+                                                    >
+                                                        <FaDownload size={11} /> APK
+                                                    </a>
+                                                    <button
+                                                        onClick={() => handleDelete(app)}
+                                                        className="bg-red-50 dark:bg-red-500/10 text-red-500 border border-red-200 dark:border-red-500/30 px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+                                                    >
+                                                        <FaTrash size={11} /> Delete
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { user, profile, signOut } = useAuth();
@@ -1011,6 +1263,8 @@ const AdminDashboard = () => {
     const [showImageLibrary, setShowImageLibrary] = useState(false);
     const [showCourseApps, setShowCourseApps] = useState(false);
     const [showCertificateApps, setShowCertificateApps] = useState(false);
+    const [showAppsManager, setShowAppsManager] = useState(false);
+    const [totalViews, setTotalViews] = useState(0);
 
 
     const [profiles, setProfiles] = useState([]);
@@ -1046,6 +1300,12 @@ const AdminDashboard = () => {
             // Certificate Requests tagged with suffix OR strict type if DB updated
             setCertificateApps(apps.filter(a => a.course_name.includes('(Certificate)') || a.type === 'Certificate'));
         }
+
+        // Fetch Total Views
+        const { count, error: viewsError } = await supabase
+            .from('site_analytics')
+            .select('*', { count: 'exact', head: true });
+        if (!viewsError) setTotalViews(count || 0);
 
         // Fetch Messages
         const { data: msgs } = await supabase.from('messages').select('*').order('created_at', { ascending: true });
@@ -1226,6 +1486,9 @@ const AdminDashboard = () => {
                     <button onClick={() => setShowImageLibrary(true)} className="bg-white hover:bg-gray-100 dark:bg-white/10 dark:hover:bg-white/20 border border-gray-300 dark:border-[#444] text-slate-700 dark:text-white px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center transition-colors text-sm">
                         <FaImages /> <span className="hidden sm:inline">Library</span>
                     </button>
+                    <button onClick={() => setShowAppsManager(true)} className="bg-blue-600 hover:bg-blue-700 text-white border-none px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center font-bold transition-colors text-sm">
+                        <FaMobileAlt /> <span className="hidden sm:inline">Apps</span>
+                    </button>
                     <button onClick={() => navigate('/exam-admin')} className="bg-red-600 hover:bg-red-700 text-white border-none px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center font-bold transition-colors text-sm">
                         <FaClipboardList /> <span className="hidden sm:inline">Exam Center</span>
                     </button>
@@ -1260,6 +1523,12 @@ const AdminDashboard = () => {
                  <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] cursor-pointer hover:border-green-500 transition-colors shadow-sm" onClick={() => setShowCertificateApps(true)}>
                     <h3 className="m-0 text-3xl font-bold text-green-600 dark:text-green-400">{certificateApps.length}</h3>
                     <p className="text-slate-500 dark:text-[#888] m-0">Certificate Requests</p>
+                </div>
+                <div className="flex-1 bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-blue-500 transition-colors shadow-sm">
+                    <h3 className="m-0 text-3xl font-bold text-blue-500 flex items-center gap-2">
+                        <FaEye /> {totalViews.toLocaleString()}
+                    </h3>
+                    <p className="text-slate-500 dark:text-[#888] m-0">Total Website Views</p>
                 </div>
             </div>
 
@@ -1385,6 +1654,10 @@ const AdminDashboard = () => {
 
             {showCertificateApps && (
                 <CourseApplicationsModal title="Certificate Requests" applications={certificateApps} onClose={() => setShowCertificateApps(false)} onRefresh={fetchData} />
+            )}
+
+            {showAppsManager && (
+                <AppsManagerModal onClose={() => setShowAppsManager(false)} />
             )}
 
 

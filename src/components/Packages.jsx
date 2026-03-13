@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaWhatsapp, FaBullhorn } from 'react-icons/fa';
+import { MdApps } from 'react-icons/md';
 import { config } from '../config';
+import { useNavigate } from 'react-router-dom';
 
 const packages = [
   {
@@ -51,11 +53,21 @@ const packages = [
     color: "#00ffcc", // Teal/Cyan Mix
     previewImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop",
     demoUrl: "https://startbootstrap.com/previews/sb-admin-2"
+  },
+  {
+    title: "Marketing Ads Bundle",
+    price: "₹5,999",
+    features: ["SEO + Social Media", "1000 Call Marketing", "1000 Message Marketing", "Video Ad Shoot"],
+    color: "#ff0066", // Premium Pink/Red
+    previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop",
+    link: "/ad"
   }
 ];
 
 const Packages = () => {
+  const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
   const scrollRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
@@ -237,10 +249,18 @@ const Packages = () => {
             
             <div style={{ display: 'flex', gap: '1rem', width: '100%', justifyContent: 'center' }}>
               <button 
-                onClick={(e) => { e.stopPropagation(); handleBuy(pkg.title); }}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  if (pkg.link) {
+                    navigate(pkg.link);
+                  } else {
+                    handleBuy(pkg.title); 
+                  }
+                }}
                 style={{
                   background: pkg.color,
-                  color: '#000',
+                  color: '#fff',
+
                   border: 'none',
                   padding: '0.8rem 1.5rem',
                   borderRadius: '10px',

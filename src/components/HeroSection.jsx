@@ -55,7 +55,7 @@ const AbecsaLogo = () => {
           height={0.1}
           position={[-2.5, -1.5, 0]}
         >
-          Software Solutions
+          Abecsa Ad
           <meshStandardMaterial 
             color="#ffffff" 
             emissive="#ffffff"
@@ -193,7 +193,7 @@ const HeroSection = () => {
               fontWeight: '300'
             }}
           >
-            Software Solutions
+            Abecsa Ad
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaCode, FaBullhorn, FaCogs, FaCertificate } from 'react-icons/fa';
+import { MdApps } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
 const services = [
@@ -17,6 +18,22 @@ const services = [
     description: 'Brand Identity & Strategy Growth.',
     colorLight: 'text-purple-600 bg-purple-50',
     colorDark: 'text-purple-500 bg-gray-800/50'
+  },
+  {
+    icon: <FaBullhorn />,
+    title: 'Marketing Ads',
+    description: 'Video, SEO, Call & Message Marketing.',
+    colorLight: 'text-rose-600 bg-rose-50',
+    colorDark: 'text-rose-500 bg-gray-800/50',
+    link: '/ad'
+  },
+  {
+    icon: <MdApps />,
+    title: 'Official Apps',
+    description: 'Download our Android apps & tools.',
+    colorLight: 'text-indigo-600 bg-indigo-50',
+    colorDark: 'text-indigo-500 bg-gray-800/50',
+    link: '/apps'
   },
   {
     icon: <FaCogs />,

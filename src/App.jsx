@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import CursorEffect from './components/CursorEffect';
 import Loader from './components/Loader';
+import { supabase } from './supabaseClient';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { useAuth, AuthProvider } from './contexts/AuthContext'; // Import AuthProvider
 import { FaExclamationTriangle } from 'react-icons/fa';
@@ -65,6 +66,9 @@ const Courses = lazy(() => import('./pages/Courses'));
 const Certificates = lazy(() => import('./pages/Certificates'));
 const AbecsaAbc = lazy(() => import('./pages/AbecsaAbc'));
 const Background3D = lazy(() => import('./components/Background3D'));
+const Apps = lazy(() => import('./pages/Apps'));
+const Ad = lazy(() => import('./pages/Ad'));
+
 
 const MainContent = () => {
   const location = useLocation();
@@ -80,7 +84,41 @@ const MainContent = () => {
                       location.pathname.startsWith('/exam-admin') ||
                       location.pathname.startsWith('/exam/') ||
                       location.pathname.startsWith('/certificate') ||
+                      location.pathname.startsWith('/ad') ||
+                      location.pathname.toLowerCase().startsWith('/ad') ||
                       location.pathname.startsWith('/courses');
+
+
+  // Site View Tracking
+  useEffect(() => {
+    const trackView = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        // Use sessionStorage to avoid double-counting in the same session for the same page
+        const sessionKey = `viewed_${location.pathname}`;
+        if (sessionStorage.getItem(sessionKey)) return;
+
+        await supabase.from('site_analytics').insert([
+          { 
+            page_path: location.pathname,
+            visitor_id: user?.id || null,
+            metadata: { 
+              referrer: document.referrer,
+              screen_size: `${window.innerWidth}x${window.innerHeight}`,
+              user_agent: navigator.userAgent
+            }
+          }
+        ]);
+        
+        sessionStorage.setItem(sessionKey, 'true');
+      } catch (err) {
+        console.warn('Analytics error:', err);
+      }
+    };
+
+    trackView();
+  }, [location.pathname]);
 
   return (
     <div className={`app-container ${theme} bg-white dark:bg-[#0B1120] text-slate-900 dark:text-white transition-colors duration-300 min-h-screen`}>
@@ -127,7 +165,11 @@ const MainContent = () => {
           <Route path="/courses" element={<Courses />} />
           <Route path="/certificate" element={<Certificates />} />
           <Route path="/abc" element={<AbecsaAbc />} />
+          <Route path="/apps" element={<Apps />} />
+          <Route path="/ad" element={<Ad />} />
+          <Route path="/Ad" element={<Ad />} />
           <Route path="/test"  element={<Test/>} />
+
          
            <Route path="/lern_with_abecsa" element={
             <ProtectedRoute>

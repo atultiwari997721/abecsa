@@ -40,10 +40,11 @@ const Navbar = () => {
 
     const navLinks = [
         { name: 'Services', href: '/#services' },
-        { name: 'Solutions', href: '/#solutions' },
+        { name: 'Abecsa Ad', href: '/ad' },
         { name: 'Case Studies', href: '/#portfolio' }, 
         { name: 'Courses', href: '/courses' },
         { name: 'Certificates', href: '/certificate' },
+        { name: 'Apps', href: '/apps' },
         { name: 'Welfare', href: '/welfare' },
     ];
 
