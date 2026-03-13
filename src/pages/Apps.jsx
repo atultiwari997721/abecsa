@@ -45,14 +45,16 @@ const AppsPage = () => {
     };
 
     const handleDownload = async (app) => {
-        // Increment download count (fire and forget)
-        supabase.rpc('increment_app_download', { app_id: app.id }).catch(() => {});
-
-        // Simple and reliable download trigger for cross-origin files
-        window.location.href = app.apk_url;
-
-        // Optimistic UI update
+        // Optimistic UI update - do this first!
         setApps(prev => prev.map(a => a.id === app.id ? { ...a, download_count: (a.download_count || 0) + 1 } : a));
+
+        try {
+            // Increment download count in DB
+            const { error } = await supabase.rpc('increment_app_download', { app_id: app.id });
+            if (error) console.error('Download increment failed:', error);
+        } catch (err) {
+            console.error('Download increment error:', err);
+        }
     };
 
     // Get unique categories from actual apps
@@ -267,10 +269,13 @@ const AppCard = ({ app, onDownload }) => {
                 </span>
 
                 {/* Download button */}
-                <button
+                <a
+                    href={app.apk_url}
                     onClick={handleClick}
-                    disabled={downloading}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 shadow-md ${
+                    download={app.apk_filename || `${app.name}.apk`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 shadow-md decoration-none ${
                         downloading
                             ? 'bg-green-500 text-white shadow-green-500/30 scale-95'
                             : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/30 hover:scale-105 hover:shadow-blue-500/50 active:scale-95'
@@ -278,7 +283,7 @@ const AppCard = ({ app, onDownload }) => {
                 >
                     <FaDownload size={13} />
                     {downloading ? 'Downloading…' : 'Download'}
-                </button>
+                </a>
             </div>
         </div>
     );
