@@ -95,10 +95,6 @@ const MainContent = () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         
-        // Use sessionStorage to avoid double-counting in the same session for the same page
-        const sessionKey = `viewed_${location.pathname}`;
-        if (sessionStorage.getItem(sessionKey)) return;
-
         await supabase.from('site_analytics').insert([
           { 
             page_path: location.pathname,
@@ -110,8 +106,6 @@ const MainContent = () => {
             }
           }
         ]);
-        
-        sessionStorage.setItem(sessionKey, 'true');
       } catch (err) {
         console.warn('Analytics error:', err);
       }
