@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaCode, FaBullhorn, FaCogs, FaCertificate } from 'react-icons/fa';
+import { FaCode, FaBullhorn, FaCogs, FaCertificate, FaDesktop } from 'react-icons/fa';
 import { MdApps } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
@@ -49,6 +49,14 @@ const services = [
     colorLight: 'text-orange-600 bg-orange-50',
     colorDark: 'text-orange-500 bg-gray-800/50',
     link: '/certificate'
+  },
+  {
+    icon: <FaDesktop />,
+    title: 'MPOnline',
+    description: 'Digital Gov Services & Form fill.',
+    colorLight: 'text-teal-600 bg-teal-50',
+    colorDark: 'text-teal-500 bg-gray-800/50',
+    link: '/mpOnline'
   }
 ];
 

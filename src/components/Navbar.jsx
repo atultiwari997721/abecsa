@@ -46,6 +46,7 @@ const Navbar = () => {
         { name: 'Certificates', href: '/certificate' },
         { name: 'Apps', href: '/apps' },
         { name: 'Welfare', href: '/welfare' },
+        { name: 'MPOnline', href: '/mpOnline' },
     ];
 
     const handleLogout = async () => {

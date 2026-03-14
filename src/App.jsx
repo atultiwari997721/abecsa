@@ -68,6 +68,7 @@ const AbecsaAbc = lazy(() => import('./pages/AbecsaAbc'));
 const Background3D = lazy(() => import('./components/Background3D'));
 const Apps = lazy(() => import('./pages/Apps'));
 const Ad = lazy(() => import('./pages/Ad'));
+const MpOnline = lazy(() => import('./pages/MpOnline'));
 
 
 const MainContent = () => {
@@ -86,6 +87,8 @@ const MainContent = () => {
                       location.pathname.startsWith('/certificate') ||
                       location.pathname.startsWith('/ad') ||
                       location.pathname.toLowerCase().startsWith('/ad') ||
+                      location.pathname.startsWith('/mponline') ||
+                      location.pathname.toLowerCase().startsWith('/mponline') ||
                       location.pathname.startsWith('/courses');
 
 
@@ -162,6 +165,7 @@ const MainContent = () => {
           <Route path="/apps" element={<Apps />} />
           <Route path="/ad" element={<Ad />} />
           <Route path="/Ad" element={<Ad />} />
+          <Route path="/mpOnline" element={<MpOnline />} />
           <Route path="/test"  element={<Test/>} />
 
          
