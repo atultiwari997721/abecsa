@@ -101,8 +101,8 @@ const WebViewer = () => {
                         title="Abecsa Web Viewer"
                         onLoad={() => setLoading(false)}
                         onError={() => { setLoading(false); setError(true); }}
-                        // Sandbox allows scripts and forms but restricts top-level navigation to keep them in the iframe if possible
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                        // Allows normal web behavior like logins and popups, relying on standard browser cross-origin protections
+                        allowFullScreen
                     />
                 )}
             </div>

@@ -96,7 +96,7 @@ const Websites = () => {
               {filteredWebsites.map(site => (
                 <div 
                     key={site.id} 
-                    onClick={() => navigate(`/web-viewer?url=${encodeURIComponent(site.url)}&id=${site.id}`)}
+                    onClick={() => window.open(site.url, '_blank')}
                     className="group bg-white dark:bg-[#111] rounded-2xl p-6 border border-gray-200 dark:border-white/5 hover:border-green-500/50 dark:hover:border-green-500/50 shadow-sm hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300 cursor-pointer flex flex-col h-full relative overflow-hidden"
                 >
                     {/* Hover Glow */}
