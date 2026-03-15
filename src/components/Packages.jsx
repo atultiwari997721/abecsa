@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 const packages = [
   {
     title: "Student/College Project",
-    price: "₹699",
+    price: "₹999",
     features: ["Basic HTML/CSS/JS", "Project Report Help", "Source Code Included", "Fast Delivery"],
     color: "#00b6c0ff", // Cyan
     previewImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1000&auto=format&fit=crop",
@@ -16,7 +16,7 @@ const packages = [
   },
   {
     title: "Basic Portfolio / Resume",
-    price: "₹799",
+    price: "₹1,499",
     features: ["Responsive Design", "Contact Form", "Social Media Links", "1 Month Support"],
     color: "#00a2ff", // Bright Blue
     previewImage: "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1000&auto=format&fit=crop",
@@ -24,7 +24,7 @@ const packages = [
   },
   {
     title: "Small Shop / Local Business",
-    price: "₹1,799",
+    price: "₹2,799",
     features: ["Google Maps Integration", "Product Gallery", "WhatsApp Order", "SEO Basics"],
     color: "#0066ff", // Deep Neon Blue
     previewImage: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=1000&auto=format&fit=crop",
@@ -32,15 +32,23 @@ const packages = [
   },
   {
     title: "Professional Business Website",
-    price: "₹2,799",
+    price: "₹3,999",
     features: ["5-7 Pages", "Advanced SEO", "Admin Dashboard", "3 Months Support"],
     color: "#4400b9ff", // Sky Blue
     previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop",
     demoUrl: "https://startbootstrap.com/previews/agency"
   },
   {
+    title: "Educational Platforms",
+    price: "₹5,999",
+    features: ["LMS Integration", "Student Dashboard", "Course Management", "Payment Gateway"],
+    color: "#8A2BE2", // Blue Violet
+    previewImage: "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1000&auto=format&fit=crop",
+    demoUrl: "https://startbootstrap.com/previews/education"
+  },
+  {
     title: "E-commerce Store",
-    price: "₹3,199",
+    price: "₹7,999",
     features: ["Product Management", "Payment Gateway", "User Auth", "6 Months Support"],
     color: "#2E9AFE", // Soft Blue
     previewImage: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?q=80&w=1000&auto=format&fit=crop",
@@ -55,12 +63,47 @@ const packages = [
     demoUrl: "https://startbootstrap.com/previews/sb-admin-2"
   },
   {
+    title: "Rating Improvement And SEO",
+    price: "Starts at ₹999",
+    features: ["Google Listing", "Review Management", "Local SEO Optimization", "Analytics Report"],
+    color: "#FFD700", // Gold
+    previewImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    title: "Custom Automation Tool",
+    price: "Starts at ₹1,999",
+    features: ["Workflow Automation", "API Integration", "Time-Saving Scripts", "Basic Support"],
+    color: "#FF8C00", // Dark Orange
+    previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    title: "Marketing Tools",
+    price: "Starts at ₹2,999",
+    features: ["Email Campaigns", "Social Media Schedulers", "Lead Generation", "Analytics Dashboard"],
+    color: "#FF69B4", // Hot Pink
+    previewImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
     title: "Marketing Ads Bundle",
     price: "₹5,999",
     features: ["SEO + Social Media", "1000 Call Marketing", "1000 Message Marketing", "Video Ad Shoot"],
     color: "#ff0066", // Premium Pink/Red
     previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop",
     link: "/ad"
+  },
+  {
+    title: "Marketing Tool Automation Ai",
+    price: "₹17,999",
+    features: ["AI Content Generation", "Automated Posting", "Smart Campaigns", "24/7 Support"],
+    color: "#9400D3", // Dark Violet
+    previewImage: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    title: "Inventory Management Tool Website and App",
+    price: "₹29,999",
+    features: ["Real-time Tracking", "Barcode Scanning", "Multi-Store Support", "Admin Dashboard App"],
+    color: "#32CD32", // Lime Green
+    previewImage: "https://images.unsplash.com/photo-1586528116311-ad8ed7c82633?q=80&w=1000&auto=format&fit=crop",
   }
 ];
 
