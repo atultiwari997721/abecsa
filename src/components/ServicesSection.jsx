@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaCode, FaBullhorn, FaCogs, FaCertificate, FaDesktop, FaChartLine, FaSearchLocation, FaStar } from 'react-icons/fa';
+import { FaCode, FaBullhorn, FaCogs, FaCertificate, FaDesktop, FaChartLine, FaSearchLocation, FaStar, FaEdit, FaGem, FaEnvelope } from 'react-icons/fa';
 import { MdApps } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,7 +37,7 @@ const services = [
   },
   {
     icon: <FaStar />,
-    title: 'Make your Rating Better',
+    title: 'Fix Rating',
     description: 'Systematically generate 5-star reviews.',
     colorLight: 'text-amber-600 bg-amber-50',
     colorDark: 'text-amber-500 bg-gray-800/50',
@@ -81,6 +81,27 @@ const services = [
     colorLight: 'text-teal-600 bg-teal-50',
     colorDark: 'text-teal-500 bg-gray-800/50',
     link: '/mpOnline'
+  },
+  {
+    icon: <FaEdit />,
+    title: 'Content Writing',
+    description: 'Copywriting, Script Writing, Video Content, Ad Writing @ Just ₹199.',
+    colorLight: 'text-pink-600 bg-pink-50',
+    colorDark: 'text-pink-500 bg-gray-800/50'
+  },
+  {
+    icon: <FaGem />,
+    title: 'Brand Value',
+    description: 'Build premium brand identity and market value.',
+    colorLight: 'text-violet-600 bg-violet-50',
+    colorDark: 'text-violet-500 bg-gray-800/50'
+  },
+  {
+    icon: <FaEnvelope />,
+    title: 'Bulk Marketing',
+    description: 'Bulk Call, Messages & Emails Ad Service @ Just ₹499.',
+    colorLight: 'text-cyan-600 bg-cyan-50',
+    colorDark: 'text-cyan-500 bg-gray-800/50'
   }
 ];
 
