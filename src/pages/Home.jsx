@@ -8,6 +8,7 @@ const PortfolioSection = lazy(() => import('../components/PortfolioSection'));
 const SocialProof = lazy(() => import('../components/SocialProof'));
 const Packages = lazy(() => import('../components/Packages'));
 const PartnersMarquee = lazy(() => import('../components/PartnersMarquee'));
+const ContactSection = lazy(() => import('../components/ContactSection'));
 
 const Home = () => {
     // Scroll to top on mount
@@ -27,6 +28,7 @@ const Home = () => {
           <SocialProof />
           <Packages />
           <PartnersMarquee />
+          <ContactSection />
       </Suspense>
 
       <TrustBar />

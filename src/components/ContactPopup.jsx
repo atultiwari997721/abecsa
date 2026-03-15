@@ -99,7 +99,7 @@ const ContactPopup = ({ isOpen, onClose }) => {
               </a>
               
               <a 
-                href="mailto:abecsaindia@gmail.com"
+                href="mailto:Abecsa.in@gmail.com"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -116,7 +116,7 @@ const ContactPopup = ({ isOpen, onClose }) => {
                 onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
               >
                 <FaEnvelope size={24} color="#EA4335" style={{ flexShrink: 0 }} />
-                <span>abecsaindia@gmail.com</span>
+                <span>Abecsa.in@gmail.com</span>
               </a>
 
               <button

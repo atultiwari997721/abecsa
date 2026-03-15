@@ -69,7 +69,11 @@ const Background3D = lazy(() => import('./components/Background3D'));
 const Apps = lazy(() => import('./pages/Apps'));
 const Ad = lazy(() => import('./pages/Ad'));
 const MpOnline = lazy(() => import('./pages/MpOnline'));
-
+const Websites = lazy(() => import('./pages/Websites'));
+const WebViewer = lazy(() => import('./pages/WebViewer'));
+const BusinessGrowth = lazy(() => import('./pages/BusinessGrowth'));
+const SeoService = lazy(() => import('./pages/SeoService'));
+const RatingService = lazy(() => import('./pages/RatingService'));
 
 const MainContent = () => {
   const location = useLocation();
@@ -89,8 +93,8 @@ const MainContent = () => {
                       location.pathname.toLowerCase().startsWith('/ad') ||
                       location.pathname.startsWith('/mponline') ||
                       location.pathname.toLowerCase().startsWith('/mponline') ||
-                      location.pathname.startsWith('/courses');
-
+                      location.pathname.startsWith('/courses') ||
+                      location.pathname.startsWith('/web-viewer');
 
   // Site View Tracking
   useEffect(() => {
@@ -166,6 +170,14 @@ const MainContent = () => {
           <Route path="/ad" element={<Ad />} />
           <Route path="/Ad" element={<Ad />} />
           <Route path="/mpOnline" element={<MpOnline />} />
+          
+          {/* New Service Pages */}
+          <Route path="/service-growth" element={<BusinessGrowth />} />
+          <Route path="/service-seo" element={<SeoService />} />
+          <Route path="/service-rating" element={<RatingService />} />
+          <Route path="/mpOnline" element={<MpOnline />} />
+          <Route path="/websites" element={<Websites />} />
+          <Route path="/web-viewer" element={<WebViewer />} />
           <Route path="/test"  element={<Test/>} />
 
          

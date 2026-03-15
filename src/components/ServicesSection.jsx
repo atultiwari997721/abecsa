@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaCode, FaBullhorn, FaCogs, FaCertificate, FaDesktop } from 'react-icons/fa';
+import { FaCode, FaBullhorn, FaCogs, FaCertificate, FaDesktop, FaChartLine, FaSearchLocation, FaStar } from 'react-icons/fa';
 import { MdApps } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,6 +18,30 @@ const services = [
     description: 'Brand Identity & Strategy Growth.',
     colorLight: 'text-purple-600 bg-purple-50',
     colorDark: 'text-purple-500 bg-gray-800/50'
+  },
+  {
+    icon: <FaChartLine />,
+    title: 'Business Growth Strategy',
+    description: 'Scale your business with data-driven roadmaps.',
+    colorLight: 'text-blue-600 bg-blue-50',
+    colorDark: 'text-blue-500 bg-gray-800/50',
+    link: '/service-growth'
+  },
+  {
+    icon: <FaSearchLocation />,
+    title: 'SEO',
+    description: 'Dominate search rankings & drive traffic.',
+    colorLight: 'text-emerald-600 bg-emerald-50',
+    colorDark: 'text-emerald-500 bg-gray-800/50',
+    link: '/service-seo'
+  },
+  {
+    icon: <FaStar />,
+    title: 'Make your Rating Better',
+    description: 'Systematically generate 5-star reviews.',
+    colorLight: 'text-amber-600 bg-amber-50',
+    colorDark: 'text-amber-500 bg-gray-800/50',
+    link: '/service-rating'
   },
   {
     icon: <FaBullhorn />,

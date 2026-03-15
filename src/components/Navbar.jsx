@@ -42,11 +42,13 @@ const Navbar = () => {
         { name: 'Services', href: '/#services' },
         { name: 'Abecsa Ad', href: '/ad' },
         { name: 'Case Studies', href: '/#portfolio' }, 
+        { name: 'Contact Us', href: '/#contact' },
         { name: 'Courses', href: '/courses' },
         { name: 'Certificates', href: '/certificate' },
         { name: 'Apps', href: '/apps' },
         { name: 'Welfare', href: '/welfare' },
         { name: 'MPOnline', href: '/mpOnline' },
+        { name: 'Websites', href: '/websites' },
     ];
 
     const handleLogout = async () => {
@@ -141,57 +143,70 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-6">
-                {navLinks.map((link) => (
-                <a
-                    key={link.name}
-                    href={link.href}
-                    className="text-slate-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white transition-colors text-xs font-medium tracking-wide uppercase"
+            <div className="hidden lg:flex items-center flex-1 min-w-0 ml-8 justify-end">
+                <style>{`
+                    .hide-scroll::-webkit-scrollbar { display: none; }
+                `}</style>
+                
+                {/* Simple Scrollable Links */}
+                <div 
+                    className="flex items-center gap-6 overflow-x-auto hide-scroll py-2 px-2 flex-1 justify-start mr-4"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                    {link.name}
-                </a>
-                ))}
+                    {navLinks.map((link) => (
+                    <a
+                        key={link.name}
+                        href={link.href}
+                        className="text-slate-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white transition-colors text-xs font-bold tracking-wide uppercase whitespace-nowrap shrink-0"
+                    >
+                        {link.name}
+                    </a>
+                    ))}
+                </div>
 
-                {/* Theme Toggle */}
-                <button 
-                    onClick={handleThemeToggle}
-                    className="p-1.5 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                    {theme === 'light' ? <FaMoon size={16} /> : <FaSun size={16} />}
-                </button>
+                {/* Actions */}
+                <div className="flex items-center gap-5 shrink-0 border-l border-gray-300 dark:border-gray-700 pl-5">
+                    {/* Theme Toggle */}
+                    <button 
+                        onClick={handleThemeToggle}
+                        className="p-1.5 rounded-full text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    >
+                        {theme === 'light' ? <FaMoon size={16} /> : <FaSun size={16} />}
+                    </button>
 
-                {user ? (
-                    <div className="flex items-center gap-3">
-                        <button 
-                            onClick={() => navigate('/dashboard')}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-slate-700 dark:text-white rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-xs font-bold"
-                        >
-                            <FaUserCircle /> Dashboard
-                        </button>
-                        <button 
-                            onClick={handleLogout}
-                            className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
-                            title="Sign Out"
-                        >
-                            <FaSignOutAlt size={16} />
-                        </button>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-3">
-                        <button 
-                            onClick={() => navigate('/login')}
-                            className="text-slate-600 dark:text-white text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                        >
-                            Login
-                        </button>
-                        <button 
-                            onClick={() => setIsContactOpen(true)}
-                            className="px-4 py-1.5 bg-blue-600 dark:bg-electricBlue text-white text-sm rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-300 font-semibold shadow-md shadow-blue-500/20"
-                        >
-                            Hire Us
-                        </button>
-                    </div>
-                )}
+                    {user ? (
+                        <div className="flex items-center gap-3 shrink-0">
+                            <button 
+                                onClick={() => navigate('/dashboard')}
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-slate-700 dark:text-white rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-xs font-bold whitespace-nowrap"
+                            >
+                                <FaUserCircle /> Dashboard
+                            </button>
+                            <button 
+                                onClick={handleLogout}
+                                className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors shrink-0"
+                                title="Sign Out"
+                            >
+                                <FaSignOutAlt size={16} />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-3 shrink-0">
+                            <button 
+                                onClick={() => navigate('/login')}
+                                className="text-slate-600 dark:text-white text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap"
+                            >
+                                Login
+                            </button>
+                            <button 
+                                onClick={() => setIsContactOpen(true)}
+                                className="px-4 py-1.5 bg-blue-600 dark:bg-electricBlue text-white text-sm rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-300 font-semibold shadow-md shadow-blue-500/20 whitespace-nowrap"
+                            >
+                                Hire Us
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Mobile Controls */}
@@ -215,11 +230,11 @@ const Navbar = () => {
 
             {/* Mobile Menu Dropdown */}
             <div
-            className={`md:hidden absolute top-full left-0 w-full bg-white dark:bg-[#0B1120] border-b border-gray-200 dark:border-gray-800 transition-all duration-300 overflow-hidden ${
-                isMenuOpen ? 'max-h-[500px] opacity-100 py-6' : 'max-h-0 opacity-0 py-0'
+            className={`md:hidden absolute top-full left-0 w-full bg-white dark:bg-[#0B1120] border-b border-gray-200 dark:border-gray-800 transition-all duration-300 ${
+                isMenuOpen ? 'max-h-[85vh] opacity-100 py-6 overflow-y-auto' : 'max-h-0 opacity-0 py-0 overflow-hidden'
             }`}
             >
-            <div className="flex flex-col items-center gap-6 px-6">
+            <div className="flex flex-col items-center gap-4 px-6 pb-4">
                 {navLinks.map((link) => (
                 <a
                     key={link.name}

@@ -1245,6 +1245,211 @@ const AppsManagerModal = ({ onClose }) => {
     );
 };
 
+// ========================================================
+// --- Websites Manager Modal (Public Directory) ---
+// ========================================================
+const WebsitesManagerModal = ({ onClose }) => {
+    const [webs, setWebs] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [showForm, setShowForm] = useState(false);
+    const [form, setForm] = useState({
+        name: '',
+        url: '',
+        description: '',
+        category: 'General',
+        icon_url: '',
+    });
+
+    const CATEGORIES = ['General', 'Education', 'Tools', 'Utility', 'Business', 'Government'];
+
+    useEffect(() => { fetchWebs(); }, []);
+
+    const fetchWebs = async () => {
+        setLoading(true);
+        const { data, error } = await supabase.from('websites').select('*').order('created_at', { ascending: false });
+        if (error) {
+            console.error(error);
+            alert("Failed to load websites: " + error.message);
+        }
+        if (data) setWebs(data);
+        setLoading(false);
+    };
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        try {
+            const payload = {
+                name: form.name,
+                url: form.url.startsWith('http') ? form.url : `https://${form.url}`,
+                description: form.description,
+                category: form.category,
+                icon_url: form.icon_url || null,
+                is_active: true,
+            };
+            const { error: dbError } = await supabase.from('websites').insert([payload]);
+            if (dbError) throw dbError;
+
+            alert(`✅ Website "${form.name}" added successfully!`);
+            setForm({ name: '', url: '', description: '', category: 'General', icon_url: '' });
+            setShowForm(false);
+            fetchWebs();
+        } catch (err) {
+            alert('Save failed: ' + err.message);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleToggleActive = async (web) => {
+        const { error } = await supabase.from('websites').update({ is_active: !web.is_active }).eq('id', web.id);
+        if (error) alert('Error: ' + error.message);
+        else fetchWebs();
+    };
+
+    const handleDelete = async (web) => {
+        if (!window.confirm(`Delete website "${web.name}"?`)) return;
+        try {
+            const { error } = await supabase.from('websites').delete().eq('id', web.id);
+            if (error) throw error;
+            fetchWebs();
+        } catch (err) {
+            alert('Delete failed: ' + err.message);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/90 z-[2000] flex items-center justify-center backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-[95%] h-[92%] rounded-[25px] border border-green-500 dark:border-[#00ff88] flex flex-col p-4 md:p-8 shadow-2xl relative">
+
+                {/* Header */}
+                <div className="flex justify-between mb-6 border-b border-gray-200 dark:border-[#00ff88]/30 pb-4 flex-wrap gap-3">
+                    <h2 className="m-0 text-green-600 dark:text-[#00ff88] flex items-center gap-3 text-2xl font-bold uppercase tracking-widest">
+                        <FaGlobe /> Websites Directory Manager
+                    </h2>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => setShowForm(!showForm)}
+                            className="bg-green-600 hover:bg-green-700 text-white border-none px-4 py-2 rounded-lg font-bold cursor-pointer flex items-center gap-2 transition-colors text-sm"
+                        >
+                            <FaPlus /> {showForm ? 'Cancel' : 'Add New Website'}
+                        </button>
+                        <button onClick={onClose} className="bg-transparent border-none text-slate-500 dark:text-white text-3xl cursor-pointer hover:text-red-500 transition-colors"><FaTimes /></button>
+                    </div>
+                </div>
+
+                {/* Upload Form */}
+                {showForm && (
+                    <div className="mb-6 bg-gray-50 dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-[#333] shrink-0">
+                        <h3 className="mt-0 mb-4 text-slate-800 dark:text-white font-bold flex items-center gap-2"><FaPlus /> Add Website Entry</h3>
+                        <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" placeholder="Website Name *" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
+                                className="p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-xl text-slate-900 dark:text-white outline-none focus:border-green-500 transition-colors" />
+                            <input type="url" placeholder="URL (https://...) *" required value={form.url} onChange={e => setForm({ ...form, url: e.target.value })}
+                                className="p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-xl text-slate-900 dark:text-white outline-none focus:border-green-500 transition-colors" />
+                            <textarea placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
+                                rows={2}
+                                className="p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-xl text-slate-900 dark:text-white outline-none focus:border-green-500 transition-colors resize-none" />
+                            <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
+                                className="p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-xl text-slate-900 dark:text-white outline-none focus:border-green-500 transition-colors">
+                                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
+                            <input type="url" placeholder="Icon URL (optional, https://...)" value={form.icon_url} onChange={e => setForm({ ...form, icon_url: e.target.value })}
+                                className="p-3 bg-white dark:bg-[#222] border border-gray-300 dark:border-[#444] rounded-xl text-slate-900 dark:text-white outline-none focus:border-green-500 transition-colors md:col-span-2" />
+
+                            <div className="md:col-span-2">
+                                <button type="submit" disabled={saving}
+                                    className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                                    <FaPlus /> {saving ? 'Saving…' : 'Add Website directly'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+
+                {/* Websites Table */}
+                <div className="flex-1 overflow-y-auto rounded-xl border border-gray-200 dark:border-[#333]">
+                    {loading ? (
+                        <div className="p-8 text-center text-slate-500 dark:text-gray-400">Loading websites…</div>
+                    ) : webs.length === 0 ? (
+                        <div className="p-12 text-center text-slate-400 dark:text-slate-500">
+                            <FaGlobe className="mx-auto text-4xl mb-3 opacity-40" />
+                            <p>No websites added yet.</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse text-sm text-slate-700 dark:text-gray-300 min-w-[700px]">
+                                <thead className="bg-gray-100 dark:bg-[#111] text-slate-600 dark:text-gray-400 border-b-2 border-green-500 dark:border-[#00ff88]">
+                                    <tr>
+                                        <th className="p-4 text-left font-semibold">Website</th>
+                                        <th className="p-4 text-left font-semibold">URL</th>
+                                        <th className="p-4 text-left font-semibold">Category</th>
+                                        <th className="p-4 text-left font-semibold">Status</th>
+                                        <th className="p-4 text-left font-semibold">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {webs.map(web => (
+                                        <tr key={web.id} className="border-b border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center shrink-0 overflow-hidden shadow">
+                                                        {web.icon_url ? (
+                                                            <img src={web.icon_url} alt={web.name} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <FaGlobe className="text-white text-sm" />
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-bold text-slate-800 dark:text-white">{web.name}</div>
+                                                        <div className="text-xs text-slate-500 truncate max-w-[200px]">{web.description || '—'}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-4 font-mono text-xs">
+                                                <a href={web.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-400 hover:underline flex items-center gap-1">
+                                                    <FaLink size={10}/> {web.url.substring(0, 30)}{web.url.length > 30 ? '...' : ''}
+                                                </a>
+                                            </td>
+                                            <td className="p-4">
+                                                <span className="bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full text-xs font-bold">
+                                                    {web.category}
+                                                </span>
+                                            </td>
+                                            <td className="p-4">
+                                                <button
+                                                    onClick={() => handleToggleActive(web)}
+                                                    className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border transition-colors ${
+                                                        web.is_active
+                                                            ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-300 dark:border-green-500/30 hover:bg-green-200'
+                                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:bg-gray-200'
+                                                    }`}
+                                                >
+                                                    {web.is_active ? <FaToggleOn size={14} /> : <FaToggleOff size={14} />}
+                                                    {web.is_active ? 'Active' : 'Hidden'}
+                                                </button>
+                                            </td>
+                                            <td className="p-4">
+                                                <button
+                                                    onClick={() => handleDelete(web)}
+                                                    className="bg-red-50 dark:bg-red-500/10 text-red-500 border border-red-200 dark:border-red-500/30 px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+                                                >
+                                                    <FaTrash size={11} /> Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -1264,6 +1469,7 @@ const AdminDashboard = () => {
     const [showCourseApps, setShowCourseApps] = useState(false);
     const [showCertificateApps, setShowCertificateApps] = useState(false);
     const [showAppsManager, setShowAppsManager] = useState(false);
+    const [showWebsitesManager, setShowWebsitesManager] = useState(false);
     const [totalViews, setTotalViews] = useState(0);
 
 
@@ -1489,6 +1695,9 @@ const AdminDashboard = () => {
                     <button onClick={() => setShowAppsManager(true)} className="bg-blue-600 hover:bg-blue-700 text-white border-none px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center font-bold transition-colors text-sm">
                         <FaMobileAlt /> <span className="hidden sm:inline">Apps</span>
                     </button>
+                    <button onClick={() => setShowWebsitesManager(true)} className="bg-green-600 hover:bg-green-700 text-white border-none px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center font-bold transition-colors text-sm">
+                        <FaGlobe /> <span className="hidden sm:inline">Websites</span>
+                    </button>
                     <button onClick={() => navigate('/exam-admin')} className="bg-red-600 hover:bg-red-700 text-white border-none px-3 py-1 rounded-lg cursor-pointer flex gap-2 items-center font-bold transition-colors text-sm">
                         <FaClipboardList /> <span className="hidden sm:inline">Exam Center</span>
                     </button>
@@ -1660,7 +1869,9 @@ const AdminDashboard = () => {
                 <AppsManagerModal onClose={() => setShowAppsManager(false)} />
             )}
 
-
+            {showWebsitesManager && (
+                <WebsitesManagerModal onClose={() => setShowWebsitesManager(false)} />
+            )}
 
         </div>
     );
